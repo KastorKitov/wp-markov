@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'KASTOR_MACHINES_VERSION', '0.4.0' );
+define( 'KASTOR_MACHINES_VERSION', '0.5.0' );
 define( 'KASTOR_MACHINES_PATH', plugin_dir_path( __FILE__ ) );
 define( 'KASTOR_MACHINES_URL', plugin_dir_url( __FILE__ ) );
 define( 'KASTOR_MACHINES_PARAMS_META', '_kastor_machine_params' );
@@ -467,7 +467,7 @@ function kastor_machines_frontend_assets() {
 		KASTOR_MACHINES_VERSION
 	);
 
-	// Swiper.js carousel — only on single machine pages.
+	// Swiper.js carousel + lightbox — only on single machine pages.
 	if ( is_singular( $keys ) ) {
 		wp_enqueue_style(
 			'kastor-machines-swiper',
@@ -486,6 +486,13 @@ function kastor_machines_frontend_assets() {
 			'kastor-machines-carousel',
 			KASTOR_MACHINES_URL . 'carousel.js',
 			array( 'kastor-machines-swiper' ),
+			KASTOR_MACHINES_VERSION,
+			true
+		);
+		wp_enqueue_script(
+			'kastor-machines-lightbox',
+			KASTOR_MACHINES_URL . 'lightbox.js',
+			array(),
 			KASTOR_MACHINES_VERSION,
 			true
 		);

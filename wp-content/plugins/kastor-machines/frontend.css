@@ -4,30 +4,56 @@
 	padding: 0 20px;
 }
 
-.kastor-machine__grid {
+/* ------------------------------------------------------------------------ */
+/* Hero section — image left + title/description right (50/50)               */
+/* ------------------------------------------------------------------------ */
+
+.kastor-machine__hero {
 	display: grid;
-	grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	gap: 40px;
 	align-items: start;
+	margin-bottom: 40px;
 }
 
 @media (max-width: 800px) {
-	.kastor-machine__grid {
+	.kastor-machine__hero {
 		grid-template-columns: 1fr;
 		gap: 24px;
 	}
 }
 
 .kastor-machine__media {
-	position: sticky;
-	top: 80px;
+	min-width: 0;
 }
 
-@media (max-width: 800px) {
-	.kastor-machine__media {
-		position: static;
-	}
+.kastor-machine__body {
+	min-width: 0;
 }
+
+.kastor-machine__title {
+	margin: 0 0 16px;
+	font-size: clamp(1.6rem, 1rem + 1.6vw, 2.4rem);
+	line-height: 1.2;
+}
+
+.kastor-machine__description {
+	font-size: 1rem;
+	line-height: 1.6;
+	color: #333;
+}
+
+.kastor-machine__description > *:first-child {
+	margin-top: 0;
+}
+
+.kastor-machine__description > *:last-child {
+	margin-bottom: 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Image / carousel                                                           */
+/* ------------------------------------------------------------------------ */
 
 .kastor-machine__image {
 	display: block;
@@ -49,10 +75,15 @@
 	text-transform: uppercase;
 }
 
+.kastor-machine__lightbox-trigger {
+	display: block;
+	cursor: zoom-in;
+	text-decoration: none;
+}
 
-/* ------------------------------------------------------------------------ */
-/* Carousel (Swiper)                                                          */
-/* ------------------------------------------------------------------------ */
+.kastor-machine__lightbox-trigger:hover .kastor-machine__image {
+	opacity: 0.95;
+}
 
 .kastor-machine__carousel {
 	width: 100%;
@@ -74,71 +105,20 @@
 	background: #fff;
 }
 
+.kastor-machine__swiper .kastor-machine__lightbox-trigger {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	align-items: center;
+	justify-content: center;
+}
+
 .kastor-machine__swiper .kastor-machine__image {
 	width: 100%;
 	height: 100%;
 	object-fit: contain;
 	border-radius: 0;
 	box-shadow: none;
-}
-
-/* Prev / Next arrows */
-
-.kastor-machine__nav {
-	position: absolute;
-	top: 50%;
-	transform: translateY(-50%);
-	z-index: 2;
-	width: 40px;
-	height: 40px;
-	border-radius: 50%;
-	border: none;
-	background: rgba(255, 255, 255, 0.9);
-	color: #222;
-	cursor: pointer;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-	transition: background 0.15s ease, transform 0.15s ease;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.kastor-machine__nav::before {
-	content: '';
-	display: block;
-	width: 10px;
-	height: 10px;
-	border-top: 2px solid currentColor;
-	border-right: 2px solid currentColor;
-}
-
-.kastor-machine__nav-prev {
-	left: 12px;
-}
-
-.kastor-machine__nav-prev::before {
-	transform: rotate(-135deg);
-	margin-left: 4px;
-}
-
-.kastor-machine__nav-next {
-	right: 12px;
-}
-
-.kastor-machine__nav-next::before {
-	transform: rotate(45deg);
-	margin-right: 4px;
-}
-
-.kastor-machine__nav:hover {
-	background: #fff;
-	transform: translateY(-50%) scale(1.05);
-}
-
-.kastor-machine__nav.swiper-button-disabled {
-	opacity: 0.35;
-	cursor: default;
-	pointer-events: none;
 }
 
 /* Thumbnail strip */
@@ -175,36 +155,12 @@
 	display: block;
 }
 
-.kastor-machine__body {
-	min-width: 0;
-}
+/* ------------------------------------------------------------------------ */
+/* Specs section (full width, below the hero)                                 */
+/* ------------------------------------------------------------------------ */
 
-.kastor-machine__title {
-	margin: 0 0 16px;
-	font-size: clamp(1.6rem, 1rem + 1.6vw, 2.4rem);
-	line-height: 1.2;
-}
-
-.kastor-machine__description {
-	font-size: 1rem;
-	line-height: 1.6;
-	color: #333;
-	margin-bottom: 32px;
-}
-
-.kastor-machine__description > *:first-child {
-	margin-top: 0;
-}
-
-.kastor-machine__description > *:last-child {
-	margin-bottom: 0;
-}
-
-.kastor-machine__specs-title {
-	margin: 0 0 12px;
-	font-size: 1.2rem;
-	border-bottom: 2px solid #e5e5e5;
-	padding-bottom: 8px;
+.kastor-machine__specs {
+	margin-top: 8px;
 }
 
 .kastor-machine__specs-table {
@@ -338,4 +294,152 @@
 		padding: 6px 8px;
 		font-size: 0.85rem;
 	}
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Lightbox                                                                   */
+/* ------------------------------------------------------------------------ */
+
+.kastor-lightbox {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.92);
+	z-index: 99999;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+}
+
+.kastor-lightbox.is-open {
+	display: flex;
+}
+
+.kastor-lightbox__stage {
+	flex: 1;
+	max-width: 100%;
+	max-height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.kastor-lightbox__img {
+	max-width: 100%;
+	max-height: calc(100vh - 80px);
+	width: auto;
+	height: auto;
+	object-fit: contain;
+	display: block;
+	border-radius: 4px;
+	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.kastor-lightbox__close,
+.kastor-lightbox__nav {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	background: rgba(255, 255, 255, 0.12);
+	color: #fff;
+	border: none;
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	cursor: pointer;
+	transition: background 0.15s ease, transform 0.15s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+}
+
+.kastor-lightbox__close:hover,
+.kastor-lightbox__nav:hover {
+	background: rgba(255, 255, 255, 0.25);
+	transform: translateY(-50%) scale(1.05);
+}
+
+/* CSS-drawn chevrons — perfectly centered regardless of font glyph metrics. */
+
+.kastor-lightbox__nav::before {
+	content: '';
+	display: block;
+	width: 12px;
+	height: 12px;
+	border-top: 2px solid currentColor;
+	border-right: 2px solid currentColor;
+}
+
+.kastor-lightbox__nav--prev::before {
+	transform: rotate(-135deg);
+	margin-left: 4px; /* compensate for visual centering of rotated square */
+}
+
+.kastor-lightbox__nav--next::before {
+	transform: rotate(45deg);
+	margin-right: 4px;
+}
+
+/* CSS-drawn × for the close button */
+
+.kastor-lightbox__close::before,
+.kastor-lightbox__close::after {
+	content: '';
+	position: absolute;
+	width: 22px;
+	height: 2px;
+	background: currentColor;
+	border-radius: 2px;
+}
+
+.kastor-lightbox__close::before { transform: rotate(45deg); }
+.kastor-lightbox__close::after  { transform: rotate(-45deg); }
+
+.kastor-lightbox__close {
+	top: 20px;
+	right: 20px;
+	transform: none;
+}
+
+.kastor-lightbox__close:hover {
+	transform: scale(1.05);
+}
+
+.kastor-lightbox__nav--prev {
+	left: 20px;
+}
+
+.kastor-lightbox__nav--next {
+	right: 20px;
+}
+
+.kastor-lightbox.is-single .kastor-lightbox__nav,
+.kastor-lightbox.is-single .kastor-lightbox__counter {
+	display: none;
+}
+
+.kastor-lightbox__counter {
+	position: absolute;
+	bottom: 20px;
+	left: 50%;
+	transform: translateX(-50%);
+	color: rgba(255, 255, 255, 0.7);
+	font-size: 0.9rem;
+	background: rgba(0, 0, 0, 0.4);
+	padding: 4px 12px;
+	border-radius: 12px;
+}
+
+@media (max-width: 600px) {
+	.kastor-lightbox__close,
+	.kastor-lightbox__nav {
+		width: 40px;
+		height: 40px;
+		font-size: 22px;
+	}
+	.kastor-lightbox__nav--prev { left: 8px; }
+	.kastor-lightbox__nav--next { right: 8px; }
+	.kastor-lightbox__close { top: 8px; right: 8px; }
 }

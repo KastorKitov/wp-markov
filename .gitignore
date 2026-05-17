@@ -1,0 +1,42 @@
+# ------------------------------------------------------------------------------
+# Repo policy: ignore everything by default.
+# Only paths explicitly allowlisted below get tracked. This keeps history
+# focused on OUR custom code (Kastor plugins, child themes, CLAUDE.md), and
+# keeps WordPress core, third-party plugins, the Blocksy theme, uploads,
+# wp-config.php, and other server-managed files out of git.
+#
+# Pattern uses `/*` (anchored to current directory) at each level so the
+# allow/deny rules cascade level-by-level instead of recursively.
+# ------------------------------------------------------------------------------
+
+# --- Root level: ignore everything, then allowlist ----------------------------
+/*
+!/.gitignore
+!/CLAUDE.md
+!/README.md
+!/wp-content/
+
+# --- wp-content level: ignore everything, then allowlist subfolders -----------
+/wp-content/*
+!/wp-content/plugins/
+!/wp-content/themes/
+
+# --- plugins level: ignore all plugins, allowlist our custom ones -------------
+/wp-content/plugins/*
+!/wp-content/plugins/kastor-machines/
+# !/wp-content/plugins/some-future-plugin/
+
+# --- themes level: ignore all themes, allowlist child themes (none yet) -------
+/wp-content/themes/*
+# !/wp-content/themes/blocksy-child/
+
+# ------------------------------------------------------------------------------
+# Belt-and-suspenders: never track these even inside allowed paths.
+# ------------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+node_modules/
+vendor/

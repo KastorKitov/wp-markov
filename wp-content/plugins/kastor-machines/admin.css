@@ -1,0 +1,45 @@
+.kastor-params-wrap {
+	font-size: 14px;
+}
+
+.kastor-params-head,
+.kastor-params-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr 40px;
+	gap: 8px;
+	align-items: center;
+}
+
+.kastor-params-head {
+	margin: 8px 0 4px;
+	font-weight: 600;
+	color: #50575e;
+}
+
+.kastor-params-head > div:last-child {
+	/* empty column above the remove button */
+}
+
+.kastor-params-rows {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin-bottom: 10px;
+}
+
+.kastor-params-row input[type="text"] {
+	width: 100%;
+}
+
+.kastor-params-remove {
+	min-height: 30px;
+	padding: 0 8px;
+	color: #b32d2e;
+	border-color: #dcdcde;
+}
+
+.kastor-params-remove:hover {
+	background: #fcebec;
+	border-color: #b32d2e;
+	color: #b32d2e;
+}

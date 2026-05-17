@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Kastor Machines
- * Description: Custom machine post types ("Нови машини", "Обезаразителни/Третиращи машини", "Рециклирани машини", "ТРАНСПОРТНИ СЪОРЪЖЕНИЯ") with a shared Parameters metabox and styled single template.
- * Version: 0.2.0
+ * Description: Custom machine post types ("Нови машини", "Обезаразителни/Третиращи машини", "Рециклирани машини", "ТРАНСПОРТНИ СЪОРЪЖЕНИЯ") with shared Parameters and Gallery metaboxes and a styled single template.
+ * Version: 0.3.0
  * Author: Kastor
  * Text Domain: kastor-machines
  */
@@ -11,10 +11,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'KASTOR_MACHINES_VERSION', '0.2.0' );
+define( 'KASTOR_MACHINES_VERSION', '0.4.0' );
 define( 'KASTOR_MACHINES_PATH', plugin_dir_path( __FILE__ ) );
 define( 'KASTOR_MACHINES_URL', plugin_dir_url( __FILE__ ) );
 define( 'KASTOR_MACHINES_PARAMS_META', '_kastor_machine_params' );
+define( 'KASTOR_MACHINES_GALLERY_META', '_kastor_machine_gallery' );
+
+// Comparison table (multi-model machines like the JCC series).
+define( 'KASTOR_MACHINES_MODELS_META', '_kastor_machine_models' );
+define( 'KASTOR_MACHINES_SPECS_META', '_kastor_machine_specs' );
+define( 'KASTOR_MACHINES_SPECS_NOTE_META', '_kastor_machine_specs_note' );
+
+// Swiper.js (frontend carousel) — loaded from jsDelivr CDN.
+define( 'KASTOR_MACHINES_SWIPER_VERSION', '11' );
+define( 'KASTOR_MACHINES_SWIPER_CSS', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css' );
+define( 'KASTOR_MACHINES_SWIPER_JS',  'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js' );
 
 
 /**
@@ -106,20 +117,43 @@ register_deactivation_hook( __FILE__, 'flush_rewrite_rules' );
 
 
 /* --------------------------------------------------------------------------
- * 2. "Параметри" metabox — shared by all machine CPTs
+ * 2. Metaboxes — shared by all machine CPTs
  * -------------------------------------------------------------------------- */
 
-add_action( 'add_meta_boxes', 'kastor_machines_add_params_metabox' );
-function kastor_machines_add_params_metabox() {
+add_action( 'add_meta_boxes', 'kastor_machines_add_metaboxes' );
+function kastor_machines_add_metaboxes() {
+	$screens = kastor_machines_type_keys();
+
 	add_meta_box(
-		'kastor_machine_params',
-		'Параметри',
-		'kastor_machines_render_params_metabox',
-		kastor_machines_type_keys(),
+		'kastor_machine_gallery',
+		'Галерия',
+		'kastor_machines_render_gallery_metabox',
+		$screens,
 		'normal',
 		'high'
 	);
+
+	add_meta_box(
+		'kastor_machine_params',
+		'Параметри (един модел)',
+		'kastor_machines_render_params_metabox',
+		$screens,
+		'normal',
+		'default'
+	);
+
+	add_meta_box(
+		'kastor_machine_specs',
+		'Сравнителна таблица (няколко модела)',
+		'kastor_machines_render_specs_metabox',
+		$screens,
+		'normal',
+		'default'
+	);
 }
+
+
+/* ---------- Параметри metabox ---------- */
 
 function kastor_machines_render_params_metabox( $post ) {
 	wp_nonce_field( 'kastor_machines_save_params', 'kastor_machines_params_nonce' );
@@ -169,6 +203,76 @@ function kastor_machines_render_params_metabox( $post ) {
 	<?php
 }
 
+
+/* ---------- Галерия metabox ---------- */
+
+function kastor_machines_render_gallery_metabox( $post ) {
+	wp_nonce_field( 'kastor_machines_save_gallery', 'kastor_machines_gallery_nonce' );
+
+	$ids = kastor_machines_get_gallery( $post->ID );
+	?>
+	<div class="kastor-gallery-wrap" data-kastor-gallery>
+		<p class="description">Изберете изображения за галерия (карусел) на страницата на машината. Първото е „главното" — то се показва първо. Кликнете и плъзнете за пренареждане. „×" премахва изображение.</p>
+
+		<input type="hidden" name="kastor_gallery_ids" value="<?php echo esc_attr( implode( ',', $ids ) ); ?>" data-kastor-gallery-input />
+
+		<ul class="kastor-gallery-list" data-kastor-gallery-list>
+			<?php foreach ( $ids as $attachment_id ) :
+				$thumb = wp_get_attachment_image_src( $attachment_id, 'thumbnail' );
+				if ( ! $thumb ) { continue; }
+				?>
+				<li class="kastor-gallery-item" data-id="<?php echo (int) $attachment_id; ?>" draggable="true">
+					<img src="<?php echo esc_url( $thumb[0] ); ?>" alt="" />
+					<button type="button" class="kastor-gallery-remove" data-kastor-gallery-remove aria-label="Премахни">&times;</button>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+
+		<p>
+			<button type="button" class="button button-secondary" data-kastor-gallery-add>+ Добави изображения</button>
+		</p>
+	</div>
+	<?php
+}
+
+
+/* ---------- Сравнителна таблица metabox ---------- */
+
+function kastor_machines_render_specs_metabox( $post ) {
+	wp_nonce_field( 'kastor_machines_save_specs', 'kastor_machines_specs_nonce' );
+
+	$data = kastor_machines_get_comparison_table( $post->ID );
+	$json = wp_json_encode( $data );
+	if ( ! $json ) {
+		$json = '{"models":[],"rows":[],"note":""}';
+	}
+	?>
+	<div class="kastor-specs-wrap" data-kastor-specs>
+		<p class="description">
+			Използвайте тази таблица, когато машината има <strong>няколко модела</strong> (напр. JCC 03 / JCC 05 / JCC 08).
+			Първо добавете моделите (като колони), след това редовете с параметри.
+			Оставете „Група" празна, за да продължите групирането на горния ред.
+			Ако машината има само един модел, използвайте простия раздел „Параметри" по-горе вместо тази таблица.
+		</p>
+
+		<input type="hidden" name="kastor_specs_json" value="" data-kastor-specs-input />
+		<script type="application/json" data-kastor-specs-init><?php echo $json; // already JSON-encoded ?></script>
+
+		<div data-kastor-specs-root></div>
+
+		<p>
+			<label for="kastor-specs-note"><strong>Бележки под таблицата (опц.):</strong></label><br>
+			<textarea id="kastor-specs-note" rows="3" class="large-text" data-kastor-specs-note placeholder="напр. *Параметрите са валидни за пшеница, тегло 750 кг/м³, влажност 16%."></textarea>
+		</p>
+	</div>
+	<?php
+}
+
+
+/* --------------------------------------------------------------------------
+ * 3. Save handlers
+ * -------------------------------------------------------------------------- */
+
 add_action( 'save_post', 'kastor_machines_save_params', 10, 2 );
 function kastor_machines_save_params( $post_id, $post ) {
 	if ( ! in_array( $post->post_type, kastor_machines_type_keys(), true ) ) {
@@ -206,9 +310,115 @@ function kastor_machines_save_params( $post_id, $post ) {
 	}
 }
 
+add_action( 'save_post', 'kastor_machines_save_specs', 10, 2 );
+function kastor_machines_save_specs( $post_id, $post ) {
+	if ( ! in_array( $post->post_type, kastor_machines_type_keys(), true ) ) {
+		return;
+	}
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return;
+	}
+	if ( ! isset( $_POST['kastor_machines_specs_nonce'] ) ||
+	     ! wp_verify_nonce( $_POST['kastor_machines_specs_nonce'], 'kastor_machines_save_specs' ) ) {
+		return;
+	}
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
+		return;
+	}
+
+	$raw  = isset( $_POST['kastor_specs_json'] ) ? wp_unslash( $_POST['kastor_specs_json'] ) : '';
+	$data = json_decode( $raw, true );
+
+	if ( ! is_array( $data ) ) {
+		delete_post_meta( $post_id, KASTOR_MACHINES_MODELS_META );
+		delete_post_meta( $post_id, KASTOR_MACHINES_SPECS_META );
+		delete_post_meta( $post_id, KASTOR_MACHINES_SPECS_NOTE_META );
+		return;
+	}
+
+	$models = array();
+	if ( ! empty( $data['models'] ) && is_array( $data['models'] ) ) {
+		foreach ( $data['models'] as $m ) {
+			$m = sanitize_text_field( (string) $m );
+			$models[] = $m; // keep empties as positional placeholders for value indices
+		}
+		// Trim trailing empties.
+		while ( ! empty( $models ) && end( $models ) === '' ) {
+			array_pop( $models );
+		}
+	}
+
+	$rows = array();
+	if ( ! empty( $data['rows'] ) && is_array( $data['rows'] ) ) {
+		foreach ( $data['rows'] as $r ) {
+			if ( ! is_array( $r ) ) {
+				continue;
+			}
+			$clean = array(
+				'group'  => isset( $r['group'] ) ? sanitize_text_field( (string) $r['group'] ) : '',
+				'label'  => isset( $r['label'] ) ? sanitize_text_field( (string) $r['label'] ) : '',
+				'unit'   => isset( $r['unit'] ) ? sanitize_text_field( (string) $r['unit'] ) : '',
+				'values' => array(),
+			);
+			if ( ! empty( $r['values'] ) && is_array( $r['values'] ) ) {
+				foreach ( $r['values'] as $v ) {
+					$clean['values'][] = sanitize_text_field( (string) $v );
+				}
+			}
+			$has_content = $clean['group'] !== '' || $clean['label'] !== '' || $clean['unit'] !== '';
+			if ( ! $has_content ) {
+				foreach ( $clean['values'] as $v ) {
+					if ( $v !== '' ) { $has_content = true; break; }
+				}
+			}
+			if ( $has_content ) {
+				$rows[] = $clean;
+			}
+		}
+	}
+
+	$note = isset( $data['note'] ) ? sanitize_textarea_field( (string) $data['note'] ) : '';
+
+	if ( empty( $models ) && empty( $rows ) && $note === '' ) {
+		delete_post_meta( $post_id, KASTOR_MACHINES_MODELS_META );
+		delete_post_meta( $post_id, KASTOR_MACHINES_SPECS_META );
+		delete_post_meta( $post_id, KASTOR_MACHINES_SPECS_NOTE_META );
+	} else {
+		update_post_meta( $post_id, KASTOR_MACHINES_MODELS_META, $models );
+		update_post_meta( $post_id, KASTOR_MACHINES_SPECS_META, $rows );
+		update_post_meta( $post_id, KASTOR_MACHINES_SPECS_NOTE_META, $note );
+	}
+}
+
+add_action( 'save_post', 'kastor_machines_save_gallery', 10, 2 );
+function kastor_machines_save_gallery( $post_id, $post ) {
+	if ( ! in_array( $post->post_type, kastor_machines_type_keys(), true ) ) {
+		return;
+	}
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return;
+	}
+	if ( ! isset( $_POST['kastor_machines_gallery_nonce'] ) ||
+	     ! wp_verify_nonce( $_POST['kastor_machines_gallery_nonce'], 'kastor_machines_save_gallery' ) ) {
+		return;
+	}
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
+		return;
+	}
+
+	$raw = isset( $_POST['kastor_gallery_ids'] ) ? wp_unslash( $_POST['kastor_gallery_ids'] ) : '';
+	$ids = array_filter( array_map( 'absint', explode( ',', $raw ) ) );
+
+	if ( empty( $ids ) ) {
+		delete_post_meta( $post_id, KASTOR_MACHINES_GALLERY_META );
+	} else {
+		update_post_meta( $post_id, KASTOR_MACHINES_GALLERY_META, array_values( $ids ) );
+	}
+}
+
 
 /* --------------------------------------------------------------------------
- * 3. Asset enqueueing (admin + frontend)
+ * 4. Asset enqueueing (admin + frontend)
  * -------------------------------------------------------------------------- */
 
 add_action( 'admin_enqueue_scripts', 'kastor_machines_admin_assets' );
@@ -217,6 +427,10 @@ function kastor_machines_admin_assets( $hook ) {
 	if ( ! $screen || ! in_array( $screen->post_type, kastor_machines_type_keys(), true ) ) {
 		return;
 	}
+
+	// WordPress media picker (for the Gallery metabox).
+	wp_enqueue_media();
+
 	wp_enqueue_style(
 		'kastor-machines-admin',
 		KASTOR_MACHINES_URL . 'admin.css',
@@ -226,6 +440,13 @@ function kastor_machines_admin_assets( $hook ) {
 	wp_enqueue_script(
 		'kastor-machines-admin',
 		KASTOR_MACHINES_URL . 'admin.js',
+		array( 'jquery' ), // wp.media requires jQuery to already be loaded
+		KASTOR_MACHINES_VERSION,
+		true
+	);
+	wp_enqueue_script(
+		'kastor-machines-specs',
+		KASTOR_MACHINES_URL . 'specs.js',
 		array(),
 		KASTOR_MACHINES_VERSION,
 		true
@@ -238,17 +459,42 @@ function kastor_machines_frontend_assets() {
 	if ( ! is_singular( $keys ) && ! is_post_type_archive( $keys ) ) {
 		return;
 	}
+
 	wp_enqueue_style(
 		'kastor-machines-frontend',
 		KASTOR_MACHINES_URL . 'frontend.css',
 		array(),
 		KASTOR_MACHINES_VERSION
 	);
+
+	// Swiper.js carousel — only on single machine pages.
+	if ( is_singular( $keys ) ) {
+		wp_enqueue_style(
+			'kastor-machines-swiper',
+			KASTOR_MACHINES_SWIPER_CSS,
+			array(),
+			KASTOR_MACHINES_SWIPER_VERSION
+		);
+		wp_enqueue_script(
+			'kastor-machines-swiper',
+			KASTOR_MACHINES_SWIPER_JS,
+			array(),
+			KASTOR_MACHINES_SWIPER_VERSION,
+			true
+		);
+		wp_enqueue_script(
+			'kastor-machines-carousel',
+			KASTOR_MACHINES_URL . 'carousel.js',
+			array( 'kastor-machines-swiper' ),
+			KASTOR_MACHINES_VERSION,
+			true
+		);
+	}
 }
 
 
 /* --------------------------------------------------------------------------
- * 4. Load shared single-machine template from the plugin
+ * 5. Load shared single-machine template from the plugin
  *    (used for every machine CPT — no theme edits)
  * -------------------------------------------------------------------------- */
 
@@ -265,11 +511,62 @@ function kastor_machines_single_template( $template ) {
 
 
 /* --------------------------------------------------------------------------
- * 5. Helper for templates
+ * 6. Helpers for templates
  * -------------------------------------------------------------------------- */
 
 function kastor_machines_get_params( $post_id = null ) {
 	$post_id = $post_id ?: get_the_ID();
 	$params  = get_post_meta( $post_id, KASTOR_MACHINES_PARAMS_META, true );
 	return is_array( $params ) ? $params : array();
+}
+
+function kastor_machines_get_gallery( $post_id = null ) {
+	$post_id = $post_id ?: get_the_ID();
+	$ids     = get_post_meta( $post_id, KASTOR_MACHINES_GALLERY_META, true );
+	if ( ! is_array( $ids ) ) {
+		return array();
+	}
+	return array_values( array_filter( array_map( 'absint', $ids ) ) );
+}
+
+/**
+ * Read the multi-model comparison table for a post.
+ *
+ * Returns array with keys:
+ *   - models: array of strings (column headers)
+ *   - rows:   array of { group, label, unit, values[] } records
+ *   - note:   footnote text shown beneath the table
+ */
+function kastor_machines_get_comparison_table( $post_id = null ) {
+	$post_id = $post_id ?: get_the_ID();
+	$models  = get_post_meta( $post_id, KASTOR_MACHINES_MODELS_META, true );
+	$rows    = get_post_meta( $post_id, KASTOR_MACHINES_SPECS_META, true );
+	$note    = get_post_meta( $post_id, KASTOR_MACHINES_SPECS_NOTE_META, true );
+	return array(
+		'models' => is_array( $models ) ? array_values( array_map( 'strval', $models ) ) : array(),
+		'rows'   => is_array( $rows )   ? array_values( $rows )                          : array(),
+		'note'   => is_string( $note )  ? $note                                          : '',
+	);
+}
+
+/**
+ * Return the ordered list of image attachment IDs to show in the carousel:
+ * featured image first, then the gallery images (deduped).
+ */
+function kastor_machines_get_carousel_image_ids( $post_id = null ) {
+	$post_id = $post_id ?: get_the_ID();
+	$ids     = array();
+
+	$thumb_id = get_post_thumbnail_id( $post_id );
+	if ( $thumb_id ) {
+		$ids[] = (int) $thumb_id;
+	}
+
+	foreach ( kastor_machines_get_gallery( $post_id ) as $id ) {
+		if ( ! in_array( $id, $ids, true ) ) {
+			$ids[] = (int) $id;
+		}
+	}
+
+	return $ids;
 }

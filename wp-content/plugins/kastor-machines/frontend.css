@@ -49,6 +49,132 @@
 	text-transform: uppercase;
 }
 
+
+/* ------------------------------------------------------------------------ */
+/* Carousel (Swiper)                                                          */
+/* ------------------------------------------------------------------------ */
+
+.kastor-machine__carousel {
+	width: 100%;
+}
+
+.kastor-machine__swiper {
+	position: relative;
+	border-radius: 8px;
+	overflow: hidden;
+	background: #fff;
+	box-shadow: 0 2px 18px rgba(0, 0, 0, 0.06);
+	aspect-ratio: 4 / 3;
+}
+
+.kastor-machine__swiper .swiper-slide {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #fff;
+}
+
+.kastor-machine__swiper .kastor-machine__image {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	border-radius: 0;
+	box-shadow: none;
+}
+
+/* Prev / Next arrows */
+
+.kastor-machine__nav {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 2;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	border: none;
+	background: rgba(255, 255, 255, 0.9);
+	color: #222;
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	transition: background 0.15s ease, transform 0.15s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.kastor-machine__nav::before {
+	content: '';
+	display: block;
+	width: 10px;
+	height: 10px;
+	border-top: 2px solid currentColor;
+	border-right: 2px solid currentColor;
+}
+
+.kastor-machine__nav-prev {
+	left: 12px;
+}
+
+.kastor-machine__nav-prev::before {
+	transform: rotate(-135deg);
+	margin-left: 4px;
+}
+
+.kastor-machine__nav-next {
+	right: 12px;
+}
+
+.kastor-machine__nav-next::before {
+	transform: rotate(45deg);
+	margin-right: 4px;
+}
+
+.kastor-machine__nav:hover {
+	background: #fff;
+	transform: translateY(-50%) scale(1.05);
+}
+
+.kastor-machine__nav.swiper-button-disabled {
+	opacity: 0.35;
+	cursor: default;
+	pointer-events: none;
+}
+
+/* Thumbnail strip */
+
+.kastor-machine__thumbs {
+	margin-top: 10px;
+}
+
+.kastor-machine__thumbs .swiper-slide {
+	width: 80px;
+	height: 60px;
+	opacity: 0.55;
+	border-radius: 4px;
+	overflow: hidden;
+	cursor: pointer;
+	transition: opacity 0.15s ease, transform 0.15s ease;
+	background: #f1f1f1;
+}
+
+.kastor-machine__thumbs .swiper-slide:hover {
+	opacity: 0.85;
+}
+
+.kastor-machine__thumbs .swiper-slide-thumb-active {
+	opacity: 1;
+	outline: 2px solid #2271b1;
+	outline-offset: -2px;
+}
+
+.kastor-machine__thumb-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
 .kastor-machine__body {
 	min-width: 0;
 }
@@ -111,4 +237,105 @@
 
 .kastor-machine__specs-table td {
 	color: #1a1a1a;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Multi-model comparison table                                               */
+/* ------------------------------------------------------------------------ */
+
+.kastor-machine__specs-scroll {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.kastor-machine__specs-comparison {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.95rem;
+	background: #fff;
+}
+
+.kastor-machine__specs-comparison th,
+.kastor-machine__specs-comparison td {
+	border: 1px solid #e5e5e5;
+	padding: 10px 12px;
+	text-align: left;
+	vertical-align: middle;
+}
+
+.kastor-machine__specs-comparison thead th {
+	background: #f3f6f9;
+	color: #333;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.kastor-machine__specs-comparison .kastor-machine__specs-model-col {
+	text-align: center;
+	background: #eaf2fb;
+	color: #0b5a9f;
+}
+
+.kastor-machine__specs-comparison .kastor-machine__specs-unit-col {
+	width: 80px;
+	text-align: center;
+}
+
+.kastor-machine__specs-group {
+	background: #fafafa;
+	font-weight: 600;
+	color: #444;
+	vertical-align: middle;
+	text-align: left;
+}
+
+.kastor-machine__specs-group--standalone {
+	background: #fafafa;
+	font-weight: 600;
+}
+
+.kastor-machine__specs-group--empty {
+	background: transparent;
+	border-right: none;
+	padding: 0;
+}
+
+.kastor-machine__specs-label {
+	font-weight: 500;
+	color: #333;
+}
+
+.kastor-machine__specs-unit {
+	text-align: center;
+	color: #666;
+	white-space: nowrap;
+	width: 80px;
+}
+
+.kastor-machine__specs-value {
+	text-align: center;
+	font-variant-numeric: tabular-nums;
+	color: #1a1a1a;
+}
+
+.kastor-machine__specs-comparison tr:nth-child(even) .kastor-machine__specs-value,
+.kastor-machine__specs-comparison tr:nth-child(even) .kastor-machine__specs-label {
+	background: #fcfcfc;
+}
+
+.kastor-machine__specs-note {
+	margin-top: 12px;
+	font-size: 0.85rem;
+	color: #666;
+	font-style: italic;
+	line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+	.kastor-machine__specs-comparison th,
+	.kastor-machine__specs-comparison td {
+		padding: 6px 8px;
+		font-size: 0.85rem;
+	}
 }

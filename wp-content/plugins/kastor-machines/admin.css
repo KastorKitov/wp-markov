@@ -1,3 +1,7 @@
+/* ------------------------------------------------------------------------ */
+/* Parameters metabox                                                         */
+/* ------------------------------------------------------------------------ */
+
 .kastor-params-wrap {
 	font-size: 14px;
 }
@@ -14,10 +18,6 @@
 	margin: 8px 0 4px;
 	font-weight: 600;
 	color: #50575e;
-}
-
-.kastor-params-head > div:last-child {
-	/* empty column above the remove button */
 }
 
 .kastor-params-rows {
@@ -42,4 +42,231 @@
 	background: #fcebec;
 	border-color: #b32d2e;
 	color: #b32d2e;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Gallery metabox                                                            */
+/* ------------------------------------------------------------------------ */
+
+.kastor-gallery-wrap {
+	font-size: 14px;
+}
+
+.kastor-gallery-list {
+	list-style: none;
+	margin: 10px 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	min-height: 90px;
+	background: #f6f7f7;
+	border: 1px dashed #dcdcde;
+	border-radius: 4px;
+	padding: 10px;
+}
+
+.kastor-gallery-list:empty::before {
+	content: "Все още няма избрани изображения. Кликнете + Добави изображения";
+	color: #8c8f94;
+	font-style: italic;
+	align-self: center;
+	margin: 0 auto;
+}
+
+.kastor-gallery-item {
+	position: relative;
+	width: 90px;
+	height: 90px;
+	border-radius: 4px;
+	overflow: hidden;
+	cursor: grab;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+	transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.kastor-gallery-item:hover {
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.kastor-gallery-item:active {
+	cursor: grabbing;
+}
+
+.kastor-gallery-item.is-dragging {
+	opacity: 0.4;
+}
+
+.kastor-gallery-item.is-drop-target {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
+.kastor-gallery-item img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+	pointer-events: none; /* let drag events fire on the LI, not the IMG */
+}
+
+.kastor-gallery-remove {
+	position: absolute;
+	top: 2px;
+	right: 2px;
+	width: 22px;
+	height: 22px;
+	padding: 0;
+	border-radius: 50%;
+	border: none;
+	background: rgba(0, 0, 0, 0.65);
+	color: #fff;
+	font-size: 16px;
+	line-height: 22px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.kastor-gallery-remove:hover {
+	background: #b32d2e;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Comparison-table metabox (Сравнителна таблица)                             */
+/* ------------------------------------------------------------------------ */
+
+.kastor-specs-wrap {
+	font-size: 14px;
+}
+
+.kastor-specs-subhead {
+	margin: 16px 0 8px;
+	font-size: 13px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: #50575e;
+}
+
+/* Models — pill list */
+
+.kastor-specs-models {
+	margin-bottom: 6px;
+}
+
+.kastor-specs-pills {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-bottom: 8px;
+}
+
+.kastor-specs-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 20px;
+	padding: 2px 4px 2px 10px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.kastor-specs-pill input[type="text"] {
+	border: none;
+	background: transparent;
+	box-shadow: none;
+	min-width: 80px;
+	width: 110px;
+	padding: 4px 0;
+	font-size: 13px;
+}
+
+.kastor-specs-pill input[type="text"]:focus {
+	outline: none;
+	box-shadow: none;
+}
+
+.kastor-specs-pill-remove {
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	border: none;
+	background: transparent;
+	color: #777;
+	font-size: 16px;
+	line-height: 22px;
+	cursor: pointer;
+	padding: 0;
+}
+
+.kastor-specs-pill-remove:hover {
+	background: #fcebec;
+	color: #b32d2e;
+}
+
+/* Table */
+
+.kastor-specs-table-wrap {
+	overflow-x: auto;
+}
+
+.kastor-specs-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 10px;
+}
+
+.kastor-specs-table th,
+.kastor-specs-table td {
+	border: 1px solid #e5e5e5;
+	padding: 4px;
+	vertical-align: top;
+	text-align: left;
+	font-size: 13px;
+}
+
+.kastor-specs-table thead th {
+	background: #f6f7f7;
+	color: #50575e;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.kastor-specs-table .col-group { min-width: 130px; }
+.kastor-specs-table .col-label { min-width: 180px; }
+.kastor-specs-table .col-unit  { min-width: 70px; width: 70px; }
+.kastor-specs-table .col-value { min-width: 90px; }
+.kastor-specs-table .col-remove { width: 36px; text-align: center; }
+
+.kastor-specs-table tbody input[type="text"] {
+	width: 100%;
+	border: 1px solid transparent;
+	background: transparent;
+	box-shadow: none;
+	padding: 4px 6px;
+}
+
+.kastor-specs-table tbody input[type="text"]:focus {
+	background: #fffbe6;
+	border-color: #dcdcde;
+}
+
+.kastor-specs-row-remove {
+	min-height: 26px;
+	padding: 0 8px;
+	color: #b32d2e;
+	border-color: #dcdcde;
+	background: #fff;
+}
+
+.kastor-specs-row-remove:hover {
+	background: #fcebec;
+	border-color: #b32d2e;
 }

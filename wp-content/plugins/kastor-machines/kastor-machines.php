@@ -632,7 +632,7 @@ function kastor_machines_get_highlights( $post_id = null ) {
 }
 
 /**
- * URL for the "Запитване" CTA button on a single-machine page.
+ * URL for the "Свържете се с нас" CTA button on a single-machine page.
  *
  * Defaults to /kontakti/?machine=<title>&machine_id=<id> so the contact page
  * (or its form plugin) can pre-fill which machine the inquiry is about.

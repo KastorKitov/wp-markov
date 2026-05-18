@@ -110,7 +110,7 @@
 	min-width: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 20px;
+	gap: 32px;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -141,7 +141,7 @@
 	margin: 0;
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 12px;
+	gap: 24px;
 }
 
 @media (max-width: 480px) {
@@ -181,7 +181,7 @@
 }
 
 /* ------------------------------------------------------------------------ */
-/* Запитване CTA button                                                       */
+/* Свържете се с нас CTA button                                                       */
 /* ------------------------------------------------------------------------ */
 
 .kastor-machine__cta {
@@ -196,7 +196,7 @@
 	font-weight: 600;
 	text-decoration: none;
 	border: none;
-	border-radius: 6px;
+	border-radius: 32px;
 	letter-spacing: 0.02em;
 	cursor: pointer;
 	transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
@@ -285,7 +285,8 @@
 }
 
 .kastor-machine__related-thumb {
-	aspect-ratio: 4 / 3;
+	/* Matches the machine-photo standard of 1600x1800 (8:9). */
+	aspect-ratio: 8 / 9;
 	background: var(--kastor-c-bg-light);
 	display: flex;
 	align-items: center;
@@ -334,7 +335,8 @@
 }
 
 .kastor-machine__image--placeholder {
-	aspect-ratio: 4 / 3;
+	/* Matches the machine-photo standard of 1600x1800 (8:9). */
+	aspect-ratio: 8 / 9;
 	background: #f1f1f1;
 	color: #888;
 	display: flex;
@@ -365,7 +367,8 @@
 	overflow: hidden;
 	background: #fff;
 	box-shadow: 0 2px 18px rgba(0, 0, 0, 0.06);
-	aspect-ratio: 4 / 3;
+	/* Matches the machine-photo standard of 1600x1800 (8:9). */
+	aspect-ratio: 8 / 9;
 }
 
 .kastor-machine__swiper .swiper-slide {

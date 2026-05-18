@@ -167,7 +167,7 @@ get_header();
 						<?php endif; ?>
 
 						<a class="kastor-machine__cta" href="<?php echo esc_url( kastor_machines_get_inquiry_url() ); ?>">
-							Запитване
+							Свържете се с нас
 						</a>
 
 					</div><!-- /.kastor-machine__body -->

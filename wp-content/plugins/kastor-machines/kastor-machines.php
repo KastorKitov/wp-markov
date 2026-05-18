@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'KASTOR_MACHINES_VERSION', '0.8.0' );
+define( 'KASTOR_MACHINES_VERSION', '0.9.0' );
 define( 'KASTOR_MACHINES_PATH', plugin_dir_path( __FILE__ ) );
 define( 'KASTOR_MACHINES_URL', plugin_dir_url( __FILE__ ) );
 define( 'KASTOR_MACHINES_PARAMS_META', '_kastor_machine_params' );

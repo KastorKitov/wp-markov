@@ -204,6 +204,13 @@ get_header();
 				?>
 				<section class="kastor-machine__specs kastor-machine__specs--full" aria-labelledby="kastor-specs-heading" data-kastor-reveal="from-right">
 					<h2 id="kastor-specs-heading" class="kastor-machine__specs-heading">Технически данни</h2>
+					<p class="kastor-machine__specs-scroll-hint" aria-hidden="true">
+						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+							<line x1="5" y1="12" x2="19" y2="12"/>
+							<polyline points="12 5 19 12 12 19"/>
+						</svg>
+						Плъзнете таблицата настрани, за да видите всички колони
+					</p>
 					<div class="kastor-machine__specs-scroll">
 						<table class="kastor-machine__specs-comparison">
 							<thead>

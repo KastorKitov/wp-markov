@@ -1,3 +1,21 @@
+/* ------------------------------------------------------------------------ */
+/* Kastor brand palette                                                       */
+/*   --kastor-c-primary       main bright blue                                */
+/*   --kastor-c-primary-alt   slightly desaturated alternative                */
+/*   --kastor-c-dark          dark blue for headlines / strong text           */
+/*   --kastor-c-darker        even darker for hover/active                    */
+/*   --kastor-c-bg-light      neutral light gray for soft backgrounds         */
+/* ------------------------------------------------------------------------ */
+
+.kastor-machine-main,
+.kastor-lightbox {
+	--kastor-c-primary:     #38B6FF;
+	--kastor-c-primary-alt: #33A7E2;
+	--kastor-c-dark:        #216192;
+	--kastor-c-darker:      #175585;
+	--kastor-c-bg-light:    #F5F5F5;
+}
+
 .kastor-machine-main {
 	max-width: 1200px;
 	margin: 40px auto;
@@ -5,7 +23,61 @@
 }
 
 /* ------------------------------------------------------------------------ */
-/* Hero section — image left + title/description right (50/50)               */
+/* Breadcrumbs                                                                */
+/* ------------------------------------------------------------------------ */
+
+.kastor-machine__breadcrumbs {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	font-size: 0.85rem;
+	color: #777;
+	margin-bottom: 18px;
+}
+
+.kastor-machine__breadcrumbs a {
+	color: var(--kastor-c-dark);
+	text-decoration: none;
+	transition: color 0.15s ease;
+}
+
+.kastor-machine__breadcrumbs a:hover {
+	color: var(--kastor-c-darker);
+	text-decoration: underline;
+}
+
+.kastor-machine__breadcrumb-sep {
+	color: #aaa;
+	font-size: 0.9rem;
+}
+
+.kastor-machine__breadcrumb-current {
+	color: #444;
+	font-weight: 500;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Header (title) — full-width above the hero                                 */
+/* ------------------------------------------------------------------------ */
+
+.kastor-machine__header {
+	margin-bottom: 24px;
+}
+
+.kastor-machine__title {
+	margin: 0;
+	font-size: clamp(1.8rem, 1rem + 2vw, 2.6rem);
+	line-height: 1.2;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Hero — image left + (optional) body right (50/50)                          */
+/* When the body column is absent (e.g. multi-model machine with no simple    */
+/* params), the image alone is centered with a max-width so it doesn't fill   */
+/* the whole content area.                                                    */
 /* ------------------------------------------------------------------------ */
 
 .kastor-machine__hero {
@@ -14,6 +86,13 @@
 	gap: 40px;
 	align-items: start;
 	margin-bottom: 40px;
+}
+
+.kastor-machine__hero:not(:has(.kastor-machine__body)) {
+	grid-template-columns: minmax(0, 1fr);
+	max-width: 720px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 @media (max-width: 800px) {
@@ -29,18 +108,19 @@
 
 .kastor-machine__body {
 	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
 }
 
-.kastor-machine__title {
-	margin: 0 0 16px;
-	font-size: clamp(1.6rem, 1rem + 1.6vw, 2.4rem);
-	line-height: 1.2;
-}
+/* ------------------------------------------------------------------------ */
+/* Short description (post content)                                            */
+/* ------------------------------------------------------------------------ */
 
 .kastor-machine__description {
 	font-size: 1rem;
 	line-height: 1.6;
-	color: #333;
+	color: #444;
 }
 
 .kastor-machine__description > *:first-child {
@@ -49,6 +129,196 @@
 
 .kastor-machine__description > *:last-child {
 	margin-bottom: 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Highlights — 2×N grid of "wow" specs (e.g. 200т/ч)                          */
+/* ------------------------------------------------------------------------ */
+
+.kastor-machine__highlights {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+
+@media (max-width: 480px) {
+	.kastor-machine__highlights {
+		grid-template-columns: 1fr;
+	}
+}
+
+.kastor-machine__highlight {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 16px 18px;
+	background: var(--kastor-c-bg-light);
+	border-left: 3px solid var(--kastor-c-primary);
+	border-radius: 4px;
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.kastor-machine__highlight:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(33, 97, 146, 0.12);
+}
+
+.kastor-machine__highlight-value {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: #000000c2;
+	line-height: 1.15;
+	font-variant-numeric: tabular-nums;
+}
+
+.kastor-machine__highlight-label {
+	font-size: 0.85rem;
+	color: #555;
+	line-height: 1.35;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Запитване CTA button                                                       */
+/* ------------------------------------------------------------------------ */
+
+.kastor-machine__cta {
+	align-self: flex-start;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 14px 30px;
+	background: var(--kastor-c-primary);
+	color: #fff;
+	font-size: 1rem;
+	font-weight: 600;
+	text-decoration: none;
+	border: none;
+	border-radius: 6px;
+	letter-spacing: 0.02em;
+	cursor: pointer;
+	transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+	box-shadow: 0 2px 8px rgba(56, 182, 255, 0.25);
+}
+
+.kastor-machine__cta:hover,
+.kastor-machine__cta:focus {
+	background: var(--kastor-c-dark);
+	color: #fff;
+	transform: translateY(-1px);
+	box-shadow: 0 4px 14px rgba(33, 97, 146, 0.30);
+	text-decoration: none;
+}
+
+.kastor-machine__cta:active {
+	background: var(--kastor-c-darker);
+	transform: translateY(0);
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Related machines strip                                                     */
+/* ------------------------------------------------------------------------ */
+
+.kastor-machine__related {
+	margin-top: 60px;
+	padding-top: 32px;
+	border-top: 1px solid #e5e5e5;
+}
+
+.kastor-machine__related-title {
+	margin: 0 0 20px;
+	font-size: 1.4rem;
+	color: var(--kastor-c-dark);
+	font-weight: 600;
+}
+
+.kastor-machine__related-grid {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 20px;
+}
+
+@media (max-width: 900px) {
+	.kastor-machine__related-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 480px) {
+	.kastor-machine__related-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+.kastor-machine__related-card {
+	background: #fff;
+	border: 1px solid #ececec;
+	border-radius: 6px;
+	overflow: hidden;
+	transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.kastor-machine__related-card:hover {
+	transform: translateY(-2px);
+	border-color: var(--kastor-c-primary);
+	box-shadow: 0 8px 20px rgba(33, 97, 146, 0.10);
+}
+
+.kastor-machine__related-link {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	text-decoration: none;
+	color: inherit;
+}
+
+.kastor-machine__related-link:hover,
+.kastor-machine__related-link:focus {
+	text-decoration: none;
+	color: inherit;
+}
+
+.kastor-machine__related-thumb {
+	aspect-ratio: 4 / 3;
+	background: var(--kastor-c-bg-light);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+}
+
+.kastor-machine__related-image {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	display: block;
+}
+
+.kastor-machine__related-placeholder {
+	color: #aaa;
+	font-size: 0.8rem;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.kastor-machine__related-name {
+	margin: 0;
+	padding: 14px 16px;
+	font-size: 0.95rem;
+	font-weight: 600;
+	color: #222;
+	line-height: 1.35;
+	transition: color 0.15s ease;
+}
+
+.kastor-machine__related-card:hover .kastor-machine__related-name {
+	color: var(--kastor-c-dark);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -144,7 +414,7 @@
 
 .kastor-machine__thumbs .swiper-slide-thumb-active {
 	opacity: 1;
-	outline: 2px solid #2271b1;
+	outline: 2px solid var(--kastor-c-primary);
 	outline-offset: -2px;
 }
 
@@ -161,6 +431,10 @@
 
 .kastor-machine__specs {
 	margin-top: 8px;
+}
+
+.kastor-machine__specs--full {
+	margin-top: 0;
 }
 
 .kastor-machine__specs-table {
@@ -221,7 +495,7 @@
 }
 
 .kastor-machine__specs-comparison thead th {
-	background: #f3f6f9;
+	background: var(--kastor-c-bg-light);
 	color: #333;
 	font-weight: 600;
 	white-space: nowrap;
@@ -229,8 +503,8 @@
 
 .kastor-machine__specs-comparison .kastor-machine__specs-model-col {
 	text-align: center;
-	background: #eaf2fb;
-	color: #0b5a9f;
+	background: var(--kastor-c-dark);
+	color: #fff;
 }
 
 .kastor-machine__specs-comparison .kastor-machine__specs-unit-col {

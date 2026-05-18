@@ -202,6 +202,7 @@
 
 	document.addEventListener('DOMContentLoaded', function () {
 		document.querySelectorAll('[data-kastor-params]').forEach(initParams);
+		document.querySelectorAll('[data-kastor-highlights]').forEach(initParams); // same row-add/remove behaviour
 		document.querySelectorAll('[data-kastor-gallery]').forEach(initGallery);
 	});
 })();

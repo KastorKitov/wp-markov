@@ -27,7 +27,33 @@ get_header();
 <main class="kastor-machine-main">
 	<?php while ( have_posts() ) : the_post(); ?>
 
+		<?php
+		$comp           = kastor_machines_get_comparison_table( get_the_ID() );
+		$has_comp       = ! empty( $comp['models'] ) && ! empty( $comp['rows'] );
+		$params         = kastor_machines_get_params( get_the_ID() );
+		$highlights     = kastor_machines_get_highlights( get_the_ID() );
+		$has_content    = (bool) trim( strip_tags( get_the_content() ) );
+		$has_simple_tbl = ! $has_comp && ! empty( $params );
+		$has_body       = $has_content || ! empty( $highlights ) || $has_simple_tbl;
+		$cpt_obj        = get_post_type_object( get_post_type() );
+		$archive_url    = get_post_type_archive_link( get_post_type() );
+		?>
+
+		<nav class="kastor-machine__breadcrumbs" aria-label="Навигация">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>">Начало</a>
+			<?php if ( $archive_url && $cpt_obj ) : ?>
+				<span class="kastor-machine__breadcrumb-sep" aria-hidden="true">›</span>
+				<a href="<?php echo esc_url( $archive_url ); ?>"><?php echo esc_html( $cpt_obj->labels->name ); ?></a>
+			<?php endif; ?>
+			<span class="kastor-machine__breadcrumb-sep" aria-hidden="true">›</span>
+			<span class="kastor-machine__breadcrumb-current" aria-current="page"><?php echo esc_html( get_the_title() ); ?></span>
+		</nav>
+
 		<article id="post-<?php the_ID(); ?>" <?php post_class( 'kastor-machine' ); ?>>
+
+			<header class="kastor-machine__header">
+				<h1 class="kastor-machine__title"><?php the_title(); ?></h1>
+			</header>
 
 			<div class="kastor-machine__hero">
 
@@ -91,21 +117,71 @@ get_header();
 					<?php endif; ?>
 				</div>
 
-				<div class="kastor-machine__body">
-					<h1 class="kastor-machine__title"><?php the_title(); ?></h1>
+				<?php if ( $has_body ) : ?>
+					<div class="kastor-machine__body">
 
-					<?php
-					$comp     = kastor_machines_get_comparison_table( get_the_ID() );
-					$has_comp = ! empty( $comp['models'] ) && ! empty( $comp['rows'] );
-					$params   = kastor_machines_get_params( get_the_ID() );
+						<?php if ( $has_content ) : ?>
+							<div class="kastor-machine__description">
+								<?php the_content(); ?>
+							</div>
+						<?php endif; ?>
 
-					if ( $has_comp ) :
-				// ------- Multi-model comparison table -------
+						<?php if ( ! empty( $highlights ) ) : ?>
+							<ul class="kastor-machine__highlights">
+								<?php foreach ( $highlights as $h ) :
+									$value = isset( $h['value'] ) ? (string) $h['value'] : '';
+									$label = isset( $h['label'] ) ? (string) $h['label'] : '';
+									if ( $value === '' && $label === '' ) { continue; }
+									?>
+									<li class="kastor-machine__highlight">
+										<?php if ( $value !== '' ) : ?>
+											<span class="kastor-machine__highlight-value"><?php echo esc_html( $value ); ?></span>
+										<?php endif; ?>
+										<?php if ( $label !== '' ) : ?>
+											<span class="kastor-machine__highlight-label"><?php echo esc_html( $label ); ?></span>
+										<?php endif; ?>
+									</li>
+								<?php endforeach; ?>
+							</ul>
+						<?php endif; ?>
+
+						<?php if ( $has_simple_tbl ) : ?>
+							<section class="kastor-machine__specs">
+								<table class="kastor-machine__specs-table">
+									<tbody>
+										<?php foreach ( $params as $row ) :
+											$label = isset( $row['label'] ) ? $row['label'] : '';
+											$value = isset( $row['value'] ) ? $row['value'] : '';
+											if ( $label === '' && $value === '' ) {
+												continue;
+											}
+											?>
+											<tr>
+												<th scope="row"><?php echo esc_html( $label ); ?></th>
+												<td><?php echo esc_html( $value ); ?></td>
+											</tr>
+										<?php endforeach; ?>
+									</tbody>
+								</table>
+							</section>
+						<?php endif; ?>
+
+						<a class="kastor-machine__cta" href="<?php echo esc_url( kastor_machines_get_inquiry_url() ); ?>">
+							Запитване
+						</a>
+
+					</div><!-- /.kastor-machine__body -->
+				<?php endif; ?>
+
+			</div><!-- /.kastor-machine__hero -->
+
+			<?php if ( $has_comp ) :
+				// ------- Multi-model comparison table (full width, below the hero) -------
 				// Build rowspan groups: consecutive rows where group is empty
 				// (or equal to the previous non-empty group) get merged into
 				// one block with a rowspanned group cell.
-				$groups        = array();
-				$models_count  = count( $comp['models'] );
+				$groups       = array();
+				$models_count = count( $comp['models'] );
 				foreach ( $comp['rows'] as $row ) {
 					$g = isset( $row['group'] ) ? (string) $row['group'] : '';
 					if ( ! empty( $groups ) ) {
@@ -119,7 +195,7 @@ get_header();
 					$groups[] = array( 'group' => $g, 'rows' => array( $row ) );
 				}
 				?>
-				<section class="kastor-machine__specs">
+				<section class="kastor-machine__specs kastor-machine__specs--full">
 					<div class="kastor-machine__specs-scroll">
 						<table class="kastor-machine__specs-comparison">
 							<thead>
@@ -176,35 +252,53 @@ get_header();
 						<p class="kastor-machine__specs-note"><?php echo nl2br( esc_html( $comp['note'] ) ); ?></p>
 					<?php endif; ?>
 				</section>
-
-			<?php elseif ( ! empty( $params ) ) :
-				// ------- Simple single-model params -------
-				?>
-				<section class="kastor-machine__specs">
-					<table class="kastor-machine__specs-table">
-						<tbody>
-							<?php foreach ( $params as $row ) :
-								$label = isset( $row['label'] ) ? $row['label'] : '';
-								$value = isset( $row['value'] ) ? $row['value'] : '';
-								if ( $label === '' && $value === '' ) {
-									continue;
-								}
-								?>
-								<tr>
-									<th scope="row"><?php echo esc_html( $label ); ?></th>
-									<td><?php echo esc_html( $value ); ?></td>
-								</tr>
-							<?php endforeach; ?>
-						</tbody>
-					</table>
-				</section>
 			<?php endif; ?>
 
-				</div><!-- /.kastor-machine__body -->
-
-			</div><!-- /.kastor-machine__hero -->
-
 		</article>
+
+		<?php
+		$related_query = new WP_Query( array(
+			'post_type'           => get_post_type(),
+			'post__not_in'        => array( get_the_ID() ),
+			'posts_per_page'      => 4,
+			'orderby'             => 'rand',
+			'ignore_sticky_posts' => true,
+			'no_found_rows'       => true,
+		) );
+
+		if ( $related_query->have_posts() ) : ?>
+			<section class="kastor-machine__related" aria-labelledby="kastor-related-title">
+				<h2 id="kastor-related-title" class="kastor-machine__related-title">Подобни машини</h2>
+				<ul class="kastor-machine__related-grid">
+					<?php while ( $related_query->have_posts() ) : $related_query->the_post();
+						$rel_thumb_id = get_post_thumbnail_id();
+						if ( ! $rel_thumb_id ) {
+							$rel_ids = kastor_machines_get_carousel_image_ids( get_the_ID() );
+							$rel_thumb_id = ! empty( $rel_ids ) ? $rel_ids[0] : 0;
+						}
+						?>
+						<li class="kastor-machine__related-card">
+							<a href="<?php the_permalink(); ?>" class="kastor-machine__related-link">
+								<div class="kastor-machine__related-thumb">
+									<?php if ( $rel_thumb_id ) {
+										echo wp_get_attachment_image(
+											$rel_thumb_id,
+											'medium',
+											false,
+											array( 'class' => 'kastor-machine__related-image', 'loading' => 'lazy' )
+										);
+									} else { ?>
+										<span class="kastor-machine__related-placeholder" aria-hidden="true">Няма изображение</span>
+									<?php } ?>
+								</div>
+								<h3 class="kastor-machine__related-name"><?php the_title(); ?></h3>
+							</a>
+						</li>
+					<?php endwhile; ?>
+				</ul>
+			</section>
+			<?php wp_reset_postdata(); ?>
+		<?php endif; ?>
 
 	<?php endwhile; ?>
 </main>

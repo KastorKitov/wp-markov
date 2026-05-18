@@ -11,11 +11,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'KASTOR_MACHINES_VERSION', '0.5.0' );
+define( 'KASTOR_MACHINES_VERSION', '0.7.0' );
 define( 'KASTOR_MACHINES_PATH', plugin_dir_path( __FILE__ ) );
 define( 'KASTOR_MACHINES_URL', plugin_dir_url( __FILE__ ) );
 define( 'KASTOR_MACHINES_PARAMS_META', '_kastor_machine_params' );
 define( 'KASTOR_MACHINES_GALLERY_META', '_kastor_machine_gallery' );
+define( 'KASTOR_MACHINES_HIGHLIGHTS_META', '_kastor_machine_highlights' );
 
 // Comparison table (multi-model machines like the JCC series).
 define( 'KASTOR_MACHINES_MODELS_META', '_kastor_machine_models' );
@@ -134,6 +135,15 @@ function kastor_machines_add_metaboxes() {
 	);
 
 	add_meta_box(
+		'kastor_machine_highlights',
+		'Акценти (бързи показатели)',
+		'kastor_machines_render_highlights_metabox',
+		$screens,
+		'normal',
+		'high'
+	);
+
+	add_meta_box(
 		'kastor_machine_params',
 		'Параметри (един модел)',
 		'kastor_machines_render_params_metabox',
@@ -197,6 +207,57 @@ function kastor_machines_render_params_metabox( $post ) {
 				<input type="text" name="kastor_params[label][]" value="" placeholder="напр. Мощност" />
 				<input type="text" name="kastor_params[value][]" value="" placeholder="напр. 5 kW" />
 				<button type="button" class="button kastor-params-remove" data-kastor-remove aria-label="Премахни ред">&times;</button>
+			</div>
+		</template>
+	</div>
+	<?php
+}
+
+
+/* ---------- Акценти metabox ---------- */
+
+function kastor_machines_render_highlights_metabox( $post ) {
+	wp_nonce_field( 'kastor_machines_save_highlights', 'kastor_machines_highlights_nonce' );
+
+	$highlights = get_post_meta( $post->ID, KASTOR_MACHINES_HIGHLIGHTS_META, true );
+	if ( ! is_array( $highlights ) ) {
+		$highlights = array();
+	}
+	if ( empty( $highlights ) ) {
+		$highlights = array( array( 'value' => '', 'label' => '' ) );
+	}
+	?>
+	<div class="kastor-params-wrap" data-kastor-highlights>
+		<p class="description">Кратки „WOW" показатели, които искате да изпъкнат до изображението — голяма цифра/текст + кратко описание. Например: <em>200т/ч → до 200т/ч предварително почистване</em>. Препоръчително: 2–4 акцента (показват се като решетка 2×2).</p>
+
+		<div class="kastor-params-head">
+			<div>Стойност (голям текст)</div>
+			<div>Описание (малък текст)</div>
+			<div></div>
+		</div>
+
+		<div class="kastor-params-rows" data-kastor-rows>
+			<?php foreach ( $highlights as $row ) :
+				$value = isset( $row['value'] ) ? $row['value'] : '';
+				$label = isset( $row['label'] ) ? $row['label'] : '';
+				?>
+				<div class="kastor-params-row" data-kastor-row>
+					<input type="text" name="kastor_highlights[value][]" value="<?php echo esc_attr( $value ); ?>" placeholder="напр. 200т/ч" />
+					<input type="text" name="kastor_highlights[label][]" value="<?php echo esc_attr( $label ); ?>" placeholder="напр. до 200т/ч предварително почистване" />
+					<button type="button" class="button kastor-params-remove" data-kastor-remove aria-label="Премахни акцент">&times;</button>
+				</div>
+			<?php endforeach; ?>
+		</div>
+
+		<p>
+			<button type="button" class="button button-secondary" data-kastor-add>+ Добави акцент</button>
+		</p>
+
+		<template data-kastor-template>
+			<div class="kastor-params-row" data-kastor-row>
+				<input type="text" name="kastor_highlights[value][]" value="" placeholder="напр. 200т/ч" />
+				<input type="text" name="kastor_highlights[label][]" value="" placeholder="напр. до 200т/ч предварително почистване" />
+				<button type="button" class="button kastor-params-remove" data-kastor-remove aria-label="Премахни акцент">&times;</button>
 			</div>
 		</template>
 	</div>
@@ -390,6 +451,43 @@ function kastor_machines_save_specs( $post_id, $post ) {
 	}
 }
 
+add_action( 'save_post', 'kastor_machines_save_highlights', 10, 2 );
+function kastor_machines_save_highlights( $post_id, $post ) {
+	if ( ! in_array( $post->post_type, kastor_machines_type_keys(), true ) ) {
+		return;
+	}
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return;
+	}
+	if ( ! isset( $_POST['kastor_machines_highlights_nonce'] ) ||
+	     ! wp_verify_nonce( $_POST['kastor_machines_highlights_nonce'], 'kastor_machines_save_highlights' ) ) {
+		return;
+	}
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
+		return;
+	}
+
+	$values = isset( $_POST['kastor_highlights']['value'] ) ? (array) $_POST['kastor_highlights']['value'] : array();
+	$labels = isset( $_POST['kastor_highlights']['label'] ) ? (array) $_POST['kastor_highlights']['label'] : array();
+
+	$clean = array();
+	$count = max( count( $values ), count( $labels ) );
+	for ( $i = 0; $i < $count; $i++ ) {
+		$v = isset( $values[ $i ] ) ? sanitize_text_field( wp_unslash( $values[ $i ] ) ) : '';
+		$l = isset( $labels[ $i ] ) ? sanitize_text_field( wp_unslash( $labels[ $i ] ) ) : '';
+		if ( $v === '' && $l === '' ) {
+			continue;
+		}
+		$clean[] = array( 'value' => $v, 'label' => $l );
+	}
+
+	if ( empty( $clean ) ) {
+		delete_post_meta( $post_id, KASTOR_MACHINES_HIGHLIGHTS_META );
+	} else {
+		update_post_meta( $post_id, KASTOR_MACHINES_HIGHLIGHTS_META, $clean );
+	}
+}
+
 add_action( 'save_post', 'kastor_machines_save_gallery', 10, 2 );
 function kastor_machines_save_gallery( $post_id, $post ) {
 	if ( ! in_array( $post->post_type, kastor_machines_type_keys(), true ) ) {
@@ -525,6 +623,31 @@ function kastor_machines_get_params( $post_id = null ) {
 	$post_id = $post_id ?: get_the_ID();
 	$params  = get_post_meta( $post_id, KASTOR_MACHINES_PARAMS_META, true );
 	return is_array( $params ) ? $params : array();
+}
+
+function kastor_machines_get_highlights( $post_id = null ) {
+	$post_id = $post_id ?: get_the_ID();
+	$rows    = get_post_meta( $post_id, KASTOR_MACHINES_HIGHLIGHTS_META, true );
+	return is_array( $rows ) ? $rows : array();
+}
+
+/**
+ * URL for the "Запитване" CTA button on a single-machine page.
+ *
+ * Defaults to /kontakti/?machine=<title>&machine_id=<id> so the contact page
+ * (or its form plugin) can pre-fill which machine the inquiry is about.
+ * Override the path or query via the `kastor_machines_inquiry_url` filter.
+ */
+function kastor_machines_get_inquiry_url( $post_id = null ) {
+	$post_id = $post_id ?: get_the_ID();
+	$url = add_query_arg(
+		array(
+			'machine'    => rawurlencode( get_the_title( $post_id ) ),
+			'machine_id' => (int) $post_id,
+		),
+		home_url( '/kontakti/' )
+	);
+	return apply_filters( 'kastor_machines_inquiry_url', $url, $post_id );
 }
 
 function kastor_machines_get_gallery( $post_id = null ) {

@@ -444,10 +444,30 @@
 	margin-top: 8px;
 }
 
-.kastor-machine__specs--full {
+.kastor-machine__specs--full,
+.kastor-machine__long-desc {
 	margin-top: 60px;
 	padding-top: 32px;
 	border-top: 1px solid #e5e5e5;
+}
+
+.kastor-machine__long-desc-body {
+	font-size: 1rem;
+	line-height: 1.7;
+	color: #333;
+}
+
+.kastor-machine__long-desc-body p:first-child {
+	margin-top: 0;
+}
+
+.kastor-machine__long-desc-body p:last-child {
+	margin-bottom: 0;
+}
+
+.kastor-machine__long-desc-body ul,
+.kastor-machine__long-desc-body ol {
+	padding-left: 1.4em;
 }
 
 .kastor-machine__specs-table {
@@ -729,4 +749,77 @@
 	.kastor-lightbox__nav--prev { left: 8px; }
 	.kastor-lightbox__nav--next { right: 8px; }
 	.kastor-lightbox__close { top: 8px; right: 8px; }
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Entrance animations                                                        */
+/*   - Hero elements animate on page load (CSS animation)                     */
+/*   - Below-fold sections animate when they enter the viewport (.is-revealed */
+/*     toggled by animations.js via IntersectionObserver)                     */
+/*   - All disabled when prefers-reduced-motion is set                        */
+/* ------------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: no-preference) {
+
+	@keyframes kastor-fade-up {
+		from { opacity: 0; transform: translateY(20px); }
+		to   { opacity: 1; transform: translateY(0); }
+	}
+
+	@keyframes kastor-slide-from-left {
+		from { opacity: 0; transform: translateX(-40px); }
+		to   { opacity: 1; transform: translateX(0); }
+	}
+
+	/* Hero — animates on page load with a small stagger */
+
+	.kastor-machine__title {
+		animation: kastor-fade-up 0.5s ease-out both;
+	}
+
+	.kastor-machine__media {
+		animation: kastor-slide-from-left 0.6s 0.1s ease-out both;
+	}
+
+	.kastor-machine__body {
+		animation: kastor-slide-from-left 0.6s 0.25s ease-out both;
+	}
+
+	/* Scroll-revealed sections — initial hidden state */
+
+	[data-kastor-reveal] {
+		opacity: 0;
+		transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+		will-change: opacity, transform;
+	}
+
+	[data-kastor-reveal="from-right"] {
+		transform: translateX(40px);
+	}
+
+	[data-kastor-reveal="up"] {
+		transform: translateY(30px);
+	}
+
+	[data-kastor-reveal].is-revealed {
+		opacity: 1;
+		transform: translate(0, 0);
+	}
+
+	/* Related-machine cards stagger on reveal */
+
+	.kastor-machine__related[data-kastor-reveal].is-revealed
+		.kastor-machine__related-card {
+		animation: kastor-fade-up 0.5s ease-out both;
+	}
+
+	.kastor-machine__related[data-kastor-reveal].is-revealed
+		.kastor-machine__related-card:nth-child(1) { animation-delay: 0.05s; }
+	.kastor-machine__related[data-kastor-reveal].is-revealed
+		.kastor-machine__related-card:nth-child(2) { animation-delay: 0.15s; }
+	.kastor-machine__related[data-kastor-reveal].is-revealed
+		.kastor-machine__related-card:nth-child(3) { animation-delay: 0.25s; }
+	.kastor-machine__related[data-kastor-reveal].is-revealed
+		.kastor-machine__related-card:nth-child(4) { animation-delay: 0.35s; }
 }

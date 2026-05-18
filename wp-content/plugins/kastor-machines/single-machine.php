@@ -195,7 +195,7 @@ get_header();
 					$groups[] = array( 'group' => $g, 'rows' => array( $row ) );
 				}
 				?>
-				<section class="kastor-machine__specs kastor-machine__specs--full" aria-labelledby="kastor-specs-heading">
+				<section class="kastor-machine__specs kastor-machine__specs--full" aria-labelledby="kastor-specs-heading" data-kastor-reveal="from-right">
 					<h2 id="kastor-specs-heading" class="kastor-machine__specs-heading">Технически данни</h2>
 					<div class="kastor-machine__specs-scroll">
 						<table class="kastor-machine__specs-comparison">
@@ -255,6 +255,17 @@ get_header();
 				</section>
 			<?php endif; ?>
 
+			<?php
+			$long_desc = kastor_machines_get_long_description( get_the_ID() );
+			if ( $long_desc !== '' ) : ?>
+				<section class="kastor-machine__long-desc" aria-labelledby="kastor-long-desc-heading" data-kastor-reveal="up">
+					<h2 id="kastor-long-desc-heading" class="kastor-machine__specs-heading">Описание</h2>
+					<div class="kastor-machine__long-desc-body">
+						<?php echo wp_kses_post( wpautop( $long_desc ) ); ?>
+					</div>
+				</section>
+			<?php endif; ?>
+
 		</article>
 
 		<?php
@@ -268,7 +279,7 @@ get_header();
 		) );
 
 		if ( $related_query->have_posts() ) : ?>
-			<section class="kastor-machine__related" aria-labelledby="kastor-related-title">
+			<section class="kastor-machine__related" aria-labelledby="kastor-related-title" data-kastor-reveal="up">
 				<h2 id="kastor-related-title" class="kastor-machine__related-title">Други машини</h2>
 				<ul class="kastor-machine__related-grid">
 					<?php while ( $related_query->have_posts() ) : $related_query->the_post();

@@ -11,12 +11,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'KASTOR_MACHINES_VERSION', '0.7.0' );
+define( 'KASTOR_MACHINES_VERSION', '0.8.0' );
 define( 'KASTOR_MACHINES_PATH', plugin_dir_path( __FILE__ ) );
 define( 'KASTOR_MACHINES_URL', plugin_dir_url( __FILE__ ) );
 define( 'KASTOR_MACHINES_PARAMS_META', '_kastor_machine_params' );
 define( 'KASTOR_MACHINES_GALLERY_META', '_kastor_machine_gallery' );
 define( 'KASTOR_MACHINES_HIGHLIGHTS_META', '_kastor_machine_highlights' );
+define( 'KASTOR_MACHINES_LONG_DESC_META', '_kastor_machine_long_desc' );
 
 // Comparison table (multi-model machines like the JCC series).
 define( 'KASTOR_MACHINES_MODELS_META', '_kastor_machine_models' );
@@ -159,6 +160,15 @@ function kastor_machines_add_metaboxes() {
 		$screens,
 		'normal',
 		'default'
+	);
+
+	add_meta_box(
+		'kastor_machine_long_desc',
+		'Описание (дълъг текст под таблицата)',
+		'kastor_machines_render_long_desc_metabox',
+		$screens,
+		'normal',
+		'low'
 	);
 }
 
@@ -330,6 +340,36 @@ function kastor_machines_render_specs_metabox( $post ) {
 }
 
 
+/* ---------- Описание (дълъг текст) metabox ---------- */
+
+function kastor_machines_render_long_desc_metabox( $post ) {
+	wp_nonce_field( 'kastor_machines_save_long_desc', 'kastor_machines_long_desc_nonce' );
+
+	$content = get_post_meta( $post->ID, KASTOR_MACHINES_LONG_DESC_META, true );
+	if ( ! is_string( $content ) ) {
+		$content = '';
+	}
+	?>
+	<p class="description">Подробно описание на машината, което се показва под техническата таблица и преди раздела „Подобни машини". Може да съдържа няколко абзаца, списъци, удебелен текст и т.н.</p>
+	<?php
+	wp_editor(
+		$content,
+		'kastor_long_desc',
+		array(
+			'textarea_name' => 'kastor_long_desc',
+			'textarea_rows' => 10,
+			'media_buttons' => true,
+			'teeny'         => false,
+			'tinymce'       => array(
+				'toolbar1' => 'formatselect,bold,italic,bullist,numlist,link,unlink,undo,redo',
+				'toolbar2' => '',
+			),
+			'quicktags'     => true,
+		)
+	);
+}
+
+
 /* --------------------------------------------------------------------------
  * 3. Save handlers
  * -------------------------------------------------------------------------- */
@@ -448,6 +488,32 @@ function kastor_machines_save_specs( $post_id, $post ) {
 		update_post_meta( $post_id, KASTOR_MACHINES_MODELS_META, $models );
 		update_post_meta( $post_id, KASTOR_MACHINES_SPECS_META, $rows );
 		update_post_meta( $post_id, KASTOR_MACHINES_SPECS_NOTE_META, $note );
+	}
+}
+
+add_action( 'save_post', 'kastor_machines_save_long_desc', 10, 2 );
+function kastor_machines_save_long_desc( $post_id, $post ) {
+	if ( ! in_array( $post->post_type, kastor_machines_type_keys(), true ) ) {
+		return;
+	}
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return;
+	}
+	if ( ! isset( $_POST['kastor_machines_long_desc_nonce'] ) ||
+	     ! wp_verify_nonce( $_POST['kastor_machines_long_desc_nonce'], 'kastor_machines_save_long_desc' ) ) {
+		return;
+	}
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
+		return;
+	}
+
+	$raw   = isset( $_POST['kastor_long_desc'] ) ? wp_unslash( $_POST['kastor_long_desc'] ) : '';
+	$clean = wp_kses_post( $raw );
+
+	if ( trim( strip_tags( $clean ) ) === '' && strpos( $clean, '<img' ) === false ) {
+		delete_post_meta( $post_id, KASTOR_MACHINES_LONG_DESC_META );
+	} else {
+		update_post_meta( $post_id, KASTOR_MACHINES_LONG_DESC_META, $clean );
 	}
 }
 
@@ -594,6 +660,13 @@ function kastor_machines_frontend_assets() {
 			KASTOR_MACHINES_VERSION,
 			true
 		);
+		wp_enqueue_script(
+			'kastor-machines-animations',
+			KASTOR_MACHINES_URL . 'animations.js',
+			array(),
+			KASTOR_MACHINES_VERSION,
+			true
+		);
 	}
 }
 
@@ -629,6 +702,12 @@ function kastor_machines_get_highlights( $post_id = null ) {
 	$post_id = $post_id ?: get_the_ID();
 	$rows    = get_post_meta( $post_id, KASTOR_MACHINES_HIGHLIGHTS_META, true );
 	return is_array( $rows ) ? $rows : array();
+}
+
+function kastor_machines_get_long_description( $post_id = null ) {
+	$post_id = $post_id ?: get_the_ID();
+	$value   = get_post_meta( $post_id, KASTOR_MACHINES_LONG_DESC_META, true );
+	return is_string( $value ) ? $value : '';
 }
 
 /**

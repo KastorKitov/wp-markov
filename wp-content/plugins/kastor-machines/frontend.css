@@ -184,8 +184,15 @@
 /* Свържете се с нас CTA button                                                       */
 /* ------------------------------------------------------------------------ */
 
-.kastor-machine__cta {
+.kastor-machine__ctas {
 	align-self: flex-start;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.kastor-machine__cta {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -201,6 +208,37 @@
 	cursor: pointer;
 	transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 	box-shadow: 0 2px 8px rgba(56, 182, 255, 0.25);
+}
+
+.kastor-machine__cta-phone {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 10px 20px;            /* matches .kastor-machine__cta */
+	background: #d8d8d8;
+	color: #333;
+	text-decoration: none;
+	border-radius: 32px;           /* matches .kastor-machine__cta */
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.kastor-machine__cta-phone:hover,
+.kastor-machine__cta-phone:focus {
+	background: #bfbfbf;
+	color: #111;
+	text-decoration: none;
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.kastor-machine__cta-phone:active {
+	transform: translateY(0);
+}
+
+.kastor-machine__cta-phone svg {
+	width: 24px;
+	height: 24px;
 }
 
 .kastor-machine__cta:hover,

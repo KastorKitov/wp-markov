@@ -195,7 +195,8 @@ get_header();
 					$groups[] = array( 'group' => $g, 'rows' => array( $row ) );
 				}
 				?>
-				<section class="kastor-machine__specs kastor-machine__specs--full">
+				<section class="kastor-machine__specs kastor-machine__specs--full" aria-labelledby="kastor-specs-heading">
+					<h2 id="kastor-specs-heading" class="kastor-machine__specs-heading">Технически данни</h2>
 					<div class="kastor-machine__specs-scroll">
 						<table class="kastor-machine__specs-comparison">
 							<thead>
@@ -268,7 +269,7 @@ get_header();
 
 		if ( $related_query->have_posts() ) : ?>
 			<section class="kastor-machine__related" aria-labelledby="kastor-related-title">
-				<h2 id="kastor-related-title" class="kastor-machine__related-title">Подобни машини</h2>
+				<h2 id="kastor-related-title" class="kastor-machine__related-title">Други машини</h2>
 				<ul class="kastor-machine__related-grid">
 					<?php while ( $related_query->have_posts() ) : $related_query->the_post();
 						$rel_thumb_id = get_post_thumbnail_id();

@@ -189,7 +189,7 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	padding: 14px 30px;
+	padding: 10px 20px;
 	background: var(--kastor-c-primary);
 	color: #fff;
 	font-size: 1rem;
@@ -228,12 +228,20 @@
 	border-top: 1px solid #e5e5e5;
 }
 
-.kastor-machine__related-title {
+.kastor-machine__related-title,
+.kastor-machine__specs-heading {
 	margin: 0 0 20px;
 	font-size: 1.4rem;
-	color: var(--kastor-c-dark);
+	color: #000000c2;
 	font-weight: 600;
 }
+/* 
+.kastor-machine__specs-heading {
+	margin: 0 0 20px;
+	font-size: 1.4rem;
+	color: #000000c2;
+	font-weight: 600;
+} */
 
 .kastor-machine__related-grid {
 	list-style: none;
@@ -437,7 +445,9 @@
 }
 
 .kastor-machine__specs--full {
-	margin-top: 0;
+	margin-top: 60px;
+	padding-top: 32px;
+	border-top: 1px solid #e5e5e5;
 }
 
 .kastor-machine__specs-table {

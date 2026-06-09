@@ -24,6 +24,7 @@
 # --- plugins level: ignore all plugins, allowlist our custom ones -------------
 /wp-content/plugins/*
 !/wp-content/plugins/kastor-machines/
+!/wp-content/plugins/kastor-shop/
 # !/wp-content/plugins/some-future-plugin/
 
 # --- themes level: ignore all themes, allowlist child themes (none yet) -------

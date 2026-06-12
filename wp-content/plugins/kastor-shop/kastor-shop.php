@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'KASTOR_SHOP_VERSION', '0.4.0' );
+define( 'KASTOR_SHOP_VERSION', '0.5.7' );
 define( 'KASTOR_SHOP_URL', plugin_dir_url( __FILE__ ) );
 define( 'KASTOR_SHOP_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -74,6 +74,52 @@ function kastor_shop_enqueue_assets() {
 add_filter( 'woocommerce_subcategory_count_html', 'kastor_shop_strip_count_parens', 10, 2 );
 function kastor_shop_strip_count_parens( $html, $category ) {
 	return '<mark class="count">' . esc_html( number_format_i18n( $category->count ) ) . '</mark>';
+}
+
+
+/* --------------------------------------------------------------------------
+ * 2a. Sale badge → show the discount percentage instead of just "SALE".
+ *     For variable products, takes the biggest discount across variations.
+ * -------------------------------------------------------------------------- */
+
+add_filter( 'woocommerce_sale_flash', 'kastor_shop_sale_percentage_badge', 10, 3 );
+function kastor_shop_sale_percentage_badge( $html, $post, $product ) {
+	if ( ! $product instanceof WC_Product ) {
+		return $html;
+	}
+
+	$percent = 0;
+
+	if ( $product->is_type( 'variable' ) ) {
+		// Walk the variations and use the largest discount.
+		foreach ( $product->get_children() as $child_id ) {
+			$child = wc_get_product( $child_id );
+			if ( ! $child || ! $child->is_on_sale() ) {
+				continue;
+			}
+			$regular = (float) $child->get_regular_price();
+			$sale    = (float) $child->get_sale_price();
+			if ( $regular > 0 && $sale >= 0 && $regular > $sale ) {
+				$p = (int) round( ( ( $regular - $sale ) / $regular ) * 100 );
+				if ( $p > $percent ) {
+					$percent = $p;
+				}
+			}
+		}
+	} else {
+		$regular = (float) $product->get_regular_price();
+		$sale    = (float) $product->get_sale_price();
+		if ( $regular > 0 && $sale >= 0 && $regular > $sale ) {
+			$percent = (int) round( ( ( $regular - $sale ) / $regular ) * 100 );
+		}
+	}
+
+	if ( $percent <= 0 ) {
+		// Couldn't compute (e.g. price-on-request); fall back to the default badge.
+		return $html;
+	}
+
+	return '<span class="onsale">-' . $percent . '%</span>';
 }
 
 

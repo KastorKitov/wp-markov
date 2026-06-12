@@ -203,14 +203,115 @@
 		}
 	}
 
+	/* -------- Sale-badge percentage rewrite --------
+	 * Some themes (Blocksy) bypass WooCommerce's `woocommerce_sale_flash`
+	 * filter by overriding the loop/sale-flash.php template, so a PHP-side
+	 * filter never fires. We pick the badge up client-side and replace its
+	 * text based on whatever <del>/<ins> prices are rendered on the card.
+	 */
+
+	function parsePrice(el) {
+		if (!el) return NaN;
+		// "1 230,50 €" → "1230.50"
+		var raw = (el.textContent || '')
+			.replace(/[\s ]/g, '')        // strip spaces, NBSPs
+			.replace(/[^\d.,-]/g, '')          // drop currency symbols
+			.replace(/\.(?=\d{3}(\D|$))/g, '') // strip thousands dots
+			.replace(',', '.');
+		var n = parseFloat(raw);
+		return isFinite(n) ? n : NaN;
+	}
+
+	function rewriteSaleBadges() {
+		var cards = document.querySelectorAll(
+			'.woocommerce ul.products li.product, ul.products li.product, ul.products > li'
+		);
+		cards.forEach(function (card) {
+			var badge = card.querySelector('.onsale, .ct-product-badge, [class*="sale"]');
+			if (!badge) return;
+
+			var priceWrap = card.querySelector('.price');
+			if (!priceWrap) return;
+
+			var del = priceWrap.querySelector('del');
+			var ins = priceWrap.querySelector('ins');
+			if (!del || !ins) return;
+
+			var regular = parsePrice(del);
+			var sale    = parsePrice(ins);
+			if (!isFinite(regular) || !isFinite(sale) || regular <= 0 || sale >= regular) {
+				return;
+			}
+
+			var pct = Math.round(((regular - sale) / regular) * 100);
+			if (pct > 0) {
+				badge.textContent = '-' + pct + '%';
+				badge.classList.add('kastor-shop-sale-rewritten');
+			}
+		});
+	}
+
+
+	/* -------- Wrap "Add to cart" + TI Wishlist heart in one flex row -------- */
+
+	function wrapCartAndWishlist() {
+		var cards = document.querySelectorAll(
+			'.woocommerce ul.products li.product, ul.products li.product, ul.products > li'
+		);
+		cards.forEach(function (card) {
+			var cartBtn = card.querySelector(
+				'a.button.add_to_cart_button, ' +
+				'a.button.product_type_simple, ' +
+				'.button.add_to_cart_button'
+			);
+			var wishlist = card.querySelector('.tinv-wishlist, .tinvwl-wishlist-loop, [class*="tinvwl"]');
+
+			if (!cartBtn || !wishlist) return;
+			if (cartBtn.parentElement && cartBtn.parentElement.classList.contains('kastor-shop__card-actions')) return;
+
+			var actions = document.createElement('div');
+			actions.className = 'kastor-shop__card-actions';
+			cartBtn.parentNode.insertBefore(actions, cartBtn);
+			actions.appendChild(cartBtn);
+			actions.appendChild(wishlist);
+		});
+	}
+
+
+	/* -------- Hide cart button after WC AJAX "added to cart" event -------- */
+
+	function setupAddedToCartHandler() {
+		if (typeof window.jQuery === 'undefined') return;
+
+		window.jQuery(document.body).on('added_to_cart',
+			function (event, fragments, cart_hash, $button) {
+				if ($button && $button.length) {
+					$button[0].style.setProperty('display', 'none', 'important');
+					var row = $button[0].closest('.kastor-shop__card-actions');
+					if (row) row.classList.add('kastor-shop__has-added');
+				}
+			}
+		);
+	}
+
+
 	function init() {
 		buildSidebarLayout();
 		cacheProducts();
+		rewriteSaleBadges();
+		wrapCartAndWishlist();
+		setupAddedToCartHandler();
 		emptyMsg = document.querySelector('[data-kastor-shop-filter-empty]');
 		// Bind events even if products is empty — the user might toggle
 		// inputs and we don't want them silently inert. applyFilters
 		// will simply do nothing meaningful with zero products.
 		bindEvents();
+
+		// TI Wishlist re-renders the button asynchronously after its own
+		// AJAX init; re-wrap once that's done so the heart still ends up
+		// next to the cart button.
+		setTimeout(wrapCartAndWishlist, 300);
+		setTimeout(wrapCartAndWishlist, 1200);
 	}
 
 	if (document.readyState === 'loading') {

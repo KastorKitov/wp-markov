@@ -540,6 +540,206 @@ body.single-product {
 
 
 /* ------------------------------------------------------------------------ */
+/* Cart + wishlist actions row (TI WooCommerce Wishlist integration)          */
+/* ------------------------------------------------------------------------ */
+
+.kastor-shop__card-actions {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	gap: 10px !important;
+	margin: auto 20px 18px !important;
+	width: auto !important;
+	text-align: center !important;
+}
+
+/* After AJAX add-to-cart: WooCommerce adds `.added` to the cart button and
+   appends a `.added_to_cart` ("Преглед на количката") link right after it.
+   We hide the original button and style the View Cart link so it slots
+   into the cart button's spot. */
+
+.kastor-shop__card-actions .button.added_to_cart_button.added,
+.kastor-shop__card-actions .button.added,
+.woocommerce ul.products li.product .button.added,
+ul.products li.product .button.added {
+	display: none !important;
+}
+
+/* Reliable swap: whenever the actions row contains a View Cart link, hide
+   the original cart button — even if WC didn't apply the `.added` class to
+   it (Blocksy or another plugin can interfere with that). */
+
+.kastor-shop__card-actions:has(.added_to_cart) a.button.add_to_cart_button,
+.kastor-shop__card-actions:has(.added_to_cart) a.button.product_type_simple,
+.kastor-shop__card-actions:has(.added_to_cart) .add_to_cart_button,
+.kastor-shop__card-actions.kastor-shop__has-added a.button.add_to_cart_button,
+.kastor-shop__card-actions.kastor-shop__has-added .add_to_cart_button {
+	display: none !important;
+}
+
+.kastor-shop__card-actions a.added_to_cart,
+.woocommerce ul.products li.product a.added_to_cart,
+ul.products li.product a.added_to_cart {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	height: 42px !important;
+	min-height: 0 !important;
+	padding: 0 18px !important;
+	margin: 0 !important;
+	background: var(--kastor-c-primary) !important;
+	color: #fff !important;
+	border: none !important;
+	border-radius: 32px !important;
+	font-size: 0.9rem !important;
+	font-weight: 600 !important;
+	letter-spacing: 0.02em;
+	text-decoration: none !important;
+	white-space: nowrap !important;
+	line-height: 1 !important;
+	box-sizing: border-box !important;
+	box-shadow: 0 2px 8px rgba(56, 182, 255, 0.25) !important;
+	transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.kastor-shop__card-actions a.added_to_cart:hover,
+.woocommerce ul.products li.product a.added_to_cart:hover,
+ul.products li.product a.added_to_cart:hover {
+	background: var(--kastor-c-dark) !important;
+	color: #fff !important;
+	text-decoration: none !important;
+	transform: translateY(-1px);
+	box-shadow: 0 4px 14px rgba(33, 97, 146, 0.30) !important;
+}
+
+.kastor-shop__card-actions a.added_to_cart:active,
+.woocommerce ul.products li.product a.added_to_cart:active,
+ul.products li.product a.added_to_cart:active {
+	background: var(--kastor-c-darker) !important;
+	transform: translateY(0);
+}
+
+.kastor-shop__card-actions .tinv-wishlist {
+	display: inline-flex !important;
+	align-items: center !important;
+}
+
+/* Both action buttons share the exact same fixed height — no flex-stretch    */
+/* cascade, no surprises from text length or icon font metrics.               */
+
+.kastor-shop__card-actions .button,
+.kastor-shop__card-actions .tinv-wishlist .tinvwl_add_to_wishlist_button,
+.tinv-wishlist .tinvwl_add_to_wishlist_button {
+	height: 42px !important;
+	min-height: 0 !important;
+	line-height: 1 !important;
+	box-sizing: border-box !important;
+}
+
+.kastor-shop__card-actions .button,
+.woocommerce ul.products li.product .kastor-shop__card-actions .button,
+.woocommerce ul.products li.product .kastor-shop__card-actions a.button,
+.woocommerce ul.products li.product .kastor-shop__card-actions .add_to_cart_button,
+ul.products li.product .kastor-shop__card-actions .button,
+ul.products li.product .kastor-shop__card-actions a.button,
+ul.products li.product .kastor-shop__card-actions .add_to_cart_button {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	height: 42px !important;
+	padding: 0 18px !important;
+	margin: 0 !important;
+	min-width: 0 !important;
+	max-width: none !important;
+	width: auto !important;
+	flex: 0 0 auto !important;
+	box-sizing: border-box !important;
+	white-space: nowrap !important;
+}
+
+.kastor-shop__card-actions .button {
+	margin: 0 !important;
+}
+
+.kastor-shop__card-actions .tinv-wishlist {
+	margin: 0 !important;
+	padding: 0 !important;
+	background: none !important;
+	border: none !important;
+	box-shadow: none !important;
+	display: inline-flex;
+}
+
+/* The wishlist button itself — gray pill, icon only */
+
+.kastor-shop__card-actions .tinv-wishlist .tinvwl_add_to_wishlist_button,
+.tinv-wishlist .tinvwl_add_to_wishlist_button {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	padding: 0 24px !important;
+	background: #d8d8d8 !important;
+	color: #333 !important;
+	border: none !important;
+	border-radius: 32px !important;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+	transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease !important;
+	line-height: 1 !important;
+	min-height: 0 !important;
+	min-width: 70px !important;            /* clearly pill-shaped, not circular */
+	box-sizing: border-box !important;
+	text-decoration: none !important;
+	cursor: pointer;
+}
+
+.kastor-shop__card-actions .tinv-wishlist .tinvwl_add_to_wishlist_button:hover,
+.kastor-shop__card-actions .tinv-wishlist .tinvwl_add_to_wishlist_button:focus,
+.tinv-wishlist .tinvwl_add_to_wishlist_button:hover,
+.tinv-wishlist .tinvwl_add_to_wishlist_button:focus {
+	background: #bfbfbf !important;
+	color: #111 !important;
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.kastor-shop__card-actions .tinv-wishlist .tinvwl_add_to_wishlist_button:active,
+.tinv-wishlist .tinvwl_add_to_wishlist_button:active {
+	transform: translateY(0);
+}
+
+/* Hide the wishlist text — heart only */
+
+.tinv-wishlist .tinvwl_add_to_wishlist-text,
+.tinv-wishlist .tinvwl-loop-button-wrapper > span:not([class*="ftinvwl"]):not(.tinvwl-icon-heart) {
+	display: none !important;
+}
+
+/* The heart icon */
+
+.tinv-wishlist .ftinvwl,
+.tinv-wishlist [class*="ftinvwl-"],
+.tinv-wishlist [class*="tinvwl-icon-"] {
+	font-size: 18px !important;
+	line-height: 1 !important;
+	margin: 0 !important;
+	color: inherit !important;
+}
+
+/* When the product is already in the wishlist, fill the heart with brand blue */
+
+.tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-product-in-list,
+.tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-product-in-list:hover {
+	background: #d6efff !important;
+	color: var(--kastor-c-primary) !important;
+}
+
+.tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-product-in-list .ftinvwl,
+.tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-product-in-list [class*="ftinvwl-"] {
+	color: var(--kastor-c-primary) !important;
+}
+
+
+/* ------------------------------------------------------------------------ */
 /* Pagination                                                                 */
 /* ------------------------------------------------------------------------ */
 

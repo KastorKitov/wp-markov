@@ -11,9 +11,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'KASTOR_SHOP_VERSION', '0.2.0' );
+define( 'KASTOR_SHOP_VERSION', '0.4.0' );
 define( 'KASTOR_SHOP_URL', plugin_dir_url( __FILE__ ) );
 define( 'KASTOR_SHOP_PATH', plugin_dir_path( __FILE__ ) );
+
+/**
+ * Slug of the product attribute used by the sidebar "type" filter.
+ * Default expects an attribute created in WooCommerce with slug "part-type"
+ * (stored internally as `pa_part-type`). To use a different attribute, define
+ * KASTOR_SHOP_TYPE_ATTRIBUTE in wp-config.php or another plugin.
+ */
+if ( ! defined( 'KASTOR_SHOP_TYPE_ATTRIBUTE' ) ) {
+	define( 'KASTOR_SHOP_TYPE_ATTRIBUTE', 'pa_part-type' );
+}
+
+/**
+ * How many products to render per archive page. Because the sidebar filter
+ * runs client-side, it can only filter products that are already on the
+ * current page — so we bump WooCommerce's default of 20 up to a value that
+ * comfortably fits a whole parts catalogue on one page. Increase further if
+ * a category ever grows beyond this; switch to an AJAX filter if it grows
+ * into the hundreds.
+ */
+if ( ! defined( 'KASTOR_SHOP_PRODUCTS_PER_PAGE' ) ) {
+	define( 'KASTOR_SHOP_PRODUCTS_PER_PAGE', 100 );
+}
 
 
 /* --------------------------------------------------------------------------
@@ -52,6 +74,16 @@ function kastor_shop_enqueue_assets() {
 add_filter( 'woocommerce_subcategory_count_html', 'kastor_shop_strip_count_parens', 10, 2 );
 function kastor_shop_strip_count_parens( $html, $category ) {
 	return '<mark class="count">' . esc_html( number_format_i18n( $category->count ) ) . '</mark>';
+}
+
+
+/* --------------------------------------------------------------------------
+ * 2b. Show more products per page so the client-side filter sees them all.
+ * -------------------------------------------------------------------------- */
+
+add_filter( 'loop_shop_per_page', 'kastor_shop_per_page', 20 );
+function kastor_shop_per_page( $cols ) {
+	return (int) KASTOR_SHOP_PRODUCTS_PER_PAGE;
 }
 
 
@@ -129,4 +161,101 @@ function kastor_shop_render_filter_input() {
 		<p class="kastor-shop__filter-empty" data-kastor-shop-filter-empty hidden>Няма съвпадения.</p>
 	</div>
 	<?php
+}
+
+
+/* --------------------------------------------------------------------------
+ * 5. Sidebar with price + type filters
+ *    Rendered before the products grid; shop.js then moves it into a
+ *    left-column layout (DOM rewrap in JS, since WooCommerce templates don't
+ *    give us a stable wrapper we can split server-side).
+ * -------------------------------------------------------------------------- */
+
+add_action( 'woocommerce_before_shop_loop', 'kastor_shop_render_sidebar', 20 );
+function kastor_shop_render_sidebar() {
+	if ( ! is_shop() && ! is_product_category() && ! is_product_tag() ) {
+		return;
+	}
+	if ( function_exists( 'woocommerce_get_loop_display_mode' ) ) {
+		$display = woocommerce_get_loop_display_mode();
+		if ( 'subcategories' === $display ) {
+			return;
+		}
+	}
+
+	$type_terms = array();
+	if ( taxonomy_exists( KASTOR_SHOP_TYPE_ATTRIBUTE ) ) {
+		$fetched = get_terms( array(
+			'taxonomy'   => KASTOR_SHOP_TYPE_ATTRIBUTE,
+			'hide_empty' => true,
+		) );
+		if ( ! is_wp_error( $fetched ) ) {
+			$type_terms = $fetched;
+		}
+	}
+	?>
+	<aside class="kastor-shop__sidebar" data-kastor-shop-sidebar aria-label="Филтри">
+
+		<div class="kastor-shop__filter-group">
+			<h3 class="kastor-shop__filter-title">Цена</h3>
+			<div class="kastor-shop__price-inputs">
+				<label>
+					<span>От</span>
+					<input type="number" min="0" step="1" placeholder="0" inputmode="numeric" data-kastor-shop-price-min />
+				</label>
+				<label>
+					<span>До</span>
+					<input type="number" min="0" step="1" placeholder="∞" inputmode="numeric" data-kastor-shop-price-max />
+				</label>
+			</div>
+		</div>
+
+		<?php if ( ! empty( $type_terms ) ) : ?>
+			<div class="kastor-shop__filter-group">
+				<h3 class="kastor-shop__filter-title">Тип част</h3>
+				<ul class="kastor-shop__filter-list">
+					<?php foreach ( $type_terms as $term ) : ?>
+						<li>
+							<label>
+								<input type="checkbox" value="<?php echo esc_attr( $term->slug ); ?>" data-kastor-shop-type />
+								<span><?php echo esc_html( $term->name ); ?></span>
+							</label>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+		<?php endif; ?>
+
+		<button type="button" class="kastor-shop__filter-reset" data-kastor-shop-filter-reset>Изчисти филтрите</button>
+	</aside>
+	<?php
+}
+
+
+/* --------------------------------------------------------------------------
+ * 6. Inject price + type slugs as hidden meta on each product card so JS can
+ *    filter without an extra round-trip.
+ * -------------------------------------------------------------------------- */
+
+add_action( 'woocommerce_after_shop_loop_item', 'kastor_shop_inject_filter_meta', 5 );
+function kastor_shop_inject_filter_meta() {
+	global $product;
+	if ( ! $product instanceof WC_Product ) {
+		return;
+	}
+
+	$price = $product->get_price();
+	$types = array();
+	if ( taxonomy_exists( KASTOR_SHOP_TYPE_ATTRIBUTE ) ) {
+		$fetched = wp_get_post_terms( $product->get_id(), KASTOR_SHOP_TYPE_ATTRIBUTE, array( 'fields' => 'slugs' ) );
+		if ( ! is_wp_error( $fetched ) ) {
+			$types = $fetched;
+		}
+	}
+
+	printf(
+		'<span class="kastor-shop-product-meta" data-kastor-shop-product-meta data-price="%s" data-types="%s" hidden></span>',
+		esc_attr( $price !== '' ? (string) $price : '' ),
+		esc_attr( implode( ',', (array) $types ) )
+	);
 }

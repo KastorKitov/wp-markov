@@ -97,6 +97,192 @@ body.single-product {
 
 
 /* ------------------------------------------------------------------------ */
+/* Sidebar layout — sidebar left, products right (stacks on mobile)           */
+/* ------------------------------------------------------------------------ */
+
+.kastor-shop__layout {
+	display: grid;
+	grid-template-columns: 260px minmax(0, 1fr);
+	gap: 30px;
+	align-items: start;
+	margin-top: 16px;
+}
+
+@media (max-width: 900px) {
+	.kastor-shop__layout {
+		grid-template-columns: 1fr;
+		gap: 20px;
+	}
+}
+
+.kastor-shop__sidebar {
+	background: #fff;
+	border: 1px solid #ececec;
+	border-radius: 10px;
+	padding: 22px;
+	position: sticky;
+	top: 24px;
+	align-self: start;
+}
+
+@media (max-width: 900px) {
+	.kastor-shop__sidebar {
+		position: static;
+	}
+}
+
+.kastor-shop__main {
+	min-width: 0;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Filter groups inside the sidebar                                           */
+/* ------------------------------------------------------------------------ */
+
+.kastor-shop__filter-group {
+	margin: 0 0 22px;
+	padding: 0 0 22px;
+	border-bottom: 1px solid #ececec;
+}
+
+.kastor-shop__filter-group:last-of-type {
+	border-bottom: none;
+}
+
+.kastor-shop__filter-title {
+	margin: 0 0 12px;
+	font-size: 0.85rem;
+	font-weight: 700;
+	color: var(--kastor-c-dark);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+/* Price inputs (от / до) */
+
+.kastor-shop__price-inputs {
+	display: flex;
+	gap: 10px;
+}
+
+.kastor-shop__price-inputs label {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: 0.75rem;
+	color: #777;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.kastor-shop__price-inputs input {
+	width: 100%;
+	padding: 9px 10px;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	font-size: 0.95rem;
+	color: #222;
+	box-sizing: border-box;
+	background: #fff;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+	/* Hide number-input spinner buttons; they get in the way visually. */
+	-moz-appearance: textfield;
+}
+
+.kastor-shop__price-inputs input::-webkit-outer-spin-button,
+.kastor-shop__price-inputs input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.kastor-shop__price-inputs input:focus {
+	outline: none;
+	border-color: var(--kastor-c-primary);
+	box-shadow: 0 0 0 3px rgba(56, 182, 255, 0.18);
+}
+
+/* Type checkbox list */
+
+.kastor-shop__filter-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.kastor-shop__filter-list li {
+	margin: 0 0 10px;
+}
+
+.kastor-shop__filter-list li:last-child {
+	margin-bottom: 0;
+}
+
+.kastor-shop__filter-list label {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	cursor: pointer;
+	font-size: 0.95rem;
+	color: #333;
+	line-height: 1.35;
+	padding: 4px 0;
+	transition: color 0.15s ease;
+}
+
+.kastor-shop__filter-list label:hover {
+	color: var(--kastor-c-dark);
+}
+
+.kastor-shop__filter-list input[type="checkbox"] {
+	flex-shrink: 0;
+	width: 18px;
+	height: 18px;
+	accent-color: var(--kastor-c-primary);
+	cursor: pointer;
+	margin: 0;
+}
+
+/* Reset button */
+
+.kastor-shop__filter-reset {
+	display: block;
+	width: 100%;
+	padding: 10px 16px;
+	background: transparent;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	color: #555;
+	font-size: 0.9rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.kastor-shop__filter-reset:hover,
+.kastor-shop__filter-reset:focus {
+	background: var(--kastor-c-bg-light);
+	color: var(--kastor-c-dark);
+	border-color: #cfcfcf;
+	outline: none;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Text filter inside the main column                                         */
+/*   Override the earlier 460px max-width so it spans the available main      */
+/*   column width when nested under the layout.                               */
+/* ------------------------------------------------------------------------ */
+
+.kastor-shop__main .kastor-shop__filter {
+	max-width: none;
+}
+
+
+/* ------------------------------------------------------------------------ */
 /* Category / product grid                                                    */
 /*   Override Blocksy / WooCommerce defaults to 3 columns of large cards.    */
 /* ------------------------------------------------------------------------ */

@@ -278,6 +278,146 @@
 	}
 
 
+	/* -------- Close PhotoSwipe lightbox on scroll / wheel, with fade -------- */
+
+	function setupLightboxScrollClose() {
+		var fading = false;
+
+		function fadeAndClose() {
+			if (fading) return;
+			var pswp = document.querySelector('.pswp.pswp--open');
+			if (!pswp) return;
+
+			fading = true;
+			pswp.style.transition = 'opacity 0.3s ease';
+			pswp.style.opacity = '0';
+
+			setTimeout(function () {
+				var closeBtn = pswp.querySelector('.pswp__button--close');
+				if (closeBtn) closeBtn.click();
+				// Clean inline styles so the next open starts at opacity 1.
+				setTimeout(function () {
+					pswp.style.opacity = '';
+					pswp.style.transition = '';
+					fading = false;
+				}, 50);
+			}, 300);
+		}
+
+		// Mouse wheel → fade + close.
+		document.addEventListener('wheel', fadeAndClose, { passive: true });
+
+		// Scroll keys → fade + close too.
+		document.addEventListener('keydown', function (e) {
+			if (e.key === 'PageDown' || e.key === 'PageUp' ||
+				e.key === ' ' || e.key === 'Home' || e.key === 'End') {
+				fadeAndClose();
+			}
+		});
+
+		// Also make the X button fade rather than vanish abruptly.
+		document.addEventListener('click', function (e) {
+			var btn = e.target.closest('.pswp__button--close');
+			if (!btn) return;
+			var pswp = btn.closest('.pswp.pswp--open');
+			if (!pswp) return;
+			if (fading) return; // already fading
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			fadeAndClose();
+		}, true);
+	}
+
+
+	/* -------- Move wishlist into the cart-actions grid on single product -------- */
+
+	function moveWishlistIntoCartActions() {
+		if (!document.body.classList.contains('single-product')) return;
+
+		var actions = document.querySelector('.ct-cart-actions');
+		if (!actions) return;
+
+		var wishlist = document.querySelector(
+			'.summary .tinv-wishlist, .summary .tinvwl-wishlist-loop, .summary [class*="tinvwl"]'
+		);
+		if (!wishlist) return;
+		if (actions.contains(wishlist)) return;
+
+		actions.appendChild(wishlist);
+	}
+
+
+	/* -------- "Купи сега" — add to cart + redirect to checkout -------- */
+
+	function setupBuyNowButton() {
+		document.querySelectorAll('[data-kastor-shop-buy-now]').forEach(function (btn) {
+			btn.addEventListener('click', function (e) {
+				e.preventDefault();
+				var productId = btn.getAttribute('data-product-id');
+				if (!productId) return;
+
+				var form = btn.closest('form.cart');
+				var qtyInput = form ? form.querySelector('input.qty, input[name="quantity"]') : null;
+				var qty = qtyInput && qtyInput.value ? Math.max(1, parseInt(qtyInput.value, 10) || 1) : 1;
+
+				// Wait for any in-flight WC scripts, then navigate.
+				var url = '/checkout/?add-to-cart=' + encodeURIComponent(productId) +
+					'&quantity=' + encodeURIComponent(qty);
+				window.location.href = url;
+			});
+		});
+	}
+
+
+	/* -------- Inject a simple "Начало" link below the archive title -------- */
+
+	function injectBackToHomeLink() {
+		// Only on WC archive pages.
+		var b = document.body;
+		if (!b.classList.contains('woocommerce') && !b.classList.contains('archive')) return;
+		if (b.classList.contains('single-product')) return;
+
+		// Find the main banner/page-title element. Try the common Blocksy/WC
+		// selectors in order of specificity.
+		var title =
+			document.querySelector('.ct-page-title-wrapper h1') ||
+			document.querySelector('.ct-banner-title-wrapper h1') ||
+			document.querySelector('.ct-hero-section h1') ||
+			document.querySelector('.entry-header h1') ||
+			document.querySelector('.woocommerce-products-header__title') ||
+			document.querySelector('header.page-header h1') ||
+			document.querySelector('h1.entry-title');
+
+		if (!title) return;
+		// Don't double-add.
+		if (title.parentNode.querySelector('.kastor-shop__back-home')) return;
+
+		var link = document.createElement('a');
+		link.href = '/';
+		link.className = 'kastor-shop__back-home';
+		link.textContent = 'Начало';
+
+		// Wrap the title + link in a small flex container so the link always
+		// sits directly underneath the title with a controlled gap, regardless
+		// of Blocksy's outer banner layout.
+		var group = document.createElement('div');
+		group.className = 'kastor-shop__title-group';
+		title.parentNode.insertBefore(group, title);
+
+		// On product-category pages, prepend "Части за" above the category
+		// name so the title reads "Части за СЕМЕЧИСТАЧНА МАШИНА GIGANT K531".
+		if (document.body.classList.contains('tax-product_cat')) {
+			var prefix = document.createElement('span');
+			prefix.className = 'kastor-shop__title-prefix';
+			prefix.textContent = 'Части за';
+			group.appendChild(prefix);
+		}
+
+		group.appendChild(title);
+		group.appendChild(link);
+	}
+
+
 	/* -------- Hide cart button after WC AJAX "added to cart" event -------- */
 
 	function setupAddedToCartHandler() {
@@ -301,6 +441,10 @@
 		rewriteSaleBadges();
 		wrapCartAndWishlist();
 		setupAddedToCartHandler();
+		setupBuyNowButton();
+		moveWishlistIntoCartActions();
+		setupLightboxScrollClose();
+		injectBackToHomeLink();
 		emptyMsg = document.querySelector('[data-kastor-shop-filter-empty]');
 		// Bind events even if products is empty — the user might toggle
 		// inputs and we don't want them silently inert. applyFilters
@@ -312,6 +456,8 @@
 		// next to the cart button.
 		setTimeout(wrapCartAndWishlist, 300);
 		setTimeout(wrapCartAndWishlist, 1200);
+		setTimeout(moveWishlistIntoCartActions, 300);
+		setTimeout(moveWishlistIntoCartActions, 1200);
 	}
 
 	if (document.readyState === 'loading') {

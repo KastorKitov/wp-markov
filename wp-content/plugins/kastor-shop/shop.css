@@ -26,6 +26,119 @@ body.single-product {
 
 
 /* ------------------------------------------------------------------------ */
+/* Category page banner title                                                 */
+/*   Match the machines-archive banner: uppercase, single line, scales down  */
+/*   when the title is long.                                                  */
+/* ------------------------------------------------------------------------ */
+
+.woocommerce-products-header__title,
+.ct-banner-title,
+.tax-product_cat .entry-title,
+.tax-product_cat .ct-page-title,
+.tax-product_cat .ct-page-title-wrapper h1,
+.archive.woocommerce .entry-title,
+.archive.woocommerce .page-title,
+.archive.woocommerce h1.entry-title {
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 3.2rem !important;
+	font-weight: 700 !important;
+	line-height: 1.5 !important;
+	text-transform: uppercase !important;
+	white-space: nowrap !important;
+	text-align: center !important;
+	overflow: visible !important;
+}
+
+@media (max-width: 700px) {
+	.woocommerce-products-header__title,
+	.ct-banner-title,
+	.tax-product_cat .entry-title,
+	.tax-product_cat .ct-page-title,
+	.tax-product_cat .ct-page-title-wrapper h1,
+	.archive.woocommerce .entry-title,
+	.archive.woocommerce .page-title,
+	.archive.woocommerce h1.entry-title {
+		white-space: normal !important;
+		font-size: 2rem !important;
+		line-height: 1.3 !important;
+	}
+
+	/* Compact the archive banner on mobile so it doesn't take half the screen. */
+	.archive.woocommerce [class*="ct-banner"],
+	.archive.woocommerce [class*="ct-page-title"],
+	.archive.woocommerce [class*="ct-hero"],
+	.archive.woocommerce header.entry-header,
+	.tax-product_cat [class*="ct-banner"],
+	.tax-product_cat [class*="ct-page-title"],
+	.tax-product_cat [class*="ct-hero"],
+	.tax-product_cat header.entry-header {
+		min-height: 170px !important;
+		max-height: 230px !important;
+		padding-top: 40px !important;
+		padding-bottom: 40px !important;
+	}
+
+	/* The link is naturally smaller on mobile too. */
+	.kastor-shop__back-home {
+		font-size: 0.95rem !important;
+	}
+}
+
+/* The "Начало" link + title group — injected by shop.js                     */
+
+.kastor-shop__title-group {
+	display: flex !important;
+	flex-direction: column !important;
+	align-items: center !important;
+	gap: 4px !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.kastor-shop__title-group h1 {
+	margin: 0 !important;
+}
+
+/* "Части за" prefix above the category title (product-category pages only) */
+
+.kastor-shop__title-prefix {
+	display: inline-block;
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 1.15rem !important;
+	font-weight: 600 !important;
+	text-transform: uppercase !important;
+	color: var(--kastor-c-primary) !important;
+	line-height: 1.2 !important;
+	letter-spacing: 0 !important;
+}
+
+@media (max-width: 700px) {
+	.kastor-shop__title-prefix {
+		font-size: 1rem !important;
+	}
+}
+
+.kastor-shop__back-home {
+	display: inline-block;
+	margin: 0 !important;
+	color: var(--kastor-c-primary) !important;
+	text-decoration: none !important;
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 1.15rem !important;
+	font-weight: 600 !important;
+	letter-spacing: 0 !important;
+	text-transform: uppercase !important;
+	transition: color 0.15s ease !important;
+}
+
+.kastor-shop__back-home:hover,
+.kastor-shop__back-home:focus {
+	color: #fff !important;
+	text-decoration: none !important;
+}
+
+
+/* ------------------------------------------------------------------------ */
 /* Intro line above the category grid                                         */
 /* ------------------------------------------------------------------------ */
 
@@ -50,20 +163,21 @@ body.single-product {
 
 .kastor-shop__filter-icon {
 	position: absolute;
-	left: 16px;
+	left: 20px;
 	top: 50%;
 	transform: translateY(-50%);
 	color: #888;
 	pointer-events: none;
 	transition: color 0.15s ease;
+	z-index: 1;
 }
 
 .kastor-shop__filter-input {
 	width: 100%;
-	padding: 11px 16px 11px 44px;
+	padding: 11px 18px 11px 52px !important;
 	background: #fff;
 	border: 1px solid #ddd;
-	border-radius: 32px;
+	border-radius: 16px !important;
 	font-size: 0.95rem;
 	color: #222;
 	transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -121,7 +235,9 @@ body.single-product {
 	border-radius: 10px;
 	padding: 22px;
 	position: sticky;
-	top: 24px;
+	/* Clear the sticky Blocksy header (~100px) so the top of the sidebar
+	   isn't hidden underneath it when the page scrolls. */
+	top: 150px;
 	align-self: start;
 }
 
@@ -152,11 +268,12 @@ body.single-product {
 
 .kastor-shop__filter-title {
 	margin: 0 0 12px;
-	font-size: 0.85rem;
+	font-size: 1rem;
 	font-weight: 700;
 	color: var(--kastor-c-dark);
-	text-transform: uppercase;
-	letter-spacing: 0.06em;
+	font-family: inherit;
+	text-transform: none;
+	letter-spacing: 0;
 }
 
 /* Price inputs (от / до) */
@@ -768,4 +885,774 @@ ul.products li.product .kastor-shop__card-actions .add_to_cart_button {
 	background: var(--kastor-c-dark) !important;
 	color: #fff !important;
 	border-color: var(--kastor-c-dark) !important;
+}
+
+
+/* ========================================================================== */
+/* SINGLE PRODUCT PAGE                                                         */
+/* ========================================================================== */
+
+/* Blocksy constrains single-product content to a narrow reading column.
+   Force the page container wide so our 2-column hero has room to breathe.
+   Multiple selectors + a CSS-var override so it works across Blocksy/Pro
+   variants that name the wrapper differently.                                */
+
+body.single-product {
+	--container-max-width: 1280px !important;
+	--maxWidth: 1280px !important;
+	--content-block-max-width: 1280px !important;
+}
+
+/* SCOPED to main so we don't accidentally widen header/footer containers
+   (Blocksy reuses `.ct-container` etc. in the header — un-scoping our rule
+   pushed the cart icon off-screen). */
+
+body.single-product main,
+body.single-product main > div,
+body.single-product main .entry-content,
+body.single-product main .ct-container,
+body.single-product main .ct-container-narrow,
+body.single-product main .ct-main,
+body.single-product main .ct-main-content,
+body.single-product main .ct-page-wrapper,
+body.single-product main article.product,
+body.single-product main article.type-product,
+body.single-product main [class*="ct-container"],
+body.single-product main .product-entry-wrapper,
+body.single-product main .product-entry-wrapper.is-width-constrained {
+	max-width: none !important;
+	width: 100% !important;
+	padding-left: 0 !important;
+	padding-right: 0 !important;
+}
+
+/* ----- Hero layout: image left, summary right (stacks on mobile) -----
+   Blocksy wraps the gallery + summary inside `.product-entry-wrapper`, so
+   the grid lives on the wrapper (not on `div.product` itself). The outer
+   `div.product` is just a centered max-width block.                          */
+
+body.single-product div.product {
+	display: block !important;
+	max-width: 1280px !important;
+	width: 100% !important;
+	margin: 0 auto !important;
+	padding: 24px 20px 60px !important;
+	box-sizing: border-box !important;
+}
+
+body.single-product .product-entry-wrapper,
+body.single-product .product-entry-wrapper.is-width-constrained {
+	display: grid !important;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+	gap: 40px !important;
+	align-items: start !important;
+	width: 100% !important;
+	max-width: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+@media (max-width: 900px) {
+	body.single-product .product-entry-wrapper,
+	body.single-product .product-entry-wrapper.is-width-constrained {
+		grid-template-columns: 1fr !important;
+		gap: 24px !important;
+	}
+}
+
+/* ----- Image area ----- */
+
+body.single-product .woocommerce-product-gallery {
+	width: auto !important;
+	margin: 0 !important;
+	float: none !important;
+	background: #fff;
+	border: 1px solid #ececec;
+	border-radius: 12px;
+	padding: 24px;
+	box-shadow: 0 2px 14px rgba(0, 0, 0, 0.04);
+}
+
+body.single-product .woocommerce-product-gallery .flex-viewport,
+body.single-product .woocommerce-product-gallery__wrapper,
+body.single-product .woocommerce-product-gallery__image img {
+	border-radius: 8px;
+}
+
+body.single-product .woocommerce-product-gallery img {
+	width: 100% !important;
+	height: auto !important;
+}
+
+/* Trigger button (zoom icon) — restyled */
+
+body.single-product .woocommerce-product-gallery__trigger {
+	top: 12px !important;
+	right: 12px !important;
+	background: rgba(255, 255, 255, 0.92) !important;
+	color: var(--kastor-c-dark) !important;
+	width: 36px !important;
+	height: 36px !important;
+	border-radius: 50% !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	text-indent: -9999px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+body.single-product .woocommerce-product-gallery__trigger::before {
+	content: '';
+	width: 16px;
+	height: 16px;
+	border: 2px solid currentColor;
+	border-radius: 50%;
+	position: absolute;
+	top: 8px;
+	left: 8px;
+}
+
+body.single-product .woocommerce-product-gallery__trigger::after {
+	content: '';
+	width: 6px;
+	height: 2px;
+	background: currentColor;
+	position: absolute;
+	bottom: 10px;
+	right: 8px;
+	transform: rotate(45deg);
+}
+
+/* ----- Summary (right column) ----- */
+
+body.single-product div.product .summary,
+body.single-product .product-entry-wrapper .summary,
+body.single-product .summary.entry-summary {
+	width: auto !important;
+	margin: 0 !important;
+	float: none !important;
+	padding: 8px 0 !important;
+}
+
+/* Kill Blocksy's built-in sticky behaviour on the entry-summary.
+   Blocksy ships this inside an @media (min-width: 1000px) block at high
+   specificity, so we match the same media query to be sure we win.        */
+
+@media (min-width: 1000px) {
+	body.single-product .sticky-summary .entry-summary,
+	body.single-product.sticky-summary .entry-summary,
+	body.single-product .summary.entry-summary,
+	body.single-product .ct-order-review,
+	body.single-product .sticky-gallery .woocommerce-product-gallery {
+		position: static !important;
+		top: auto !important;
+		align-self: auto !important;
+	}
+}
+
+/* Title */
+
+body.single-product .product_title {
+	margin: 0 0 12px !important;
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 2.2rem !important;
+	font-weight: 700 !important;
+	color: #222 !important;
+	line-height: 1.2 !important;
+}
+
+/* Price */
+
+body.single-product .summary .price {
+	margin: 0 0 20px !important;
+	font-size: 1.8rem !important;
+	font-weight: 700 !important;
+	color: var(--kastor-c-dark) !important;
+}
+
+body.single-product .summary .price del {
+	color: #999 !important;
+	font-weight: 500 !important;
+	margin-right: 10px;
+	font-size: 1.2rem !important;
+}
+
+body.single-product .summary .price ins {
+	background: transparent !important;
+	color: var(--kastor-c-dark) !important;
+	font-weight: 700 !important;
+	text-decoration: none !important;
+}
+
+/* Short description */
+
+body.single-product .woocommerce-product-details__short-description {
+	margin: 0 0 24px !important;
+	padding: 0 0 24px !important;
+	border-bottom: 1px solid #ececec;
+	font-size: 1rem;
+	line-height: 1.6;
+	color: #444;
+}
+
+body.single-product .woocommerce-product-details__short-description p {
+	margin: 0 0 10px;
+}
+
+body.single-product .woocommerce-product-details__short-description p:last-child {
+	margin-bottom: 0;
+}
+
+/* ----- Cart form: quantity + Add to cart + Buy Now ----- */
+
+body.single-product form.cart {
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 14px !important;
+	margin: 0 0 24px !important;
+}
+
+body.single-product form.cart .quantity {
+	display: inline-flex !important;
+	align-items: center;
+}
+
+/* Quantity input — fixed 90×48, Blocksy's +/- buttons positioned cleanly
+   inside.  Override the `--quantity-height` CSS var Blocksy uses to size the
+   absolute-positioned + / − buttons.                                         */
+
+body.single-product form.cart .ct-cart-actions > .quantity {
+	--quantity-height: 48px !important;
+	position: relative !important;
+	width: 90px !important;
+	height: 48px !important;
+	display: block !important;
+	box-sizing: border-box !important;
+	margin: 0 !important;
+}
+
+body.single-product form.cart .quantity input.qty {
+	width: 100% !important;
+	height: 100% !important;
+	padding: 0 26px !important;        /* leave room for +/− */
+	border: 1px solid #ddd !important;
+	border-radius: 32px !important;
+	font-size: 1rem !important;
+	font-weight: 600 !important;
+	text-align: center !important;
+	background: #fff !important;
+	box-sizing: border-box !important;
+}
+
+body.single-product form.cart .quantity input.qty:focus {
+	outline: none !important;
+	border-color: var(--kastor-c-primary) !important;
+	box-shadow: 0 0 0 3px rgba(56, 182, 255, 0.18) !important;
+}
+
+/* Pin the +/− buttons to the input's left/right edges. */
+
+body.single-product form.cart .quantity .ct-increase,
+body.single-product form.cart .quantity .ct-decrease {
+	position: absolute !important;
+	top: 50% !important;
+	width: 22px !important;
+	height: 22px !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	cursor: pointer !important;
+	color: #555 !important;
+	background: transparent !important;
+	border: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	user-select: none;
+	z-index: 2;
+	transform: translateY(-50%) !important;
+}
+
+body.single-product form.cart .quantity .ct-decrease {
+	left: 4px !important;
+	right: auto !important;
+	inset-inline-start: 4px !important;
+	inset-inline-end: auto !important;
+}
+
+body.single-product form.cart .quantity .ct-increase {
+	right: 4px !important;
+	left: auto !important;
+	inset-inline-end: 4px !important;
+	inset-inline-start: auto !important;
+}
+
+body.single-product form.cart .quantity .ct-increase:hover,
+body.single-product form.cart .quantity .ct-decrease:hover {
+	color: var(--kastor-c-primary) !important;
+}
+
+/* Cart + Buy Now row */
+
+body.single-product form.cart .single_add_to_cart_button,
+body.single-product form.cart .kastor-shop__buy-now {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	height: 48px !important;
+	padding: 0 24px !important;
+	border-radius: 32px !important;
+	font-size: 1rem !important;
+	font-weight: 600 !important;
+	letter-spacing: 0.02em !important;
+	border: none !important;
+	cursor: pointer !important;
+	text-decoration: none !important;
+	white-space: nowrap !important;
+	transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease !important;
+	margin: 0 !important;
+	flex: 1 1 auto !important;
+}
+
+body.single-product form.cart .single_add_to_cart_button {
+	background: var(--kastor-c-primary) !important;
+	color: #fff !important;
+	box-shadow: 0 2px 8px rgba(56, 182, 255, 0.25) !important;
+}
+
+body.single-product form.cart .single_add_to_cart_button:hover {
+	background: var(--kastor-c-dark) !important;
+	transform: translateY(-1px);
+	box-shadow: 0 4px 14px rgba(33, 97, 146, 0.30) !important;
+}
+
+body.single-product form.cart .kastor-shop__buy-now {
+	background: var(--kastor-c-dark) !important;
+	color: #fff !important;
+	box-shadow: 0 2px 8px rgba(33, 97, 146, 0.30) !important;
+}
+
+body.single-product form.cart .kastor-shop__buy-now:hover {
+	background: var(--kastor-c-darker) !important;
+	transform: translateY(-1px);
+	box-shadow: 0 4px 14px rgba(23, 85, 133, 0.35) !important;
+}
+
+/* Blocksy wraps the real controls in `.ct-cart-actions` and pads the form
+   with ::before / ::after pseudo-decorations. Kill the decorations and put
+   the grid on the inner wrapper, where qty + cart + Buy Now actually live. */
+
+body.single-product form.cart {
+	display: block !important;
+	margin: 0 0 24px !important;
+}
+
+body.single-product form.cart::before,
+body.single-product form.cart::after {
+	display: none !important;
+	content: none !important;
+}
+
+/* 2x2 grid:
+     Row 1: [qty 90px] [Добавяне в количката]
+     Row 2: [wishlist] [Купи сега]
+   The wishlist heart is moved into .ct-cart-actions by shop.js so it can
+   participate in this grid.                                                 */
+
+body.single-product form.cart .ct-cart-actions,
+body.single-product div.product form.cart .ct-cart-actions,
+body.single-product article.product form.cart .ct-cart-actions {
+	display: grid !important;
+	grid-template-columns: 90px minmax(0, 1fr) !important;
+	grid-template-areas:
+		"qty cart"
+		"wish buy" !important;
+	gap: 12px !important;
+	align-items: center !important;            /* center each cell vertically */
+	flex-direction: unset !important;
+	margin: 0 !important;
+}
+
+body.single-product form.cart .ct-cart-actions > .quantity {
+	grid-area: qty !important;
+	margin: 0 !important;
+}
+
+body.single-product form.cart .ct-cart-actions > .single_add_to_cart_button {
+	grid-area: cart !important;
+}
+
+body.single-product form.cart .ct-cart-actions > .kastor-shop__buy-now {
+	grid-area: buy !important;
+}
+
+body.single-product form.cart .ct-cart-actions > .tinv-wishlist,
+body.single-product form.cart .ct-cart-actions > [class*="tinvwl"] {
+	grid-area: wish !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	background: none !important;
+	border: none !important;
+	box-shadow: none !important;
+}
+
+/* Force the wishlist heart inside the grid to fill its 90px cell, matching
+   the quantity input's footprint. */
+
+body.single-product form.cart .ct-cart-actions .tinvwl_add_to_wishlist_button,
+body.single-product form.cart .ct-cart-actions [class*="tinvwl_add_to_wishlist"] {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	width: 100% !important;
+	height: 48px !important;
+	padding: 0 !important;
+	background: #d8d8d8 !important;
+	color: #333 !important;
+	border: none !important;
+	border-radius: 32px !important;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06) !important;
+	transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease !important;
+	min-height: 0 !important;
+	min-width: 0 !important;
+	box-sizing: border-box !important;
+}
+
+body.single-product form.cart .ct-cart-actions .tinvwl_add_to_wishlist_button:hover {
+	background: #bfbfbf !important;
+	color: #111 !important;
+	transform: translateY(-1px);
+}
+
+body.single-product form.cart .ct-cart-actions .tinvwl_add_to_wishlist_button.tinvwl-product-in-list,
+body.single-product form.cart .ct-cart-actions .tinvwl_add_to_wishlist_button.tinvwl-product-in-list:hover {
+	background: #d6efff !important;
+	color: var(--kastor-c-primary) !important;
+}
+
+/* Hide the wishlist text label inside the grid — icon only fits the 90px cell. */
+
+body.single-product form.cart .ct-cart-actions .tinvwl_add_to_wishlist-text {
+	display: none !important;
+}
+
+@media (max-width: 600px) {
+	body.single-product form.cart .ct-cart-actions {
+		grid-template-columns: 90px minmax(0, 1fr) !important;
+		grid-template-areas:
+			"qty cart"
+			"wish buy" !important;
+	}
+}
+
+/* Hide Blocksy's auto-injected `.ct-product-divider` — we already separate
+   the description from the cart area with our own border on the
+   short-description. */
+
+body.single-product .ct-product-divider {
+	display: none !important;
+}
+
+/* ----- Wishlist heart on single product (TI Wishlist) -----
+   SCOPED to `.summary` only — otherwise these rules bleed into the related
+   products grid below and override its gray-pill card styling.            */
+
+body.single-product .summary .tinv-wishlist {
+	margin: 0 0 24px !important;
+	padding: 0 !important;
+	background: none !important;
+	border: none !important;
+}
+
+body.single-product .summary .tinv-wishlist .tinvwl_add_to_wishlist_button {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 8px !important;
+	padding: 8px 16px !important;
+	height: auto !important;
+	background: transparent !important;
+	color: #555 !important;
+	border: 1px solid #ddd !important;
+	border-radius: 32px !important;
+	box-shadow: none !important;
+	font-size: 0.9rem !important;
+	font-weight: 500 !important;
+	min-height: 0 !important;
+	min-width: 0 !important;
+	line-height: 1 !important;
+	cursor: pointer !important;
+}
+
+body.single-product .summary .tinv-wishlist .tinvwl_add_to_wishlist_button:hover {
+	background: #fafafa !important;
+	border-color: var(--kastor-c-primary) !important;
+	color: var(--kastor-c-dark) !important;
+}
+
+body.single-product .summary .tinv-wishlist .tinvwl_add_to_wishlist-text {
+	display: inline !important;          /* show the label on single product */
+	font-size: 0.9rem !important;
+}
+
+body.single-product .summary .tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-product-in-list {
+	background: #d6efff !important;
+	border-color: var(--kastor-c-primary) !important;
+	color: var(--kastor-c-dark) !important;
+}
+
+/* ----- Delivery info panel ----- */
+
+.kastor-shop__delivery {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 18px;
+	background: var(--kastor-c-bg-light);
+	border-radius: 10px;
+	border: 1px solid #ececec;
+	margin: 0 0 24px;
+}
+
+.kastor-shop__delivery-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	color: #333;
+	line-height: 1.4;
+}
+
+.kastor-shop__delivery-item svg {
+	flex-shrink: 0;
+	color: var(--kastor-c-primary);
+	margin-top: 2px;
+}
+
+.kastor-shop__delivery-item strong {
+	display: block;
+	font-size: 0.95rem;
+	font-weight: 700;
+	color: #222;
+	margin-bottom: 2px;
+}
+
+.kastor-shop__delivery-item span {
+	font-size: 0.85rem;
+	color: #555;
+}
+
+/* ----- Hide express-checkout buttons (Google Pay / PayPal Smart) ----- */
+
+body.single-product .wc-stripe-payment-request-button-element,
+body.single-product .wc-stripe-payment-request-wrapper,
+body.single-product #ppc-button-ppcp-gateway,
+body.single-product .ppc-button-wrapper,
+body.single-product .gpay-button,
+body.single-product .gpay-card-info-iframe {
+	display: none !important;
+}
+
+/* ----- Tabs (Description / Additional info / Reviews) ----- */
+
+body.single-product .woocommerce-tabs {
+	max-width: 1200px;
+	margin: 40px auto 60px !important;
+	padding: 0 20px;
+	clear: both;
+}
+
+body.single-product .woocommerce-tabs ul.tabs {
+	display: flex !important;
+	gap: 0 !important;
+	padding: 0 !important;
+	margin: 0 0 24px !important;
+	border-bottom: 2px solid #ececec !important;
+	list-style: none !important;
+}
+
+body.single-product .woocommerce-tabs ul.tabs::before,
+body.single-product .woocommerce-tabs ul.tabs::after {
+	display: none !important;
+}
+
+body.single-product .woocommerce-tabs ul.tabs li {
+	background: transparent !important;
+	border: none !important;
+	border-radius: 0 !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	box-shadow: none !important;
+}
+
+body.single-product .woocommerce-tabs ul.tabs li::before,
+body.single-product .woocommerce-tabs ul.tabs li::after {
+	display: none !important;
+}
+
+body.single-product .woocommerce-tabs ul.tabs li a {
+	display: block;
+	padding: 12px 24px !important;
+	font-weight: 600 !important;
+	color: #666 !important;
+	text-decoration: none !important;
+	border-bottom: 3px solid transparent !important;
+	margin-bottom: -2px !important;
+	transition: color 0.15s ease, border-color 0.15s ease !important;
+}
+
+body.single-product .woocommerce-tabs ul.tabs li.active a,
+body.single-product .woocommerce-tabs ul.tabs li a:hover {
+	color: var(--kastor-c-dark) !important;
+	border-bottom-color: var(--kastor-c-primary) !important;
+}
+
+body.single-product .woocommerce-tabs .panel,
+body.single-product .woocommerce-tabs .wc-tab {
+	font-size: 1rem;
+	line-height: 1.6;
+	color: #333;
+}
+
+/* ----- Related products grid at the bottom ----- */
+
+body.single-product .related.products,
+body.single-product .upsells.products {
+	max-width: 1200px;
+	margin: 40px auto 60px !important;
+	padding: 32px 20px 0;
+	border-top: 1px solid #ececec;
+	clear: both;
+}
+
+body.single-product .related.products > h2,
+body.single-product .upsells.products > h2 {
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 1.6rem !important;
+	font-weight: 700 !important;
+	color: var(--kastor-c-dark) !important;
+	margin: 0 0 24px !important;
+	text-align: left;
+}
+
+body.single-product .related.products ul.products,
+body.single-product .upsells.products ul.products {
+	display: grid !important;
+	grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+	gap: 18px !important;
+	padding: 0 !important;
+	margin: 0 !important;
+}
+
+@media (max-width: 900px) {
+	body.single-product .related.products ul.products,
+	body.single-product .upsells.products ul.products {
+		grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+	}
+}
+
+@media (max-width: 560px) {
+	body.single-product .related.products ul.products,
+	body.single-product .upsells.products ul.products {
+		grid-template-columns: 1fr !important;
+	}
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* PhotoSwipe lightbox — flip the WC zoom overlay from dark to white so      */
+/* product photos on white backgrounds blend in.                              */
+/* ------------------------------------------------------------------------ */
+
+.pswp__bg {
+	background: #ffffff !important;
+	/* Let PhotoSwipe animate opacity 1 → 0 on close (don't force it). */
+	transition: opacity 0.3s ease !important;
+}
+
+.pswp__container,
+.pswp__zoom-wrap {
+	background: #ffffff !important;
+}
+
+/* Top toolbar — light translucent so the close / share buttons stay legible. */
+
+.pswp__top-bar,
+.pswp__caption,
+.pswp__caption__center {
+	background: rgba(255, 255, 255, 0.92) !important;
+	color: #222 !important;
+}
+
+.pswp__caption__center {
+	border-top: 1px solid #ececec !important;
+}
+
+/* Make the toolbar/control icons dark so they're visible on white. */
+
+.pswp__button,
+.pswp__button--arrow--left,
+.pswp__button--arrow--right,
+.pswp__button--fs,
+.pswp__button--zoom,
+.pswp__button--share {
+	color: #333 !important;
+}
+
+.pswp__button:hover {
+	color: var(--kastor-c-primary) !important;
+}
+
+/* Prominent close (X) button — a clear circular control in the corner,
+   using a CSS-drawn X so it's visible regardless of the PhotoSwipe sprite. */
+
+.pswp__button--close {
+	position: absolute !important;
+	top: 16px !important;
+	right: 16px !important;
+	width: 44px !important;
+	height: 44px !important;
+	border-radius: 50% !important;
+	background: rgba(0, 0, 0, 0.06) !important;
+	color: #222 !important;
+	opacity: 1 !important;
+	cursor: pointer !important;
+	transition: background 0.15s ease, transform 0.15s ease, color 0.15s ease !important;
+	z-index: 1700 !important;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	background-image: none !important;
+	text-indent: -9999px;
+}
+
+.pswp__button--close::before,
+.pswp__button--close::after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 20px;
+	height: 2px;
+	background: currentColor;
+	border-radius: 2px;
+	pointer-events: none;
+}
+
+.pswp__button--close::before { transform: translate(-50%, -50%) rotate(45deg); }
+.pswp__button--close::after  { transform: translate(-50%, -50%) rotate(-45deg); }
+
+.pswp__button--close:hover {
+	background: var(--kastor-c-primary) !important;
+	color: #fff !important;
+	transform: scale(1.05);
+}
+
+.pswp__counter {
+	color: #555 !important;
+	font-weight: 500;
+}
+
+/* Pre-loader spinner on white — make it a brand-color accent instead of    */
+/* the default invisible-on-white gray.                                       */
+
+.pswp__preloader__icn,
+.pswp__preloader__cut,
+.pswp__preloader__donut {
+	border-color: var(--kastor-c-primary) !important;
 }

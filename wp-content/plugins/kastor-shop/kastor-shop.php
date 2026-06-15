@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'KASTOR_SHOP_VERSION', '0.5.7' );
+define( 'KASTOR_SHOP_VERSION', '0.8.7' );
 define( 'KASTOR_SHOP_URL', plugin_dir_url( __FILE__ ) );
 define( 'KASTOR_SHOP_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -44,6 +44,16 @@ if ( ! defined( 'KASTOR_SHOP_PRODUCTS_PER_PAGE' ) ) {
 
 add_action( 'wp_enqueue_scripts', 'kastor_shop_enqueue_assets', 20 );
 function kastor_shop_enqueue_assets() {
+	// Poppins from Google Fonts — needed because the archive/category title
+	// is styled to match Elementor-built pages, but WC pages don't auto-load
+	// Poppins. Loading it here makes the shop title match Услуги/Проекти.
+	wp_enqueue_style(
+		'kastor-shop-poppins',
+		'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap',
+		array(),
+		null
+	);
+
 	// Enqueue site-wide. The CSS only targets WooCommerce-specific classes
 	// (`.woocommerce ul.products`, `.product-category`, etc.) so it's a no-op
 	// on pages without those elements. Loading it everywhere is the simplest
@@ -52,7 +62,7 @@ function kastor_shop_enqueue_assets() {
 	wp_enqueue_style(
 		'kastor-shop',
 		KASTOR_SHOP_URL . 'shop.css',
-		array(),
+		array( 'kastor-shop-poppins' ),
 		KASTOR_SHOP_VERSION
 	);
 	wp_enqueue_script(
@@ -304,4 +314,73 @@ function kastor_shop_inject_filter_meta() {
 		esc_attr( $price !== '' ? (string) $price : '' ),
 		esc_attr( implode( ',', (array) $types ) )
 	);
+}
+
+
+/* --------------------------------------------------------------------------
+ * 7. Single-product page extras
+ *    - "Купи сега" button (adds + redirects to checkout)
+ *    - Delivery info panel (free shipping, lead time)
+ * -------------------------------------------------------------------------- */
+
+add_action( 'woocommerce_after_add_to_cart_button', 'kastor_shop_buy_now_button', 20 );
+function kastor_shop_buy_now_button() {
+	global $product;
+	if ( ! $product instanceof WC_Product ) {
+		return;
+	}
+	if ( ! $product->is_purchasable() || ! $product->is_in_stock() ) {
+		return;
+	}
+	?>
+	<button
+		type="button"
+		class="button kastor-shop__buy-now"
+		data-kastor-shop-buy-now
+		data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"
+	>
+		Купи сега
+	</button>
+	<?php
+}
+
+
+add_action( 'woocommerce_after_add_to_cart_form', 'kastor_shop_delivery_info', 20 );
+function kastor_shop_delivery_info() {
+	?>
+	<div class="kastor-shop__delivery">
+		<div class="kastor-shop__delivery-item">
+			<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<rect x="1" y="3" width="15" height="13"></rect>
+				<polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+				<circle cx="5.5" cy="18.5" r="2.5"></circle>
+				<circle cx="18.5" cy="18.5" r="2.5"></circle>
+			</svg>
+			<div>
+				<strong>Бърза доставка</strong>
+				<span>1–3 работни дни в цяла България</span>
+			</div>
+		</div>
+		<div class="kastor-shop__delivery-item">
+			<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path>
+				<circle cx="12" cy="10" r="3"></circle>
+			</svg>
+			<div>
+				<strong>Лично взимане</strong>
+				<span>Безплатно от склад в Ягодово, обл. Пловдив</span>
+			</div>
+		</div>
+		<div class="kastor-shop__delivery-item">
+			<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<path d="M9 12l2 2 4-4"></path>
+				<circle cx="12" cy="12" r="10"></circle>
+			</svg>
+			<div>
+				<strong>Гаранция за качество</strong>
+				<span>Сертифицирани части и резервни елементи</span>
+			</div>
+		</div>
+	</div>
+	<?php
 }

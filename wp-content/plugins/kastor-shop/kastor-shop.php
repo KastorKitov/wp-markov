@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'KASTOR_SHOP_VERSION', '0.11.1' );
+define( 'KASTOR_SHOP_VERSION', '0.11.5' );
 define( 'KASTOR_SHOP_URL', plugin_dir_url( __FILE__ ) );
 define( 'KASTOR_SHOP_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -336,6 +336,14 @@ function kastor_shop_append_bgn_price( $price_html, $product ) {
 
 	// Avoid stacking: if we've already appended a BGN block, bail.
 	if ( strpos( $price_html, 'kastor-shop__price-bgn' ) !== false ) {
+		return $price_html;
+	}
+
+	// Sale prices render as "<del>30€</del><ins>20€</ins>" — two distinct
+	// price elements. Appending a single trailing BGN here produces a third,
+	// orphaned amount. Let the client-side appender handle each <del>/<ins>
+	// individually for those cases.
+	if ( strpos( $price_html, '<del' ) !== false || strpos( $price_html, '<ins' ) !== false ) {
 		return $price_html;
 	}
 

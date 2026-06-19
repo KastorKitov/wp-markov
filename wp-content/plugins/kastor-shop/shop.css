@@ -2152,14 +2152,13 @@ body.woocommerce-cart .wp-block-woocommerce-empty-cart-block .button * {
 /* ========================================================================== */
 
 /* Save badge — rounded pill, brand-colored background, dark-blue text.
-   Selectors are intentionally specific (only the badge element itself, not
-   the surrounding "total-price-and-sale-badge-wrapper" which contains both
-   the price AND the badge). */
+   Only target the inner component, NOT the outer wrapper (cart-item__sale-badge
+   nests an empty .wc-block-components-sale-badge — styling both produces an
+   empty pill next to the real one). */
 
-body.woocommerce-cart .wc-block-components-sale-badge,
-body.woocommerce-cart .wc-block-cart-item__sale-badge {
+body.woocommerce-cart .wc-block-components-sale-badge {
 	border-radius: 999px !important;
-	padding: 4px 12px !important;
+	padding: 5px 6px !important;
 	background: #e8f6ff !important;
 	color: #175585 !important;
 	font-weight: 600 !important;
@@ -2167,6 +2166,14 @@ body.woocommerce-cart .wc-block-cart-item__sale-badge {
 	border: 1px solid #95d8ff !important;
 	display: inline-block !important;
 	line-height: 1.2 !important;
+}
+
+/* Make sure the outer wrapper around the badge stays invisible. */
+body.woocommerce-cart .wc-block-cart-item__sale-badge {
+	background: transparent !important;
+	border: none !important;
+	padding: 0 !important;
+	border-radius: 0 !important;
 }
 
 /* Make sure the parent wrapper stays plain — undo any inherited rounding /
@@ -2282,6 +2289,92 @@ body.woocommerce-cart .wc-block-components-product-name a {
 body.woocommerce-cart .wc-block-components-product-name:hover,
 body.woocommerce-cart .wc-block-components-product-name a:hover {
 	color: #38B6FF !important;
+}
+
+/* ----- Mobile cart fix --------------------------------------------------
+ * On narrow viewports the Cart Block's 3-column row (image | product info |
+ * total) pushes the total off-screen because the BGN-suffixed prices are
+ * wider than the right column was sized for. Constrain the price column to
+ * a sensible width, allow the BGN block to wrap onto its own line, and
+ * shrink the per-row totals slightly so everything fits without horizontal
+ * scroll. */
+
+@media (max-width: 781px) {
+	body.woocommerce-cart .wc-block-cart-items td.wc-block-cart-item__total,
+	body.woocommerce-cart .wc-block-cart-items [class*="cart-item__total"] {
+		width: auto !important;
+		min-width: 0 !important;
+		max-width: 35vw !important;
+		text-align: right !important;
+		padding-right: 4px !important;
+		white-space: normal !important;
+	}
+
+	/* Stack the per-line EUR + BGN amounts vertically on mobile. */
+	body.woocommerce-cart .wc-block-cart-items td.wc-block-cart-item__total .kastor-shop__price-bgn,
+	body.woocommerce-cart .wc-block-cart-items [class*="cart-item__total"] .kastor-shop__price-bgn {
+		display: block !important;
+		margin-left: 0 !important;
+		text-align: right !important;
+		font-size: 0.75em !important;
+	}
+
+	/* Same vertical stacking for the sale "Спестяваш N €" badge. */
+	body.woocommerce-cart .wc-block-cart-items [class*="cart-item__total"] .wc-block-components-sale-badge {
+		margin-top: 4px !important;
+		font-size: 0.75em !important;
+		white-space: normal !important;
+	}
+
+	/* Give the middle product column more breathing room. */
+	body.woocommerce-cart .wc-block-cart-items td.wc-block-cart-item__product {
+		min-width: 0 !important;
+		padding-right: 8px !important;
+	}
+
+	/* Shrink the image column so it doesn't dominate. */
+	body.woocommerce-cart .wc-block-cart-items td.wc-block-cart-item__image,
+	body.woocommerce-cart .wc-block-cart-items td.wc-block-cart-item__image img {
+		width: 64px !important;
+		max-width: 64px !important;
+	}
+
+	/* Kill all horizontal padding/margin on the cart wrapper chain so the
+	 * cart uses the full viewport width on phones. Targets every common
+	 * Blocksy/WC container that adds horizontal space. */
+	body.woocommerce-cart .ct-container,
+	body.woocommerce-cart .ct-container-fluid,
+	body.woocommerce-cart .entry-content,
+	body.woocommerce-cart .ct-main-content,
+	body.woocommerce-cart .wc-block-cart,
+	body.woocommerce-cart .wp-block-woocommerce-cart,
+	body.woocommerce-cart .wc-block-components-sidebar-layout,
+	body.woocommerce-cart .wc-block-cart__main,
+	body.woocommerce-cart .wc-block-cart__sidebar,
+	body.woocommerce-cart .wc-block-cart-items,
+	body.woocommerce-cart .wp-block-woocommerce-cart-items-block {
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+		max-width: 100% !important;
+		width: 100% !important;
+	}
+
+	/* Reclaim the row's inner padding too — only keep a tiny gutter. */
+	body.woocommerce-cart .wc-block-cart-items td {
+		padding-left: 4px !important;
+		padding-right: 4px !important;
+	}
+
+	/* Cart totals panel (right side on desktop) — stack the BGN below the EUR
+	 * here too, so the "Очаквана сума 80,00 € (156,47 лв)" line doesn't run off. */
+	body.woocommerce-cart .wc-block-components-totals-item__value .kastor-shop__price-bgn {
+		display: block !important;
+		margin-left: 0 !important;
+		text-align: right !important;
+		font-size: 0.8em !important;
+	}
 }
 
 /* Hide the Stripe Link express button on the cart page.  Link is an Apple-style

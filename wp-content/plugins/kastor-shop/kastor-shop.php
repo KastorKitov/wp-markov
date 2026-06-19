@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'KASTOR_SHOP_VERSION', '0.9.9' );
+define( 'KASTOR_SHOP_VERSION', '0.11.1' );
 define( 'KASTOR_SHOP_URL', plugin_dir_url( __FILE__ ) );
 define( 'KASTOR_SHOP_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -314,6 +314,49 @@ function kastor_shop_inject_filter_meta() {
 		esc_attr( $price !== '' ? (string) $price : '' ),
 		esc_attr( implode( ',', (array) $types ) )
 	);
+}
+
+
+/* --------------------------------------------------------------------------
+ * 6a. Show a BGN equivalent next to every EUR price.
+ *     1 EUR = 1.95583 BGN (the fixed rate from the BNB peg).
+ *     Renders e.g. "20,00 €  (39,12 лв)" — the BGN bit in light gray.
+ *     The suffix is "лв" for Bulgarian site, "BGN" otherwise.
+ * -------------------------------------------------------------------------- */
+
+if ( ! defined( 'KASTOR_SHOP_EUR_TO_BGN_RATE' ) ) {
+	define( 'KASTOR_SHOP_EUR_TO_BGN_RATE', 1.95583 );
+}
+
+add_filter( 'woocommerce_get_price_html', 'kastor_shop_append_bgn_price', 100, 2 );
+function kastor_shop_append_bgn_price( $price_html, $product ) {
+	if ( ! $product instanceof WC_Product ) {
+		return $price_html;
+	}
+
+	// Avoid stacking: if we've already appended a BGN block, bail.
+	if ( strpos( $price_html, 'kastor-shop__price-bgn' ) !== false ) {
+		return $price_html;
+	}
+
+	$price = $product->get_price();
+	if ( $price === '' || ! is_numeric( $price ) || (float) $price <= 0 ) {
+		return $price_html;
+	}
+
+	$bgn        = (float) $price * (float) KASTOR_SHOP_EUR_TO_BGN_RATE;
+	$bgn_amount = number_format_i18n( $bgn, 2 );
+
+	$locale = get_locale();
+	$suffix = ( strpos( strtolower( $locale ), 'bg' ) === 0 ) ? 'лв' : 'BGN';
+
+	$bgn_block = sprintf(
+		'<span class="kastor-shop__price-bgn"> (<span class="kastor-shop__price-bgn-amount">%s</span> <span class="kastor-shop__price-bgn-suffix">%s</span>)</span>',
+		esc_html( $bgn_amount ),
+		esc_html( $suffix )
+	);
+
+	return $price_html . $bgn_block;
 }
 
 

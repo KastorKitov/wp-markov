@@ -329,6 +329,180 @@
 	}
 
 
+	/* -------- Append BGN equivalent next to every EUR price in the cart /
+	 * checkout block. Server-side filter handles product/category prices,
+	 * but Block-rendered totals/subtotals are JS-only so we patch here.    */
+
+	var BGN_RATE = 1.95583;
+
+	function formatBgn(amount) {
+		// Match WC's display format: 2 decimals, comma as decimal separator.
+		return amount.toFixed(2).replace('.', ',');
+	}
+
+	function appendBgnToPrices(root) {
+		root = root || document.body;
+		var lang = (document.documentElement.lang || 'bg').toLowerCase();
+		var suffix = lang.indexOf('bg') === 0 ? 'лв' : 'BGN';
+
+		// Cast a wide net — WC Cart/Checkout Block uses several different class
+		// names depending on version. Match anything that looks like a money element.
+		var rawPrices = root.querySelectorAll(
+			'.woocommerce-Price-amount.amount, ' +
+			'.wc-block-formatted-money-amount, ' +
+			'.wc-block-components-formatted-money-amount, ' +
+			'.wc-block-components-totals-item__value, ' +
+			'.wc-block-components-product-price__value, ' +
+			'[class*="formatted-money-amount"], ' +
+			'[class*="totals-item__value"]'
+		);
+
+		// Keep only the innermost matches — when both a wrapper and its child
+		// match (e.g. .__value containing .formatted-money-amount), processing
+		// both would append two BGN blocks for the same price.
+		var rawArr = Array.prototype.slice.call(rawPrices);
+		var prices = rawArr.filter(function (el) {
+			for (var i = 0; i < rawArr.length; i++) {
+				if (rawArr[i] !== el && el.contains(rawArr[i])) return false;
+			}
+			return true;
+		});
+
+		prices.forEach(function (el) {
+			var raw = el.textContent || '';
+
+			// Skip if not EUR.
+			if (raw.indexOf('€') === -1 && raw.indexOf('EUR') === -1) return;
+			// Skip if we're inside an already-rendered BGN span.
+			if (el.closest('.kastor-shop__price-bgn')) return;
+
+			// If a PHP-rendered (non-JS) BGN sibling exists, leave it alone —
+			// PHP filter is the authoritative source on product/single pages.
+			var next = el.nextElementSibling;
+			if (next && next.classList &&
+				next.classList.contains('kastor-shop__price-bgn') &&
+				!next.classList.contains('kastor-shop__price-bgn-js')) return;
+
+			// If we already rendered BGN for THIS exact text on THIS element,
+			// skip — prevents an infinite re-render loop from the observer.
+			if (el.dataset.kastorBgnText === raw) return;
+
+			// Stale BGN sibling from a previous render?  Remove before
+			// re-appending (Cart Block changes price text in place after a qty
+			// update, so the previously-added BGN sibling is now wrong).
+			if (next && next.classList && next.classList.contains('kastor-shop__price-bgn-js')) {
+				next.remove();
+			}
+
+			// Strip currency, thousands separators, normalize decimal point.
+			var cleaned = raw
+				.replace(/[\s ]/g, '')
+				.replace(/[^\d.,-]/g, '')
+				.replace(/\.(?=\d{3}(\D|$))/g, '')
+				.replace(',', '.');
+			var amount = parseFloat(cleaned);
+			if (!isFinite(amount) || amount <= 0) return;
+
+			var bgn = amount * BGN_RATE;
+			var span = document.createElement('span');
+			span.className = 'kastor-shop__price-bgn kastor-shop__price-bgn-js';
+			span.innerHTML =
+				' (<span class="kastor-shop__price-bgn-amount">' + formatBgn(bgn) +
+				'</span> <span class="kastor-shop__price-bgn-suffix">' + suffix + '</span>)';
+
+			el.dataset.kastorBgnText = raw;
+			el.parentNode.insertBefore(span, el.nextSibling);
+		});
+	}
+
+	function setupBgnObserver() {
+		appendBgnToPrices();
+
+		// Observe body so we catch the Cart/Checkout Block whenever it renders,
+		// even if the block root mounts later than DOMContentLoaded.
+		var debounceTimer;
+		var obs = new MutationObserver(function () {
+			clearTimeout(debounceTimer);
+			debounceTimer = setTimeout(function () {
+				appendBgnToPrices();
+			}, 150);
+		});
+		obs.observe(document.body, { childList: true, subtree: true, characterData: true });
+	}
+
+
+	/* -------- Cart Block quantity +/- throttle.
+	 * Cart Block fires an AJAX request on every +/- click.  When the user
+	 * mashes the button, responses can return out of order — the older
+	 * response (e.g. "qty=2") arrives AFTER the newer one ("qty=4"), and
+	 * the UI reverts to the stale value.  Fix: block subsequent clicks
+	 * until the current request resolves (detected by the qty input value
+	 * actually changing), with a hard 1.5s timeout as fallback.        */
+
+	function throttleQuantityButtons() {
+		var buttons = document.querySelectorAll(
+			'.wc-block-components-quantity-selector__button, ' +
+			'[class*="quantity-selector__button"]'
+		);
+
+		buttons.forEach(function (btn) {
+			if (btn.dataset.kastorThrottled === '1') return;
+			btn.dataset.kastorThrottled = '1';
+
+			// Locate the sibling input so we can watch for value changes.
+			var selector = btn.closest('[class*="quantity-selector"]') || btn.parentNode;
+			var input = selector ? selector.querySelector('input') : null;
+
+			btn.addEventListener('click', function (e) {
+				if (btn.dataset.kastorLocked === '1') {
+					e.stopPropagation();
+					e.stopImmediatePropagation();
+					e.preventDefault();
+					return false;
+				}
+				btn.dataset.kastorLocked = '1';
+				btn.style.opacity = '0.5';
+
+				var unlocked = false;
+				var unlock = function () {
+					if (unlocked) return;
+					unlocked = true;
+					btn.dataset.kastorLocked = '0';
+					btn.style.opacity = '';
+				};
+
+				// Unlock when the input value actually changes (Cart Block
+				// has finished its optimistic + reconciled update).
+				if (input) {
+					var startVal = input.value;
+					var poll = setInterval(function () {
+						if (input.value !== startVal) {
+							clearInterval(poll);
+							unlock();
+						}
+					}, 50);
+					setTimeout(function () { clearInterval(poll); unlock(); }, 3000);
+				} else {
+					// No input found — fall back to a flat 800ms cooldown.
+					setTimeout(unlock, 2200);
+				}
+			}, true); // capture phase so we run before Cart Block's handler
+		});
+	}
+
+	function setupQuantityThrottle() {
+		throttleQuantityButtons();
+
+		// Cart Block re-renders rows after every change — re-bind throttle.
+		var debounceTimer;
+		var obs = new MutationObserver(function () {
+			clearTimeout(debounceTimer);
+			debounceTimer = setTimeout(throttleQuantityButtons, 150);
+		});
+		obs.observe(document.body, { childList: true, subtree: true });
+	}
+
+
 	/* -------- Translate the few English strings WooCommerce Cart/Checkout
 	 * Block leaves untranslated (they come from JS bundles, not gettext). */
 
@@ -366,11 +540,30 @@
 			'Return to shop':       'Към магазина'
 		};
 
+		// Partial-match replacements: regex applied to every text node before
+		// exact-match map runs.  Use for strings that interpolate a value
+		// (e.g. "Запазване на 10,00 €" — keeps the amount, swaps the label).
+		var partials = [
+			[/Запазване на/g, 'Спестяваш'],
+			// WC accessibility live-region announcement when qty changes.
+			[/The quantity of "([^"]+)" was changed to (\d+)\.?/g,
+				'Количеството на „$1" беше променено на $2.'],
+			// Same string without quotes (some WC versions render it differently).
+			[/The quantity of (\S+) was changed to (\d+)\.?/g,
+				'Количеството на $1 беше променено на $2.']
+		];
+
 		function walk(node) {
 			if (!node) return;
 			if (node.nodeType === Node.TEXT_NODE) {
 				var t = node.nodeValue;
 				if (!t) return;
+				for (var p = 0; p < partials.length; p++) {
+					if (partials[p][0].test(t)) {
+						node.nodeValue = t.replace(partials[p][0], partials[p][1]);
+						t = node.nodeValue;
+					}
+				}
 				var trimmed = t.trim();
 				if (map.hasOwnProperty(trimmed)) {
 					node.nodeValue = t.replace(trimmed, map[trimmed]);
@@ -537,6 +730,8 @@
 		moveWishlistIntoCartActions();
 		setupLightboxScrollClose();
 		translateCartBlockStrings();
+		setupBgnObserver();
+		setupQuantityThrottle();
 		injectBackToHomeLink();
 		emptyMsg = document.querySelector('[data-kastor-shop-filter-empty]');
 		// Bind events even if products is empty — the user might toggle
@@ -556,6 +751,11 @@
 		setTimeout(translateCartBlockStrings, 300);
 		setTimeout(translateCartBlockStrings, 1200);
 		setTimeout(translateCartBlockStrings, 2500);
+
+		// Same for BGN appender (Cart Block renders prices via JS).
+		setTimeout(appendBgnToPrices, 300);
+		setTimeout(appendBgnToPrices, 1200);
+		setTimeout(appendBgnToPrices, 2500);
 	}
 
 	if (document.readyState === 'loading') {

@@ -329,6 +329,98 @@
 	}
 
 
+	/* -------- Translate the few English strings WooCommerce Cart/Checkout
+	 * Block leaves untranslated (they come from JS bundles, not gettext). */
+
+	function translateCartBlockStrings() {
+		if (!document.body.classList.contains('woocommerce-cart') &&
+			!document.body.classList.contains('woocommerce-checkout') &&
+			!document.body.classList.contains('woocommerce-page')) return;
+
+		var map = {
+			'Add coupons':          'Добави купон',
+			'Add a coupon':         'Добави купон',
+			'Enter code':           'Въведи код',
+			'Apply':                'Приложи',
+			'Free shipping':        'Безплатна доставка',
+			'Estimated total':      'Очаквана сума',
+			'Proceed to Checkout':  'Към плащане',
+			'Proceed to checkout':  'Към плащане',
+			'Subtotal':             'Междинна сума',
+			'Total':                'Общо',
+			'Shipping':             'Доставка',
+			'Discount':             'Отстъпка',
+			'Coupon code':          'Код за отстъпка',
+			'Remove item':          'Премахни',
+			'Cart totals':          'Обща сума на количката',
+			'Use same address for billing': 'Използвай същия адрес за фактуриране',
+			'Payment options':      'Опции за плащане',
+			'Payment methods':      'Методи на плащане',
+			'Place Order':          'Завърши поръчката',
+			'Card':                 'Карта',
+			'Your cart is currently empty!': 'Количката ви е празна!',
+			'Your cart is currently empty.': 'Количката ви е празна.',
+			'Your cart is currently empty':  'Количката ви е празна',
+			'New in store':         'Части от които може би имате нужда',
+			'Browse store':         'Към магазина',
+			'Return to shop':       'Към магазина'
+		};
+
+		function walk(node) {
+			if (!node) return;
+			if (node.nodeType === Node.TEXT_NODE) {
+				var t = node.nodeValue;
+				if (!t) return;
+				var trimmed = t.trim();
+				if (map.hasOwnProperty(trimmed)) {
+					node.nodeValue = t.replace(trimmed, map[trimmed]);
+				}
+				return;
+			}
+			if (node.nodeType !== Node.ELEMENT_NODE) return;
+			// Avoid descending into <script>, <style>, <textarea>, <input>.
+			var tag = node.tagName;
+			if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEXTAREA' || tag === 'INPUT') return;
+			// Also translate the input's placeholder attribute if it matches.
+			if (tag === 'BUTTON' || tag === 'A') {
+				var aria = node.getAttribute('aria-label');
+				if (aria && map[aria]) node.setAttribute('aria-label', map[aria]);
+			}
+			for (var i = 0; i < node.childNodes.length; i++) {
+				walk(node.childNodes[i]);
+			}
+		}
+
+		// Initial pass.
+		walk(document.body);
+
+		// Cart/Checkout Blocks re-render on every state change.  Watch the
+		// block roots and re-translate on each mutation.
+		var roots = document.querySelectorAll(
+			'.wp-block-woocommerce-cart, ' +
+			'.wp-block-woocommerce-checkout, ' +
+			'.wc-block-cart, ' +
+			'.wc-block-checkout, ' +
+			'.wc-block-components-totals-wrapper'
+		);
+
+		if (!roots.length) return;
+		var obs = new MutationObserver(function (mutations) {
+			mutations.forEach(function (m) {
+				if (m.type === 'childList') {
+					m.addedNodes.forEach(walk);
+				}
+				if (m.type === 'characterData') {
+					walk(m.target);
+				}
+			});
+		});
+		roots.forEach(function (r) {
+			obs.observe(r, { childList: true, subtree: true, characterData: true });
+		});
+	}
+
+
 	/* -------- Move wishlist into the cart-actions grid on single product -------- */
 
 	function moveWishlistIntoCartActions() {
@@ -444,6 +536,7 @@
 		setupBuyNowButton();
 		moveWishlistIntoCartActions();
 		setupLightboxScrollClose();
+		translateCartBlockStrings();
 		injectBackToHomeLink();
 		emptyMsg = document.querySelector('[data-kastor-shop-filter-empty]');
 		// Bind events even if products is empty — the user might toggle
@@ -458,6 +551,11 @@
 		setTimeout(wrapCartAndWishlist, 1200);
 		setTimeout(moveWishlistIntoCartActions, 300);
 		setTimeout(moveWishlistIntoCartActions, 1200);
+
+		// Cart/Checkout Block boots asynchronously — re-translate after JS init.
+		setTimeout(translateCartBlockStrings, 300);
+		setTimeout(translateCartBlockStrings, 1200);
+		setTimeout(translateCartBlockStrings, 2500);
 	}
 
 	if (document.readyState === 'loading') {

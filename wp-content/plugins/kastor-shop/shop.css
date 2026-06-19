@@ -1656,3 +1656,458 @@ body.single-product .upsells.products ul.products {
 .pswp__preloader__donut {
 	border-color: var(--kastor-c-primary) !important;
 }
+
+
+/* ========================================================================== */
+/* MINI-CART DROPDOWN (header)                                                 */
+/*   Flip Blocksy's default dark gradient panel to a soft gray card matching   */
+/*   the rest of the shop, with rounded brand-colored action buttons.          */
+/* ========================================================================== */
+
+/* Blocksy drives the mini-cart from CSS variables on .ct-cart-content.
+   Override those vars at the source AND set explicit background/color so
+   any older Blocksy fallbacks also get caught.                            */
+
+.ct-cart-content,
+.ct-mini-cart-content,
+.widget_shopping_cart,
+.widget_shopping_cart_content,
+[data-id*="cart"] .ct-toggle-dropdown,
+.ct-header-cart-content {
+	--mini-cart-background-color: #95d8ff !important;
+	--mini-cart-text-color: #ffffff !important;
+	--theme-text-color: #ffffff !important;
+	--theme-link-initial-color: #ffffff !important;
+	--theme-link-hover-color: #ffffff !important;
+	background: #216192 !important;
+	background-image: none !important;
+	color: #ffffff !important;
+	border-radius: 14px !important;
+	box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22) !important;
+	border: 1px solid rgba(255, 255, 255, 0.18) !important;
+	overflow: hidden;
+}
+
+/* Force EVERY text node inside the dropdown to be white. */
+
+.ct-cart-content,
+.ct-cart-content *,
+.widget_shopping_cart_content,
+.widget_shopping_cart_content *,
+.ct-cart-content a,
+.ct-cart-content strong,
+.ct-cart-content span,
+.ct-cart-content p,
+.widget_shopping_cart_content a,
+.widget_shopping_cart_content strong,
+.widget_shopping_cart_content span,
+.widget_shopping_cart_content p,
+.widget_shopping_cart_content .quantity,
+.widget_shopping_cart_content .amount,
+.widget_shopping_cart_content .woocommerce-Price-amount,
+.widget_shopping_cart_content .total,
+.widget_shopping_cart_content .total strong,
+.widget_shopping_cart_content .total .amount {
+	color: #ffffff !important;
+}
+
+/* List of items inside the dropdown */
+
+.widget_shopping_cart_content .cart_list,
+.widget_shopping_cart_content .product_list_widget {
+	background: transparent !important;
+	margin: 0 !important;
+	padding: 12px 16px !important;
+	max-height: 360px;
+	overflow-y: auto;
+}
+
+/* Each item is now its own white card sitting on the blue panel,
+   so product photos stay clearly on white and aren't lost in the blue. */
+
+.widget_shopping_cart_content li.mini_cart_item,
+.widget_shopping_cart_content .cart_list li {
+	background: #ffffff !important;
+	border: none !important;
+	border-radius: 10px !important;
+	color: #1a1a1a !important;
+	padding: 10px 12px !important;
+	margin: 0 0 8px 0 !important;
+	display: flex !important;
+	align-items: center !important;
+	gap: 12px !important;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+}
+
+.widget_shopping_cart_content li.mini_cart_item:last-child {
+	margin-bottom: 0 !important;
+}
+
+/* Inside an item card, text goes back to dark for readability on white. */
+
+.widget_shopping_cart_content li.mini_cart_item,
+.widget_shopping_cart_content li.mini_cart_item *,
+.widget_shopping_cart_content li.mini_cart_item a,
+.widget_shopping_cart_content li.mini_cart_item a:not(.remove),
+.widget_shopping_cart_content li.mini_cart_item span,
+.widget_shopping_cart_content li.mini_cart_item strong {
+	color: #1a1a1a !important;
+}
+
+.widget_shopping_cart_content li.mini_cart_item a:not(.remove):hover {
+	color: #95d8ff !important;
+}
+
+.widget_shopping_cart_content li.mini_cart_item .quantity,
+.widget_shopping_cart_content li.mini_cart_item .quantity .amount,
+.widget_shopping_cart_content li.mini_cart_item .quantity .woocommerce-Price-amount {
+	color: #95d8ff !important;
+	font-weight: 700 !important;
+}
+
+.widget_shopping_cart_content li.mini_cart_item a.remove {
+	color: #b32d2e !important;
+}
+
+/* Product image inside the row — ANY img inside the cart dropdown gets a
+   white card behind it so product photos pop against the blue panel.        */
+
+.ct-cart-content img,
+.widget_shopping_cart img,
+.widget_shopping_cart_content img,
+.widget_shopping_cart_content li.mini_cart_item img,
+.widget_shopping_cart_content .cart_list li img,
+.widget_shopping_cart_content .mini_cart_item a img,
+.woocommerce-mini-cart img {
+	width: 52px !important;
+	height: 52px !important;
+	max-width: 52px !important;
+	background: #ffffff !important;
+	border: 1px solid #d8d8d8 !important;
+	border-radius: 8px !important;
+	padding: 4px !important;
+	object-fit: contain !important;
+	margin: 0 !important;
+	float: none !important;
+	box-sizing: border-box !important;
+}
+
+/* Product title link */
+
+.widget_shopping_cart_content li.mini_cart_item a:not(.remove),
+.widget_shopping_cart_content .cart_list li a:not(.remove) {
+	color: #222 !important;
+	font-weight: 600 !important;
+	text-decoration: none !important;
+	display: inline-block !important;
+	padding: 0 !important;
+}
+
+.widget_shopping_cart_content li.mini_cart_item a:not(.remove):hover {
+	color: var(--kastor-c-dark) !important;
+}
+
+/* "1 × 20,00 €" quantity-price line */
+
+.widget_shopping_cart_content .quantity,
+.widget_shopping_cart_content .mini_cart_item .quantity,
+.widget_shopping_cart_content .quantity .woocommerce-Price-amount,
+.widget_shopping_cart_content .quantity .amount {
+	display: block !important;
+	color: #1a1a1a !important;
+	font-weight: 700 !important;
+	font-size: 0.9rem !important;
+	margin-top: 2px !important;
+	opacity: 1 !important;
+}
+
+/* Remove (×) button per item */
+
+.widget_shopping_cart_content a.remove,
+.widget_shopping_cart_content a.remove_from_cart_button {
+	width: 22px !important;
+	height: 22px !important;
+	border-radius: 50% !important;
+	background: transparent !important;
+	color: #b32d2e !important;
+	font-size: 16px !important;
+	line-height: 22px !important;
+	text-align: center !important;
+	text-decoration: none !important;
+	flex-shrink: 0;
+	transition: background 0.15s ease, color 0.15s ease;
+	box-shadow: none !important;
+	border: none !important;
+	opacity: 1 !important;
+	position: static !important;
+	margin-left: auto !important;
+}
+
+.widget_shopping_cart_content a.remove:hover {
+	background: #fcebec !important;
+	color: #b32d2e !important;
+}
+
+/* Subtotal row — translucent strip on the blue panel */
+
+.widget_shopping_cart_content p.total,
+.widget_shopping_cart_content .total {
+	background: rgba(255, 255, 255, 0.10) !important;
+	color: #ffffff !important;
+	border: none !important;
+	border-top: 1px solid rgba(255, 255, 255, 0.18) !important;
+	margin: 0 !important;
+	padding: 16px 18px !important;
+	font-size: 0.95rem !important;
+	font-weight: 700 !important;
+	display: flex !important;
+	justify-content: space-between !important;
+	align-items: center !important;
+	text-transform: uppercase !important;
+	letter-spacing: 0.04em !important;
+	opacity: 1 !important;
+}
+
+.widget_shopping_cart_content .total strong,
+.widget_shopping_cart_content p.total strong {
+	color: #ffffff !important;
+	font-weight: 700 !important;
+	opacity: 1 !important;
+}
+
+.widget_shopping_cart_content .total .amount,
+.widget_shopping_cart_content .total .woocommerce-Price-amount,
+.widget_shopping_cart_content p.total .amount {
+	color: #ffffff !important;
+	font-size: 1.2rem !important;
+	font-weight: 800 !important;
+	letter-spacing: 0 !important;
+	opacity: 1 !important;
+}
+
+/* Action buttons (View Cart / Checkout)
+   Maxed-out specificity to win against Blocksy's cart-panel button rules. */
+
+.widget_shopping_cart_content .buttons,
+.widget_shopping_cart_content p.buttons,
+.widget_shopping_cart .buttons {
+	display: flex !important;
+	gap: 10px !important;
+	margin: 0 !important;
+	padding: 16px 16px !important;
+	background: transparent !important;
+	border-top: none !important;
+}
+
+/* Override Blocksy's button-radius CSS variables at the dropdown scope so any
+   theme rule that uses `border-radius: var(--theme-button-border-radius)`
+   etc. picks up our fully-rounded value.                                    */
+
+.ct-cart-content,
+.widget_shopping_cart,
+.widget_shopping_cart_content {
+	--theme-button-border-radius: 999px !important;
+	--button-border-radius: 999px !important;
+	--buttonBorderRadius: 999px !important;
+}
+
+/* Brute-force pill shape on every possible button selector Blocksy/WC uses.
+   `min-width: 0` lets buttons shrink inside Blocksy's grid columns;
+   `white-space` allowed to wrap so long Bulgarian labels don't overflow.   */
+
+.ct-cart-content a.button,
+.ct-cart-content .button,
+.ct-cart-content .wc-forward,
+.ct-cart-content a.wc-forward,
+.ct-cart-content .buttons a,
+.ct-cart-content .buttons > a,
+.ct-cart-content .buttons .button,
+.ct-cart-content p.buttons a,
+.ct-cart-content p.buttons .button,
+.widget_shopping_cart a.button,
+.widget_shopping_cart .button,
+.widget_shopping_cart .buttons a,
+.widget_shopping_cart .buttons .button,
+.widget_shopping_cart_content a.button,
+.widget_shopping_cart_content .button,
+.widget_shopping_cart_content .wc-forward,
+.widget_shopping_cart_content .buttons a,
+.widget_shopping_cart_content .buttons .button,
+.widget_shopping_cart_content .buttons a.button,
+.widget_shopping_cart_content .buttons a.wc-forward,
+.widget_shopping_cart_content p.buttons a,
+.widget_shopping_cart_content p.buttons .button,
+.widget_shopping_cart_content p.buttons a.wc-forward {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	width: 100% !important;
+	min-width: 0 !important;
+	max-width: 100% !important;
+	height: auto !important;
+	min-height: 38px !important;
+	padding: 8px 10px !important;
+	border-radius: 999px !important;
+	-webkit-border-radius: 999px !important;
+	font-size: 0.7rem !important;
+	font-weight: 700 !important;
+	letter-spacing: 0.04em !important;
+	text-transform: uppercase !important;
+	text-decoration: none !important;
+	white-space: normal !important;       /* allow wrap so labels don't overflow */
+	line-height: 1.2 !important;
+	text-align: center !important;
+	background: rgba(255, 255, 255, 0.14) !important;
+	color: #ffffff !important;
+	border: 1.5px solid rgba(255, 255, 255, 0.55) !important;
+	box-shadow: none !important;
+	transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease, border-color 0.15s ease !important;
+	box-sizing: border-box !important;
+}
+
+/* Tighten the gap Blocksy puts between the two buttons. */
+
+.widget_shopping_cart_content p.buttons,
+.widget_shopping_cart_content .buttons,
+.ct-cart-content .buttons {
+	grid-column-gap: 8px !important;
+	gap: 8px !important;
+	column-gap: 8px !important;
+}
+
+.widget_shopping_cart_content .buttons a:hover,
+.widget_shopping_cart_content .buttons .button:hover,
+.widget_shopping_cart .buttons a:hover {
+	background: rgba(255, 255, 255, 0.25) !important;
+	color: #ffffff !important;
+	border-color: #ffffff !important;
+	transform: translateY(-1px) !important;
+}
+
+/* Primary checkout button — solid brand blue, white text */
+
+/* Primary checkout button (Поръчка) — solid white pill with blue text */
+
+.widget_shopping_cart_content .buttons .button.checkout,
+.widget_shopping_cart_content .buttons a.checkout,
+.widget_shopping_cart_content .buttons a.wc-forward.checkout,
+.widget_shopping_cart_content p.buttons .button.checkout,
+.widget_shopping_cart_content p.buttons a.checkout,
+.widget_shopping_cart .buttons .button.checkout,
+.widget_shopping_cart .buttons a.checkout {
+	background: #ffffff !important;
+	color: #95d8ff !important;
+	border: 1.5px solid #ffffff !important;
+	box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18) !important;
+}
+
+.widget_shopping_cart_content .buttons .button.checkout:hover,
+.widget_shopping_cart_content .buttons a.checkout:hover,
+.widget_shopping_cart .buttons a.checkout:hover {
+	background: #f0f4ff !important;
+	color: #2d5fd7 !important;
+	border-color: #ffffff !important;
+	transform: translateY(-1px) !important;
+	box-shadow: 0 5px 16px rgba(0, 0, 0, 0.22) !important;
+}
+
+/* Empty cart message */
+
+.widget_shopping_cart_content .woocommerce-mini-cart__empty-message,
+.widget_shopping_cart_content p.woocommerce-mini-cart__empty-message {
+	background: transparent !important;
+	color: #777 !important;
+	text-align: center !important;
+	padding: 24px 16px !important;
+	font-style: italic;
+	margin: 0 !important;
+}
+
+
+/* ========================================================================== */
+/* EMPTY CART PAGE (Cart Block)                                                */
+/*   Brand-colored sad face icon + rounded white-text recommendation buttons. */
+/* ========================================================================== */
+
+/* The big sad face SVG icon shown when the cart is empty. */
+
+.wp-block-woocommerce-empty-cart-block svg,
+.wp-block-woocommerce-empty-cart-block .wc-block-cart__empty-cart__icon,
+.wp-block-woocommerce-empty-cart-block .wc-block-cart__empty-cart__icon svg,
+.wc-block-cart__empty-cart__icon,
+.wc-block-cart__empty-cart__icon svg,
+.wc-empty-cart-icon,
+.wc-empty-cart-message + svg,
+.cart-empty + svg,
+.woocommerce-cart .wp-block-woocommerce-empty-cart-block svg {
+	color: var(--kastor-c-primary) !important;
+	fill: var(--kastor-c-primary) !important;
+}
+
+.wp-block-woocommerce-empty-cart-block svg * {
+	stroke: var(--kastor-c-primary) !important;
+}
+
+/* Recommendation product cards on the empty-cart page — match the same
+   solid-blue pill with white text used everywhere else in the shop.
+   Body-class scope catches the products whether they live inside the empty
+   cart block, the "New in store" block, or a regular shortcode loop.       */
+
+body.woocommerce-cart ul.products li.product .button,
+body.woocommerce-cart ul.products li.product a.button,
+body.woocommerce-cart ul.products li.product .add_to_cart_button,
+body.woocommerce-cart ul.products li.product a.add_to_cart_button,
+body.woocommerce-cart .wc-block-grid__product .wp-block-button__link,
+body.woocommerce-cart .wc-block-grid__product .button,
+body.woocommerce-cart .wc-block-grid__product a.button,
+body.woocommerce-cart .wp-block-woocommerce-empty-cart-block .button,
+body.woocommerce-cart .wp-block-woocommerce-empty-cart-block a.button {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	background: #38B6FF !important;
+	background-color: #38B6FF !important;
+	color: #ffffff !important;
+	border: none !important;
+	border-radius: 32px !important;
+	-webkit-border-radius: 32px !important;
+	padding: 12px 22px !important;
+	height: auto !important;
+	min-height: 0 !important;
+	font-size: 0.9rem !important;
+	font-weight: 600 !important;
+	text-transform: none !important;
+	text-decoration: none !important;
+	letter-spacing: 0.02em !important;
+	box-shadow: 0 2px 8px rgba(56, 182, 255, 0.25) !important;
+	transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease !important;
+	box-sizing: border-box !important;
+	opacity: 1 !important;
+}
+
+body.woocommerce-cart ul.products li.product .button:hover,
+body.woocommerce-cart .wc-block-grid__product .button:hover,
+body.woocommerce-cart .wp-block-woocommerce-empty-cart-block .button:hover {
+	background: #216192 !important;
+	background-color: #216192 !important;
+	color: #ffffff !important;
+	transform: translateY(-1px);
+	box-shadow: 0 4px 14px rgba(33, 97, 146, 0.30) !important;
+}
+
+/* Belt-and-suspenders: any nested span/text inside the button stays white. */
+
+body.woocommerce-cart ul.products li.product .button *,
+body.woocommerce-cart .wc-block-grid__product .button *,
+body.woocommerce-cart .wp-block-woocommerce-empty-cart-block .button * {
+	color: #ffffff !important;
+}
+
+/* Center the empty-cart message + face. */
+
+.wp-block-woocommerce-empty-cart-block .wc-block-cart__empty-cart__title,
+.wp-block-woocommerce-empty-cart-block h2.wp-block-heading {
+	text-align: center !important;
+	color: #222 !important;
+	font-weight: 700 !important;
+}

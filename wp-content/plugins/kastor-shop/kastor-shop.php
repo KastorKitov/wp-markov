@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'KASTOR_SHOP_VERSION', '0.8.7' );
+define( 'KASTOR_SHOP_VERSION', '0.9.9' );
 define( 'KASTOR_SHOP_URL', plugin_dir_url( __FILE__ ) );
 define( 'KASTOR_SHOP_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -314,6 +314,52 @@ function kastor_shop_inject_filter_meta() {
 		esc_attr( $price !== '' ? (string) $price : '' ),
 		esc_attr( implode( ',', (array) $types ) )
 	);
+}
+
+
+/* --------------------------------------------------------------------------
+ * 6b. Patch the few English strings that WooCommerce's Cart Block leaves
+ *     untranslated even when the site is in Bulgarian. These strings come
+ *     from JS bundles whose .json files don't ship Bulgarian, so we catch
+ *     them via gettext on the server side instead.
+ * -------------------------------------------------------------------------- */
+
+add_filter( 'gettext', 'kastor_shop_translate_cart_strings', 20, 3 );
+add_filter( 'gettext_with_context', 'kastor_shop_translate_cart_strings_ctx', 20, 4 );
+
+function kastor_shop_translate_cart_strings_map() {
+	return array(
+		'Add coupons'                  => 'Добави купон',
+		'Add a coupon'                 => 'Добави купон',
+		'Enter code'                   => 'Въведи код',
+		'Apply'                        => 'Приложи',
+		'Free shipping'                => 'Безплатна доставка',
+		'Estimated total'              => 'Очаквана сума',
+		'Proceed to Checkout'          => 'Към плащане',
+		'Proceed to checkout'          => 'Към плащане',
+		'Subtotal'                     => 'Междинна сума',
+		'Total'                        => 'Общо',
+		'Shipping'                     => 'Доставка',
+		'Discount'                     => 'Отстъпка',
+		'Coupon code'                  => 'Код за отстъпка',
+		'Remove item'                  => 'Премахни',
+	);
+}
+
+function kastor_shop_translate_cart_strings( $translated, $original, $domain ) {
+	$map = kastor_shop_translate_cart_strings_map();
+	if ( isset( $map[ $original ] ) ) {
+		return $map[ $original ];
+	}
+	return $translated;
+}
+
+function kastor_shop_translate_cart_strings_ctx( $translated, $original, $context, $domain ) {
+	$map = kastor_shop_translate_cart_strings_map();
+	if ( isset( $map[ $original ] ) ) {
+		return $map[ $original ];
+	}
+	return $translated;
 }
 
 

@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'KASTOR_SHOP_VERSION', '0.11.5' );
+define( 'KASTOR_SHOP_VERSION', '0.13.6' );
 define( 'KASTOR_SHOP_URL', plugin_dir_url( __FILE__ ) );
 define( 'KASTOR_SHOP_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -394,6 +394,71 @@ function kastor_shop_translate_cart_strings_map() {
 		'Discount'                     => 'Отстъпка',
 		'Coupon code'                  => 'Код за отстъпка',
 		'Remove item'                  => 'Премахни',
+
+		// My Account / register form
+		'A link to set a new password will be sent to your email address.' =>
+			'Линк за задаване на нова парола ще бъде изпратен на вашия имейл адрес.',
+		'Your personal data will be used to support your experience throughout this website, to manage access to your account, and for other purposes described in our %s.' =>
+			'Вашите лични данни ще бъдат използвани за подобряване на вашето изживяване в този уебсайт, за управление на достъпа до акаунта ви и за други цели, описани в нашата %s.',
+		'privacy policy'               => 'политика на поверителност',
+		'Register'                     => 'Регистриране',
+		'Log in'                       => 'Влизане',
+		'Login'                        => 'Влизане',
+		'Username or email address'    => 'Потребителско име или имейл адрес',
+		'Email address'                => 'Имейл адрес',
+		'Password'                     => 'Парола',
+		'Remember me'                  => 'Запомняне',
+		'Lost your password?'          => 'Изгубена парола?',
+
+		// My Account navigation tabs (right column on dashboard)
+		'Dashboard'                    => 'Табло',
+		'Orders'                       => 'Поръчки',
+		'Downloads'                    => 'Сваляния',
+		'Addresses'                    => 'Адреси',
+		'Address'                      => 'Адрес',
+		'Payment methods'              => 'Методи на плащане',
+		'Account details'              => 'Данни на акаунта',
+		'Wishlist'                     => 'Желани',
+		'Log out'                      => 'Изход',
+		'Logout'                       => 'Изход',
+
+		// Orders sub-page
+		'No order has been made yet.'  => 'Все още не е направена поръчка.',
+		'Browse products'              => 'Преглед на продукти',
+		'Order'                        => 'Поръчка',
+		'Date'                         => 'Дата',
+		'Status'                       => 'Статус',
+		'Actions'                      => 'Действия',
+		'View'                         => 'Преглед',
+		'Pay'                          => 'Плати',
+		'Cancel'                       => 'Отказ',
+
+		// Addresses sub-page
+		'The following addresses will be used on the checkout page by default.' =>
+			'Следните адреси ще се използват по подразбиране на страницата за плащане.',
+		'Billing address'              => 'Адрес за фактуриране',
+		'Shipping address'             => 'Адрес за доставка',
+		'You have not set up this type of address yet.' =>
+			'Все още не сте задали този тип адрес.',
+		'Add'                          => 'Добави',
+		'Edit'                         => 'Редактирай',
+
+		// Account details sub-page
+		'First name'                   => 'Име',
+		'Last name'                    => 'Фамилия',
+		'Display name'                 => 'Показвано име',
+		'This will be how your name will be displayed in the account section and in reviews' =>
+			'Така ще се показва вашето име в секцията с акаунта и в коментарите',
+		'Password change'              => 'Смяна на парола',
+		'Current password (leave blank to leave unchanged)' =>
+			'Текуща парола (оставете празно, ако не искате да се променя)',
+		'New password (leave blank to leave unchanged)' =>
+			'Нова парола (оставете празно, ако не искате да се променя)',
+		'Confirm new password'         => 'Потвърдете новата парола',
+		'Save changes'                 => 'Запази промените',
+
+		// Downloads sub-page
+		'No downloads available yet.'  => 'Все още няма налични сваляния.',
 	);
 }
 
@@ -411,6 +476,51 @@ function kastor_shop_translate_cart_strings_ctx( $translated, $original, $contex
 		return $map[ $original ];
 	}
 	return $translated;
+}
+
+/* --------------------------------------------------------------------------
+ * 6c. WooCommerce privacy-policy snippets on register/checkout.
+ *     These strings live in wp_options (woocommerce_registration_privacy_
+ *     policy_text and woocommerce_checkout_privacy_policy_text). WC uses
+ *     get_option() to fetch them, so intercepting at the WP option layer
+ *     overrides both the stored DB value AND the gettext fallback in one
+ *     filter. Use [privacy_policy] as the link placeholder — WC's
+ *     wc_replace_policy_page_link_placeholders() swaps it for the actual
+ *     privacy-page link automatically.
+ * -------------------------------------------------------------------------- */
+
+define( 'KASTOR_SHOP_PRIVACY_REGISTER',
+	'Вашите лични данни ще бъдат използвани за подобряване на вашето изживяване в този уебсайт, за управление на достъпа до акаунта ви и за други цели, описани в нашата [privacy_policy].' );
+
+define( 'KASTOR_SHOP_PRIVACY_CHECKOUT',
+	'Вашите лични данни ще бъдат използвани за обработка на поръчката ви, за подобряване на изживяването ви в този уебсайт и за други цели, описани в нашата [privacy_policy].' );
+
+// Override the stored option value (runs whenever WC calls get_option()).
+add_filter( 'option_woocommerce_registration_privacy_policy_text', 'kastor_shop_privacy_text_register', 99 );
+add_filter( 'default_option_woocommerce_registration_privacy_policy_text', 'kastor_shop_privacy_text_register', 99 );
+
+function kastor_shop_privacy_text_register( $value ) {
+	return KASTOR_SHOP_PRIVACY_REGISTER;
+}
+
+add_filter( 'option_woocommerce_checkout_privacy_policy_text', 'kastor_shop_privacy_text_checkout', 99 );
+add_filter( 'default_option_woocommerce_checkout_privacy_policy_text', 'kastor_shop_privacy_text_checkout', 99 );
+
+function kastor_shop_privacy_text_checkout( $value ) {
+	return KASTOR_SHOP_PRIVACY_CHECKOUT;
+}
+
+// Belt-and-suspenders: also catch the WC-level filter in case a future
+// version moves these strings out of options entirely.
+add_filter( 'woocommerce_get_privacy_policy_text', 'kastor_shop_privacy_text_wc_filter', 10, 2 );
+function kastor_shop_privacy_text_wc_filter( $text, $type ) {
+	if ( $type === 'registration' ) {
+		return KASTOR_SHOP_PRIVACY_REGISTER;
+	}
+	if ( $type === 'checkout' ) {
+		return KASTOR_SHOP_PRIVACY_CHECKOUT;
+	}
+	return $text;
 }
 
 

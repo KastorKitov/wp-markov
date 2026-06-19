@@ -509,7 +509,10 @@
 	function translateCartBlockStrings() {
 		if (!document.body.classList.contains('woocommerce-cart') &&
 			!document.body.classList.contains('woocommerce-checkout') &&
-			!document.body.classList.contains('woocommerce-page')) return;
+			!document.body.classList.contains('woocommerce-page') &&
+			!document.body.classList.contains('woocommerce-account') &&
+			!document.querySelector('.ct-woo-authorized') &&
+			!document.querySelector('.ct-woo-unauthorized')) return;
 
 		var map = {
 			'Add coupons':          'Добави купон',
@@ -550,7 +553,11 @@
 				'Количеството на „$1" беше променено на $2.'],
 			// Same string without quotes (some WC versions render it differently).
 			[/The quantity of (\S+) was changed to (\d+)\.?/g,
-				'Количеството на $1 беше променено на $2.']
+				'Количеството на $1 беше променено на $2.'],
+			// Temporary-password notice after registration ("Your account
+			// with <domain> is using a temporary password...").
+			[/Your account with ([^\s]+) is using a temporary password\. We emailed you a link to change your password\.?/g,
+				'Вашият акаунт в $1 използва временна парола. Изпратихме ви имейл с линк за нейната смяна.']
 		];
 
 		function walk(node) {

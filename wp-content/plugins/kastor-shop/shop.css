@@ -686,10 +686,8 @@ ul.products li.product .button.added {
    the original cart button — even if WC didn't apply the `.added` class to
    it (Blocksy or another plugin can interfere with that). */
 
-.kastor-shop__card-actions:has(.added_to_cart) a.button.add_to_cart_button,
-.kastor-shop__card-actions:has(.added_to_cart) a.button.product_type_simple,
-.kastor-shop__card-actions:has(.added_to_cart) .add_to_cart_button,
 .kastor-shop__card-actions.kastor-shop__has-added a.button.add_to_cart_button,
+.kastor-shop__card-actions.kastor-shop__has-added a.button.product_type_simple,
 .kastor-shop__card-actions.kastor-shop__has-added .add_to_cart_button {
 	display: none !important;
 }
@@ -2422,4 +2420,1184 @@ body.woocommerce-cart .wp-block-woocommerce-proceed-to-checkout-block a:hover,
 body.woocommerce-cart .wp-block-woocommerce-proceed-to-checkout-block button:hover {
 	background: #216192 !important;
 	transform: translateY(-1px);
+}
+
+
+/* ========================================================================== */
+/* MY ACCOUNT — hide the menu (Поръчки / За акаунта / Адрес / Излез) when    */
+/* the visitor isn't logged in. The account page is built with Kadence Blocks */
+/* columns rather than WC's native nav, and lives at /accountpage/ (no        */
+/* .woocommerce-account body class). The login form is rendered inside        */
+/* .ct-woo-unauthorized — its presence is a reliable "not logged in" signal. */
+/* ========================================================================== */
+
+/* Stock WC nav (in case it's also used elsewhere). */
+body:not(.logged-in) .woocommerce-MyAccount-navigation,
+body:not(.logged-in) .ct-account-page-menu,
+body:not(.logged-in) [class*="account-page-menu"],
+body:not(.logged-in) [class*="MyAccount-navigation"] {
+	display: none !important;
+}
+
+/* Hide the four Kadence menu tiles when no user is logged in.
+   The class hashes are page-id-stable for /accountpage/ (page 4827).
+   If the page is rebuilt these hashes will change — update them here. */
+
+body:not(.logged-in) .kadence-column4827_66ed6a-91,
+body:not(.logged-in) .kadence-column4827_daf043-33,
+body:not(.logged-in) .kadence-column4827_ed8d0e-16,
+body:not(.logged-in) .kadence-column4827_b3d2e6-cf,
+body:not(.logged-in) .kadence-column4827_169493-48 {
+	display: none !important;
+}
+
+
+/* ========================================================================== */
+/* MY ACCOUNT — login / register form styling                                  */
+/*   Two-card layout on desktop, stacked on mobile. White cards with soft      */
+/*   shadow, brand-blue accents, rounded inputs with focus ring.               */
+/* ========================================================================== */
+
+.woocommerce.ct-woo-unauthorized,
+.woocommerce.ct-woo-unauthorized h2,
+.woocommerce.ct-woo-unauthorized form,
+.woocommerce.ct-woo-unauthorized form label,
+.woocommerce.ct-woo-unauthorized form input,
+.woocommerce.ct-woo-unauthorized form button,
+.woocommerce.ct-woo-unauthorized form p,
+.woocommerce.ct-woo-unauthorized a {
+	font-family: 'Poppins', sans-serif !important;
+}
+
+.woocommerce.ct-woo-unauthorized {
+	max-width: 1000px;
+	margin: 40px auto !important;
+	padding: 0 16px;
+	background: transparent !important;
+}
+
+.woocommerce.ct-woo-unauthorized .u-columns.col2-set {
+	display: grid !important;
+	grid-template-columns: 1fr 1fr !important;
+	gap: 24px !important;
+	float: none !important;
+	width: 100% !important;
+}
+
+.woocommerce.ct-woo-unauthorized .u-columns.col2-set::before,
+.woocommerce.ct-woo-unauthorized .u-columns.col2-set::after {
+	display: none !important;
+}
+
+.woocommerce.ct-woo-unauthorized .u-column1,
+.woocommerce.ct-woo-unauthorized .u-column2 {
+	width: 100% !important;
+	float: none !important;
+	background: #ffffff !important;
+	border: 1px solid #e6eef5 !important;
+	border-radius: 14px !important;
+	padding: 28px 26px !important;
+	box-shadow: 0 4px 14px rgba(33, 97, 146, 0.06) !important;
+}
+
+.woocommerce.ct-woo-unauthorized h2 {
+	color: #216192 !important;
+	font-size: 1.5rem !important;
+	font-weight: 700 !important;
+	margin: 0 0 20px !important;
+	padding-bottom: 12px !important;
+	border-bottom: 2px solid #e6eef5 !important;
+}
+
+.woocommerce.ct-woo-unauthorized form .form-row {
+	margin: 0 0 16px !important;
+	padding: 0 !important;
+}
+
+.woocommerce.ct-woo-unauthorized form label {
+	display: block !important;
+	font-size: 0.9rem !important;
+	font-weight: 600 !important;
+	color: #444 !important;
+	margin-bottom: 6px !important;
+}
+
+.woocommerce.ct-woo-unauthorized form label .required {
+	color: #d63638 !important;
+	text-decoration: none !important;
+}
+
+.woocommerce.ct-woo-unauthorized form input[type="text"],
+.woocommerce.ct-woo-unauthorized form input[type="email"],
+.woocommerce.ct-woo-unauthorized form input[type="password"] {
+	width: 100% !important;
+	padding: 11px 14px !important;
+	border: 1px solid #d4dfe9 !important;
+	border-radius: 8px !important;
+	background: #f8fafc !important;
+	font-size: 0.95rem !important;
+	color: #222 !important;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease !important;
+	box-sizing: border-box !important;
+}
+
+.woocommerce.ct-woo-unauthorized form input[type="text"]:focus,
+.woocommerce.ct-woo-unauthorized form input[type="email"]:focus,
+.woocommerce.ct-woo-unauthorized form input[type="password"]:focus {
+	outline: none !important;
+	border-color: #38B6FF !important;
+	background: #ffffff !important;
+	box-shadow: 0 0 0 3px rgba(56, 182, 255, 0.18) !important;
+}
+
+.woocommerce.ct-woo-unauthorized .password-input {
+	position: relative !important;
+	display: block !important;
+}
+
+.woocommerce.ct-woo-unauthorized .show-password-input {
+	right: 12px !important;
+}
+
+.woocommerce.ct-woo-unauthorized .woocommerce-form__label-for-checkbox {
+	display: flex !important;
+	align-items: center !important;
+	gap: 8px !important;
+	font-size: 0.9rem !important;
+	color: #555 !important;
+	cursor: pointer !important;
+	margin: 14px 0 18px !important;
+}
+
+.woocommerce.ct-woo-unauthorized .woocommerce-form__input-checkbox {
+	width: 16px !important;
+	height: 16px !important;
+	accent-color: #38B6FF !important;
+}
+
+.woocommerce.ct-woo-unauthorized .woocommerce-form-login__submit,
+.woocommerce.ct-woo-unauthorized .woocommerce-form-register__submit,
+.woocommerce.ct-woo-unauthorized button[type="submit"] {
+	background: #38B6FF !important;
+	color: #ffffff !important;
+	border: none !important;
+	border-radius: 999px !important;
+	padding: 12px 28px !important;
+	font-weight: 700 !important;
+	font-size: 0.95rem !important;
+	cursor: pointer !important;
+	box-shadow: 0 2px 8px rgba(56, 182, 255, 0.25) !important;
+	transition: background 0.15s ease, transform 0.1s ease !important;
+}
+
+.woocommerce.ct-woo-unauthorized .woocommerce-form-login__submit:hover,
+.woocommerce.ct-woo-unauthorized .woocommerce-form-register__submit:hover,
+.woocommerce.ct-woo-unauthorized button[type="submit"]:hover {
+	background: #216192 !important;
+	transform: translateY(-1px) !important;
+}
+
+.woocommerce.ct-woo-unauthorized .lost_password a,
+.woocommerce.ct-woo-unauthorized .woocommerce-LostPassword a {
+	color: #216192 !important;
+	font-size: 0.88rem !important;
+	text-decoration: none !important;
+	border-bottom: 1px solid transparent !important;
+	transition: border-color 0.15s ease, color 0.15s ease !important;
+}
+
+.woocommerce.ct-woo-unauthorized .lost_password a:hover {
+	color: #38B6FF !important;
+	border-bottom-color: #38B6FF !important;
+}
+
+.woocommerce.ct-woo-unauthorized .woocommerce-privacy-policy-text,
+.woocommerce.ct-woo-unauthorized form > p:not(.form-row):not(.lost_password) {
+	font-size: 0.85rem !important;
+	color: #666 !important;
+	line-height: 1.5 !important;
+	margin: 12px 0 !important;
+}
+
+.woocommerce.ct-woo-unauthorized .woocommerce-privacy-policy-text a {
+	color: #216192 !important;
+}
+
+@media (max-width: 781px) {
+	.woocommerce.ct-woo-unauthorized {
+		margin: 20px auto !important;
+		padding: 0 12px;
+	}
+
+	.woocommerce.ct-woo-unauthorized .u-columns.col2-set {
+		grid-template-columns: 1fr !important;
+	}
+
+	.woocommerce.ct-woo-unauthorized .u-column1,
+	.woocommerce.ct-woo-unauthorized .u-column2 {
+		padding: 22px 18px !important;
+	}
+}
+
+
+/* ========================================================================== */
+/* MY ACCOUNT (logged in) — layout + full sub-page styling                     */
+/*   Float-based layout (handles the asymmetric heights between the menu       */
+/*   tiles and the WC content card without grid's row-stretching behavior).    */
+/*   Kadence menu = quick links on the left; WC nav + content = right card.   */
+/* ========================================================================== */
+
+/* --- Layout container -----------------------------------------------------
+ * Hide the four Kadence menu tiles when logged in — they duplicate what the
+ * WC sidebar nav (rendered inside .ct-woo-account by Blocksy) already does.
+ * The WC card then takes the full row width with a generous max-width.
+ * ------------------------------------------------------------------------- */
+
+body.logged-in .kadence-column4827_66ed6a-91,
+body.logged-in .kadence-column4827_daf043-33,
+body.logged-in .kadence-column4827_ed8d0e-16,
+body.logged-in .kadence-column4827_b3d2e6-cf {
+	display: none !important;
+}
+
+body.logged-in .woocommerce.ct-woo-account {
+	width: 100% !important;
+	max-width: 100% !important;
+	margin: 0 auto 32px !important;
+	padding: 0 !important;
+	background: #ffffff !important;
+	border: 1px solid #e6eef5 !important;
+	border-radius: 14px !important;
+	box-shadow: 0 4px 14px rgba(33, 97, 146, 0.06) !important;
+	overflow: hidden !important;
+	box-sizing: border-box !important;
+	font-family: 'Poppins', sans-serif !important;
+}
+
+/* Center + brand-color the "Моят акаунт" page title. Wide selector net
+   because the heading element varies (h1/h2) and lives in a Kadence column
+   that can sit in slightly different places depending on the page. */
+body.logged-in .kadence-column4827_169493-48,
+body.logged-in .kadence-column4827_169493-48 h1,
+body.logged-in .kadence-column4827_169493-48 h2,
+body.logged-in .kadence-column4827_169493-48 h3,
+body.logged-in .kadence-column4827_169493-48 p {
+	text-align: center !important;
+	color: #216192 !important;
+}
+
+body.logged-in .kadence-column4827_169493-48 h1,
+body.logged-in .kadence-column4827_169493-48 h2,
+body.logged-in .kadence-column4827_169493-48 h3 {
+	font-family: 'Poppins', sans-serif !important;
+	color: #216192 !important;
+	font-weight: 700 !important;
+	font-size: 2rem !important;
+	margin: 30px 0 24px !important;
+}
+
+/* Belt-and-suspenders: target any title rendered before the WC card. */
+body.logged-in .entry-content > .wp-block-kadence-column:first-child h1,
+body.logged-in .entry-content > .wp-block-kadence-column:first-child h2,
+body.logged-in .entry-content > .wp-block-kadence-column h1.wp-block-heading,
+body.logged-in .entry-content > .wp-block-kadence-column h2.wp-block-heading {
+	text-align: center !important;
+	font-family: 'Poppins', sans-serif !important;
+	color: #216192 !important;
+	font-weight: 700 !important;
+}
+
+/* --- WC navigation (.ct-account-nav) — styled as horizontal tabs at the top
+ *     of the right card.  Brand-blue active state, gray hover.               */
+
+.woocommerce.ct-woo-account .ct-account-nav {
+	margin: 0 !important;
+	padding: 14px 22px !important;
+	background: #f8fafc !important;
+	border-bottom: 1px solid #e6eef5 !important;
+	width: auto !important;
+	border-radius: 14px 14px 0 0 !important;
+}
+
+/* Force display:block — an inline <style> on the edit-account page sets
+   display:none on this nav, which would hide our entire tab bar. */
+.woocommerce.ct-woo-account .woocommerce-MyAccount-navigation,
+body.logged-in .woocommerce-MyAccount-navigation,
+body.logged-in nav.woocommerce-MyAccount-navigation {
+	display: block !important;
+	margin: 0 !important;
+	visibility: visible !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-MyAccount-navigation ul {
+	display: flex !important;
+	flex-wrap: wrap !important;
+	gap: 4px !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	list-style: none !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-MyAccount-navigation li {
+	margin: 0 !important;
+	padding: 0 !important;
+	border: none !important;
+	width: 100% !important;
+	display: block !important;
+}
+
+/* The link/button fills the entire row width so the active state's
+   background pill stretches edge-to-edge, not just around the text. */
+.woocommerce.ct-woo-account .woocommerce-MyAccount-navigation li a {
+	display: block !important;
+	width: 100% !important;
+	box-sizing: border-box !important;
+	padding: 10px 18px !important;
+	border-radius: 10px !important;
+	color: #555 !important;
+	text-decoration: none !important;
+	font-size: 0.95rem !important;
+	font-weight: 500 !important;
+	font-family: 'Poppins', sans-serif !important;
+	border: none !important;
+	background: transparent !important;
+	transition: background 0.15s ease, color 0.15s ease !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-MyAccount-navigation li a:hover {
+	background: #e8f6ff !important;
+	color: #216192 !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-MyAccount-navigation li.is-active a,
+.woocommerce.ct-woo-account .woocommerce-MyAccount-navigation li.woocommerce-MyAccount-navigation-link--is-active a {
+	background: #38B6FF !important;
+	color: #ffffff !important;
+	font-weight: 600 !important;
+}
+
+/* --- WC content area (.woocommerce-MyAccount-content) -------------------- */
+
+.woocommerce.ct-woo-account .woocommerce-MyAccount-content {
+	padding: 26px 28px !important;
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 0.95rem !important;
+	color: #333 !important;
+	line-height: 1.65 !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-MyAccount-content p {
+	margin: 0 0 14px !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-MyAccount-content strong,
+.woocommerce.ct-woo-account .woocommerce-MyAccount-content b {
+	color: #216192 !important;
+	font-weight: 700 !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-MyAccount-content a {
+	color: #216192 !important;
+	text-decoration: none !important;
+	font-weight: 600 !important;
+	border-bottom: 1px solid transparent !important;
+	transition: border-color 0.15s ease, color 0.15s ease !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-MyAccount-content a:hover {
+	color: #38B6FF !important;
+	border-bottom-color: #38B6FF !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-MyAccount-content h2,
+.woocommerce.ct-woo-account .woocommerce-MyAccount-content h3 {
+	font-family: 'Poppins', sans-serif !important;
+	color: #216192 !important;
+	font-weight: 700 !important;
+	margin: 20px 0 12px !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-MyAccount-content h2 {
+	font-size: 1.35rem !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-MyAccount-content h3 {
+	font-size: 1.1rem !important;
+}
+
+/* --- Notices (info, success, error) -------------------------------------- */
+
+.woocommerce.ct-woo-account .woocommerce-message,
+.woocommerce.ct-woo-account .woocommerce-info,
+.woocommerce.ct-woo-account .woocommerce-notice--info,
+.woocommerce.ct-woo-account .woocommerce-notice--success,
+.woocommerce.ct-woo-account .woocommerce-notice {
+	background: #e8f6ff !important;
+	border: 1px solid #95d8ff !important;
+	border-left: 4px solid #38B6FF !important;
+	color: #175585 !important;
+	padding: 14px 18px !important;
+	border-radius: 10px !important;
+	font-size: 0.92rem !important;
+	margin: 0 0 22px !important;
+	line-height: 1.5 !important;
+	font-family: 'Poppins', sans-serif !important;
+	box-shadow: none !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: space-between !important;
+	gap: 16px !important;
+	flex-wrap: wrap !important;
+}
+
+/* Kill Blocksy's notice icon entirely — the color + accent border already
+   signal the notice type, and Blocksy positions the icon in a way that
+   overlaps our text. */
+.woocommerce.ct-woo-account .woocommerce-message::before,
+.woocommerce.ct-woo-account .woocommerce-info::before,
+.woocommerce.ct-woo-account .woocommerce-notice::before,
+.woocommerce.ct-woo-account .woocommerce-notice--info::before,
+.woocommerce.ct-woo-account .woocommerce-notice--success::before {
+	display: none !important;
+	content: none !important;
+	background: none !important;
+	width: 0 !important;
+	height: 0 !important;
+}
+
+/* The "Browse products" / "Add payment method" button sits on the right
+   side of the notice; keep it from shrinking and aligned to its baseline. */
+.woocommerce.ct-woo-account .woocommerce-info .button,
+.woocommerce.ct-woo-account .woocommerce-message .button {
+	flex: 0 0 auto !important;
+	margin-left: auto !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-error {
+	background: #fdecec !important;
+	border: 1px solid #f5b3b3 !important;
+	border-left: 4px solid #d63638 !important;
+	color: #7d1f1f !important;
+	padding: 14px 18px !important;
+	border-radius: 10px !important;
+	font-size: 0.92rem !important;
+	margin: 0 0 22px !important;
+	font-family: 'Poppins', sans-serif !important;
+}
+
+/* --- Tables (orders, downloads) ------------------------------------------ */
+
+.woocommerce.ct-woo-account table.shop_table,
+.woocommerce.ct-woo-account table.woocommerce-orders-table,
+.woocommerce.ct-woo-account table.account-orders-table {
+	width: 100% !important;
+	border-collapse: collapse !important;
+	border-radius: 10px !important;
+	overflow: hidden !important;
+	border: 1px solid #e6eef5 !important;
+	font-family: 'Poppins', sans-serif !important;
+	margin: 0 0 18px !important;
+}
+
+.woocommerce.ct-woo-account table.shop_table thead {
+	background: #f8fafc !important;
+}
+
+.woocommerce.ct-woo-account table.shop_table th {
+	color: #216192 !important;
+	font-weight: 600 !important;
+	font-size: 0.85rem !important;
+	padding: 12px 14px !important;
+	text-align: left !important;
+	text-transform: uppercase !important;
+	letter-spacing: 0.4px !important;
+	border: none !important;
+}
+
+.woocommerce.ct-woo-account table.shop_table td {
+	padding: 14px !important;
+	border-top: 1px solid #e6eef5 !important;
+	color: #333 !important;
+	font-size: 0.92rem !important;
+	background: #fff !important;
+}
+
+.woocommerce.ct-woo-account table.shop_table tr:hover td {
+	background: #f8fafc !important;
+}
+
+/* --- Address cards (Addresses sub-page) ---------------------------------- */
+
+.woocommerce.ct-woo-account .woocommerce-Addresses {
+	display: grid !important;
+	grid-template-columns: 1fr 1fr !important;
+	gap: 18px !important;
+	margin: 0 0 24px !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-Address {
+	background: #fff !important;
+	border: 1px solid #e6eef5 !important;
+	border-radius: 10px !important;
+	padding: 18px 20px !important;
+	width: auto !important;
+	float: none !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-Address-title {
+	display: flex !important;
+	justify-content: space-between !important;
+	align-items: center !important;
+	margin: 0 0 12px !important;
+	padding-bottom: 10px !important;
+	border-bottom: 1px solid #e6eef5 !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-Address-title h2,
+.woocommerce.ct-woo-account .woocommerce-Address-title h3 {
+	margin: 0 !important;
+	font-size: 1.05rem !important;
+	color: #216192 !important;
+	font-weight: 700 !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-Address-title .edit {
+	font-size: 0.85rem !important;
+	color: #38B6FF !important;
+	font-weight: 600 !important;
+	border: 1px solid #38B6FF !important;
+	padding: 4px 12px !important;
+	border-radius: 999px !important;
+	background: transparent !important;
+	transition: background 0.15s ease, color 0.15s ease !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-Address-title .edit:hover {
+	background: #38B6FF !important;
+	color: #fff !important;
+	border-bottom-color: #38B6FF !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-Address address {
+	font-style: normal !important;
+	font-size: 0.92rem !important;
+	color: #444 !important;
+	line-height: 1.55 !important;
+	margin: 0 !important;
+}
+
+/* --- Forms (account details, edit address) ------------------------------- */
+
+.woocommerce.ct-woo-account form .woocommerce-FormRow,
+.woocommerce.ct-woo-account form .form-row {
+	margin: 0 0 16px !important;
+	padding: 0 !important;
+	float: none !important;
+	width: 100% !important;
+}
+
+.woocommerce.ct-woo-account form .form-row-first,
+.woocommerce.ct-woo-account form .form-row-last,
+.woocommerce.ct-woo-account form .woocommerce-FormRow--first,
+.woocommerce.ct-woo-account form .woocommerce-FormRow--last {
+	width: calc(50% - 8px) !important;
+	display: inline-block !important;
+	vertical-align: top !important;
+}
+
+.woocommerce.ct-woo-account form .form-row-first,
+.woocommerce.ct-woo-account form .woocommerce-FormRow--first {
+	margin-right: 12px !important;
+}
+
+.woocommerce.ct-woo-account form label {
+	display: block !important;
+	font-size: 0.88rem !important;
+	font-weight: 600 !important;
+	color: #444 !important;
+	margin-bottom: 6px !important;
+	font-family: 'Poppins', sans-serif !important;
+}
+
+.woocommerce.ct-woo-account form label .required {
+	color: #d63638 !important;
+	text-decoration: none !important;
+}
+
+.woocommerce.ct-woo-account form input[type="text"],
+.woocommerce.ct-woo-account form input[type="email"],
+.woocommerce.ct-woo-account form input[type="tel"],
+.woocommerce.ct-woo-account form input[type="password"],
+.woocommerce.ct-woo-account form input[type="number"],
+.woocommerce.ct-woo-account form select,
+.woocommerce.ct-woo-account form textarea {
+	width: 100% !important;
+	padding: 10px 14px !important;
+	border: 1px solid #d4dfe9 !important;
+	border-radius: 8px !important;
+	background: #f8fafc !important;
+	font-size: 0.94rem !important;
+	color: #222 !important;
+	font-family: 'Poppins', sans-serif !important;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease !important;
+	box-sizing: border-box !important;
+}
+
+.woocommerce.ct-woo-account form input:focus,
+.woocommerce.ct-woo-account form select:focus,
+.woocommerce.ct-woo-account form textarea:focus {
+	outline: none !important;
+	border-color: #38B6FF !important;
+	background: #ffffff !important;
+	box-shadow: 0 0 0 3px rgba(56, 182, 255, 0.18) !important;
+}
+
+.woocommerce.ct-woo-account form fieldset {
+	border: 1px solid #e6eef5 !important;
+	border-radius: 10px !important;
+	padding: 18px 20px !important;
+	margin: 20px 0 !important;
+}
+
+.woocommerce.ct-woo-account form fieldset legend {
+	font-weight: 700 !important;
+	color: #216192 !important;
+	padding: 0 8px !important;
+	font-size: 1rem !important;
+}
+
+/* --- Buttons inside the account area ------------------------------------- */
+
+.woocommerce.ct-woo-account .button,
+.woocommerce.ct-woo-account button[type="submit"],
+.woocommerce.ct-woo-account input[type="submit"] {
+	background: #38B6FF !important;
+	color: #ffffff !important;
+	border: none !important;
+	border-radius: 999px !important;
+	padding: 11px 26px !important;
+	font-weight: 700 !important;
+	font-size: 0.92rem !important;
+	cursor: pointer !important;
+	font-family: 'Poppins', sans-serif !important;
+	text-decoration: none !important;
+	display: inline-block !important;
+	box-shadow: 0 2px 8px rgba(56, 182, 255, 0.25) !important;
+	transition: background 0.15s ease, transform 0.1s ease !important;
+}
+
+.woocommerce.ct-woo-account .button:hover,
+.woocommerce.ct-woo-account button[type="submit"]:hover,
+.woocommerce.ct-woo-account input[type="submit"]:hover {
+	background: #216192 !important;
+	color: #ffffff !important;
+	transform: translateY(-1px) !important;
+	border-bottom-color: transparent !important;
+}
+
+/* "View" / "Pay" / "Cancel" action buttons inside the orders table — smaller. */
+.woocommerce.ct-woo-account table .button,
+.woocommerce.ct-woo-account .woocommerce-orders-table__cell-order-actions .button {
+	font-size: 0.8rem !important;
+	margin: 0 2px !important;
+}
+
+/* Force white text on every button anchor — fights the generic
+   ".woocommerce-MyAccount-content a { color: #216192 }" rule which is
+   slightly more specific and would otherwise color button labels blue. */
+.woocommerce.ct-woo-account a.button,
+.woocommerce.ct-woo-account .woocommerce-MyAccount-content a.button,
+.woocommerce.ct-woo-account .woocommerce-info a.button,
+.woocommerce.ct-woo-account .woocommerce-info .button,
+.woocommerce.ct-woo-account .woocommerce-message a.button,
+.woocommerce.ct-woo-account .woocommerce-message .button,
+.woocommerce.ct-woo-account .woocommerce-Button,
+.woocommerce.ct-woo-account a.woocommerce-Button {
+	color: #ffffff !important;
+	text-decoration: none !important;
+	text-align: center !important;
+	border-bottom: none !important;
+}
+
+.woocommerce.ct-woo-account a.button:hover,
+.woocommerce.ct-woo-account .woocommerce-MyAccount-content a.button:hover,
+.woocommerce.ct-woo-account .woocommerce-info a.button:hover,
+.woocommerce.ct-woo-account .woocommerce-message a.button:hover {
+	color: #ffffff !important;
+	border-bottom: none !important;
+}
+
+/* Center the action cell in the orders table so the button isn't hugging
+   the left/right edge of its column. */
+.woocommerce.ct-woo-account .woocommerce-orders-table__cell-order-actions,
+.woocommerce.ct-woo-account table.shop_table td:last-child {
+	text-align: center !important;
+}
+
+/* --- Pagination links (orders sub-page) ---------------------------------- */
+
+.woocommerce.ct-woo-account .woocommerce-pagination {
+	margin: 16px 0 !important;
+	text-align: center !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-pagination a,
+.woocommerce.ct-woo-account .woocommerce-pagination span {
+	display: inline-block !important;
+	padding: 6px 12px !important;
+	margin: 0 3px !important;
+	border-radius: 8px !important;
+	background: #f8fafc !important;
+	color: #216192 !important;
+	font-size: 0.88rem !important;
+	font-weight: 600 !important;
+	text-decoration: none !important;
+}
+
+.woocommerce.ct-woo-account .woocommerce-pagination a:hover,
+.woocommerce.ct-woo-account .woocommerce-pagination .current {
+	background: #38B6FF !important;
+	color: #ffffff !important;
+}
+
+/* ========================================================================== */
+/* WISHLIST PAGE (TI WooCommerce Wishlist plugin)                              */
+/*   Targets .tinv-wishlist and friends. Matches the orders-table aesthetic    */
+/*   so the wishlist reads as just another My Account sub-page.                */
+/* ========================================================================== */
+
+.woocommerce.ct-woo-account .tinv-wishlist,
+.tinv-wishlist {
+	font-family: 'Poppins', sans-serif !important;
+	color: #333 !important;
+}
+
+/* Outer wishlist table — same rounded card treatment as shop_table */
+
+.tinv-wishlist table.tinvwl-table-manage-list {
+	width: 100% !important;
+	border-collapse: collapse !important;
+	border-radius: 10px !important;
+	overflow: hidden !important;
+	border: 1px solid #e6eef5 !important;
+	margin: 0 0 18px !important;
+	background: #fff !important;
+}
+
+.tinv-wishlist table.tinvwl-table-manage-list thead {
+	background: #f8fafc !important;
+}
+
+.tinv-wishlist table.tinvwl-table-manage-list thead th {
+	color: #216192 !important;
+	font-weight: 600 !important;
+	font-size: 0.85rem !important;
+	padding: 12px 14px !important;
+	text-transform: uppercase !important;
+	letter-spacing: 0.4px !important;
+	border: none !important;
+	background: transparent !important;
+}
+
+.tinv-wishlist table.tinvwl-table-manage-list tbody td {
+	padding: 14px !important;
+	border-top: 1px solid #e6eef5 !important;
+	color: #333 !important;
+	font-size: 0.92rem !important;
+	background: #fff !important;
+	vertical-align: middle !important;
+}
+
+.tinv-wishlist table.tinvwl-table-manage-list tbody tr:hover td {
+	background: #f8fafc !important;
+}
+
+/* Product thumbnail — small rounded square. */
+.tinv-wishlist td.product-thumbnail {
+	width: 80px !important;
+	padding: 8px !important;
+}
+
+.tinv-wishlist td.product-thumbnail img {
+	width: 64px !important;
+	height: 64px !important;
+	object-fit: cover !important;
+	border-radius: 8px !important;
+	border: 1px solid #e6eef5 !important;
+	background: #fff !important;
+	display: block !important;
+}
+
+/* Product name link */
+.tinv-wishlist td.product-name a {
+	color: #216192 !important;
+	font-weight: 600 !important;
+	font-size: 0.98rem !important;
+	text-decoration: none !important;
+	border-bottom: 1px solid transparent !important;
+	transition: color 0.15s ease, border-color 0.15s ease !important;
+}
+
+.tinv-wishlist td.product-name a:hover {
+	color: #38B6FF !important;
+	border-bottom-color: #38B6FF !important;
+}
+
+/* Price column — keep numeric tabular */
+.tinv-wishlist td.product-price {
+	font-weight: 600 !important;
+	color: #216192 !important;
+	font-variant-numeric: tabular-nums !important;
+}
+
+/* Stock pill — green for in-stock, gray for out */
+.tinv-wishlist td.product-stock .stock,
+.tinv-wishlist .stock.in-stock {
+	display: inline-block !important;
+	padding: 3px 10px !important;
+	border-radius: 999px !important;
+	background: #e6f7ee !important;
+	color: #1f7a4d !important;
+	font-size: 0.78rem !important;
+	font-weight: 600 !important;
+}
+
+.tinv-wishlist .stock.out-of-stock {
+	background: #f5e6e6 !important;
+	color: #7d1f1f !important;
+}
+
+/* "Add to cart" button — brand pill (matches the rest of the site) */
+.tinv-wishlist .product-action .button,
+.tinv-wishlist .tinvwl-buttons-group .button {
+	background: #38B6FF !important;
+	color: #ffffff !important;
+	border: none !important;
+	border-radius: 999px !important;
+	padding: 8px 18px !important;
+	font-weight: 600 !important;
+	font-size: 0.85rem !important;
+	text-decoration: none !important;
+	box-shadow: 0 2px 8px rgba(56, 182, 255, 0.25) !important;
+	transition: background 0.15s ease, transform 0.1s ease !important;
+}
+
+.tinv-wishlist .product-action .button:hover,
+.tinv-wishlist .tinvwl-buttons-group .button:hover {
+	background: #216192 !important;
+	color: #ffffff !important;
+	transform: translateY(-1px) !important;
+}
+
+/* Remove-item button (× icon) — small, gray, hover red */
+.tinv-wishlist button.product-remove,
+.tinv-wishlist .product-remove button {
+	background: transparent !important;
+	border: 1px solid #e6eef5 !important;
+	border-radius: 50% !important;
+	width: 28px !important;
+	height: 28px !important;
+	color: #888 !important;
+	font-size: 1rem !important;
+	line-height: 1 !important;
+	cursor: pointer !important;
+	padding: 0 !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease !important;
+}
+
+.tinv-wishlist button.product-remove:hover,
+.tinv-wishlist .product-remove button:hover {
+	color: #d63638 !important;
+	border-color: #d63638 !important;
+	background: #fdecec !important;
+	box-shadow: none !important;
+	transform: none !important;
+}
+
+/* Manage row at the bottom (per-row checkboxes + bulk actions) */
+.tinv-wishlist .tinvwl-table-manage-item {
+	background: #f8fafc !important;
+	border-top: 1px solid #e6eef5 !important;
+	padding: 12px 14px !important;
+}
+
+.tinv-wishlist .tinvwl-table-manage-item select {
+	padding: 8px 12px !important;
+	border: 1px solid #d4dfe9 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+	font-size: 0.88rem !important;
+	color: #333 !important;
+	font-family: 'Poppins', sans-serif !important;
+}
+
+/* Title row above the wishlist */
+.tinv-wishlist .tinvwl-header,
+.tinv-wishlist .tinvwl-title {
+	color: #216192 !important;
+	font-weight: 700 !important;
+	font-family: 'Poppins', sans-serif !important;
+	margin: 0 0 14px !important;
+}
+
+/* Empty-state message */
+.tinv-wishlist-empty,
+.tinv-wishlist .tinv-wishlist-empty {
+	text-align: center !important;
+	padding: 40px 20px !important;
+	background: #f8fafc !important;
+	border-radius: 12px !important;
+	color: #555 !important;
+	font-size: 1rem !important;
+	border: 1px dashed #d4dfe9 !important;
+}
+
+.tinv-wishlist-empty .button,
+.tinv-wishlist .tinv-wishlist-empty a.button {
+	margin-top: 14px !important;
+	display: inline-block !important;
+}
+
+/* Social-share toolbar TI adds at the bottom of the wishlist — keep it
+   muted so it doesn't compete with the product list. */
+.tinv-wishlist .social-buttons,
+.tinv-wishlist .tinvwl-to-right.look_in {
+	margin: 16px 0 !important;
+	padding-top: 14px !important;
+	border-top: 1px solid #e6eef5 !important;
+}
+
+.tinv-wishlist .social-buttons li a {
+	color: #888 !important;
+	transition: color 0.15s ease !important;
+}
+
+.tinv-wishlist .social-buttons li a:hover {
+	color: #38B6FF !important;
+}
+
+/* Mobile: stack the table cells vertically and shrink padding. */
+@media (max-width: 600px) {
+	.tinv-wishlist table.tinvwl-table-manage-list,
+	.tinv-wishlist table.tinvwl-table-manage-list thead,
+	.tinv-wishlist table.tinvwl-table-manage-list tbody {
+		display: block !important;
+	}
+
+	.tinv-wishlist table.tinvwl-table-manage-list thead {
+		display: none !important;
+	}
+
+	.tinv-wishlist table.tinvwl-table-manage-list tbody tr {
+		display: block !important;
+		border: 1px solid #e6eef5 !important;
+		border-radius: 10px !important;
+		margin-bottom: 10px !important;
+		padding: 10px !important;
+	}
+
+	.tinv-wishlist table.tinvwl-table-manage-list tbody td {
+		display: block !important;
+		border: none !important;
+		padding: 6px 4px !important;
+	}
+
+	.tinv-wishlist td.product-thumbnail {
+		width: auto !important;
+		text-align: center !important;
+	}
+
+	.tinv-wishlist td.product-thumbnail img {
+		margin: 0 auto !important;
+	}
+}
+
+
+/* --- Mobile: stack everything ------------------------------------------- */
+
+@media (max-width: 781px) {
+	body.logged-in .woocommerce.ct-woo-account {
+		width: 100% !important;
+		margin: 16px 0 24px !important;
+		border-radius: 0 !important;
+		border-left: none !important;
+		border-right: none !important;
+	}
+
+	.woocommerce.ct-woo-account .ct-account-nav {
+		padding: 10px 14px !important;
+	}
+
+	.woocommerce.ct-woo-account .woocommerce-MyAccount-content {
+		padding: 20px 16px !important;
+	}
+
+	.woocommerce.ct-woo-account .woocommerce-MyAccount-navigation li a {
+		padding: 6px 10px !important;
+		font-size: 0.85rem !important;
+	}
+
+	.woocommerce.ct-woo-account .woocommerce-Addresses {
+		grid-template-columns: 1fr !important;
+	}
+
+	.woocommerce.ct-woo-account form .form-row-first,
+	.woocommerce.ct-woo-account form .form-row-last,
+	.woocommerce.ct-woo-account form .woocommerce-FormRow--first,
+	.woocommerce.ct-woo-account form .woocommerce-FormRow--last {
+		width: 100% !important;
+		margin-right: 0 !important;
+	}
+
+	/* Make orders table horizontally scrollable on phones. */
+	.woocommerce.ct-woo-account table.shop_table {
+		display: block !important;
+		overflow-x: auto !important;
+	}
+}
+
+/* --- Menu tiles (Поръчки / За акаунта / Адрес / Излез) -------------------- */
+
+body.logged-in .kadence-column4827_66ed6a-91,
+body.logged-in .kadence-column4827_daf043-33,
+body.logged-in .kadence-column4827_ed8d0e-16,
+body.logged-in .kadence-column4827_b3d2e6-cf {
+	background: #ffffff !important;
+	border: 1px solid #e6eef5 !important;
+	border-radius: 12px !important;
+	margin: 0 0 12px !important;
+	padding: 0 !important;
+	transition: border-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease !important;
+	overflow: hidden !important;
+	width: 100% !important;
+	font-family: 'Poppins', sans-serif !important;
+}
+
+body.logged-in .kadence-column4827_66ed6a-91:hover,
+body.logged-in .kadence-column4827_daf043-33:hover,
+body.logged-in .kadence-column4827_ed8d0e-16:hover,
+body.logged-in .kadence-column4827_b3d2e6-cf:hover {
+	border-color: #38B6FF !important;
+	box-shadow: 0 2px 10px rgba(56, 182, 255, 0.15) !important;
+	transform: translateX(4px) !important;
+}
+
+/* Shrink the menu headings and brand-color them. The Kadence columns render
+   the menu text as h1/h2/h3 depending on the editor settings. */
+
+body.logged-in .kadence-column4827_66ed6a-91 h1,
+body.logged-in .kadence-column4827_66ed6a-91 h2,
+body.logged-in .kadence-column4827_66ed6a-91 h3,
+body.logged-in .kadence-column4827_66ed6a-91 h4,
+body.logged-in .kadence-column4827_daf043-33 h1,
+body.logged-in .kadence-column4827_daf043-33 h2,
+body.logged-in .kadence-column4827_daf043-33 h3,
+body.logged-in .kadence-column4827_daf043-33 h4,
+body.logged-in .kadence-column4827_ed8d0e-16 h1,
+body.logged-in .kadence-column4827_ed8d0e-16 h2,
+body.logged-in .kadence-column4827_ed8d0e-16 h3,
+body.logged-in .kadence-column4827_ed8d0e-16 h4,
+body.logged-in .kadence-column4827_b3d2e6-cf h1,
+body.logged-in .kadence-column4827_b3d2e6-cf h2,
+body.logged-in .kadence-column4827_b3d2e6-cf h3,
+body.logged-in .kadence-column4827_b3d2e6-cf h4 {
+	font-size: 1rem !important;
+	font-weight: 600 !important;
+	color: #216192 !important;
+	margin: 0 !important;
+	padding: 14px 20px !important;
+	font-family: 'Poppins', sans-serif !important;
+	line-height: 1.3 !important;
+	text-transform: none !important;
+	letter-spacing: 0 !important;
+}
+
+/* If the menu wraps its label in a link, make the whole tile clickable. */
+body.logged-in .kadence-column4827_66ed6a-91 a,
+body.logged-in .kadence-column4827_daf043-33 a,
+body.logged-in .kadence-column4827_ed8d0e-16 a,
+body.logged-in .kadence-column4827_b3d2e6-cf a {
+	display: block !important;
+	color: inherit !important;
+	text-decoration: none !important;
+	padding: 0 !important;
+}
+
+/* --- Dashboard notices (temporary password etc.) -------------------------- */
+
+body.logged-in.woocommerce-page .woocommerce-message,
+body.logged-in.woocommerce-page .woocommerce-info,
+body.logged-in.woocommerce-page .woocommerce-notice--info,
+body.logged-in.woocommerce-page .woocommerce-notice--success,
+body.logged-in.woocommerce-page .woocommerce-notice {
+	background: #e8f6ff !important;
+	border: 1px solid #95d8ff !important;
+	border-left: 4px solid #38B6FF !important;
+	color: #175585 !important;
+	padding: 14px 18px !important;
+	border-radius: 10px !important;
+	font-size: 0.92rem !important;
+	margin: 0 0 22px !important;
+	line-height: 1.5 !important;
+	font-family: 'Poppins', sans-serif !important;
+	box-shadow: none !important;
+}
+
+body.logged-in.woocommerce-page .woocommerce-error {
+	background: #fdecec !important;
+	border: 1px solid #f5b3b3 !important;
+	border-left: 4px solid #d63638 !important;
+	color: #7d1f1f !important;
+	padding: 14px 18px !important;
+	border-radius: 10px !important;
+	font-size: 0.92rem !important;
+	margin: 0 0 22px !important;
+	line-height: 1.5 !important;
+	font-family: 'Poppins', sans-serif !important;
+}
+
+/* --- Dashboard welcome text + general WC content typography --------------- */
+
+body.logged-in.woocommerce-page .woocommerce-MyAccount-content,
+body.logged-in.woocommerce-page .woocommerce-MyAccount-content p,
+body.logged-in.woocommerce-page .woocommerce-account-fields p {
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 0.95rem !important;
+	color: #333 !important;
+	line-height: 1.65 !important;
+}
+
+body.logged-in.woocommerce-page .woocommerce-MyAccount-content strong,
+body.logged-in.woocommerce-page .woocommerce-MyAccount-content b {
+	color: #216192 !important;
+	font-weight: 700 !important;
+}
+
+body.logged-in.woocommerce-page .woocommerce-MyAccount-content a {
+	color: #216192 !important;
+	text-decoration: none !important;
+	font-weight: 600 !important;
+	border-bottom: 1px solid transparent !important;
+	transition: border-color 0.15s ease, color 0.15s ease !important;
+}
+
+body.logged-in.woocommerce-page .woocommerce-MyAccount-content a:hover {
+	color: #38B6FF !important;
+	border-bottom-color: #38B6FF !important;
+}
+
+/* --- Mobile: shrink menu tiles further ----------------------------------- */
+
+@media (max-width: 781px) {
+	body.logged-in .kadence-column4827_66ed6a-91,
+	body.logged-in .kadence-column4827_daf043-33,
+	body.logged-in .kadence-column4827_ed8d0e-16,
+	body.logged-in .kadence-column4827_b3d2e6-cf {
+		max-width: 100% !important;
+		margin-bottom: 8px !important;
+	}
+
 }

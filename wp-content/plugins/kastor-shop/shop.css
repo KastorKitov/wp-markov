@@ -3751,3 +3751,47 @@ body.logged-in.woocommerce-page .woocommerce-MyAccount-content a:hover {
 	}
 
 }
+
+
+/* ========================================================================== */
+/* Header: GTranslate language switcher repositioned to the right group.       */
+/*   The JS moves the <li> from the main nav into the header's right column;   */
+/*   this CSS makes sure it sits visually inline with the search/account/cart  */
+/*   icons rather than rendering as a stretched menu item.                     */
+/* ========================================================================== */
+
+/* ========================================================================== */
+/* GTranslate language switcher — visually positioned next to the search icon  */
+/* Without moving it in the DOM (which broke its dropdown). Absolutely         */
+/* positions the menu <li> at a fixed offset from the right edge of the        */
+/* header so it sits just left of the Search/Account/Cart group.               */
+/* ========================================================================== */
+
+header li.menu-item-gtranslate,
+header li[class*="menu-item-gtranslate"] {
+	position: absolute !important;
+	right: 150px !important;
+	top: 50% !important;
+	transform: translateY(-50%) !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	z-index: 100 !important;
+}
+
+/* Make sure the header container is positioned so our absolute child has a
+   reference frame. Blocksy usually has position:relative on these already. */
+header [data-row="middle"],
+header .ct-container-fluid {
+	position: relative !important;
+}
+
+@media (max-width: 999px) {
+	/* Mobile: hide the absolute positioning, let it flow naturally. */
+	header li.menu-item-gtranslate,
+	header li[class*="menu-item-gtranslate"] {
+		position: static !important;
+		transform: none !important;
+		right: auto !important;
+		top: auto !important;
+	}
+}

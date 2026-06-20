@@ -20,7 +20,7 @@
 	'use strict';
 
 	// Flip to true to see cache + filter diagnostics in DevTools console.
-	var DEBUG = true;
+	var DEBUG = false;
 
 	var products = [];
 	var emptyMsg = null;
@@ -1029,6 +1029,10 @@
 			h1.style.setProperty('transform', 'translateY(' + diff + 'px)', 'important');
 		}
 	}
+
+	/* Language switcher move logic removed. GTranslate renders natively in
+	 * Header Menu 1; positioning to be done via CSS later, once it's
+	 * confirmed visible. */
 
 	function setupFooterRestyle() {
 		restyleFooterBlocks();

@@ -2297,6 +2297,16 @@ body.woocommerce-cart .wc-block-components-product-name a:hover {
  * shrink the per-row totals slightly so everything fits without horizontal
  * scroll. */
 
+/* Override Blocksy's global `table { border-collapse: collapse }` for the
+   cart-block table so its rows can render with proper spacing/separate borders
+   (collapse forces adjacent cell borders to merge, which the Cart Block's
+   design doesn't expect). */
+body.woocommerce-cart table.wc-block-cart-items,
+body.woocommerce-cart .wp-block-woocommerce-cart table {
+	border-collapse: separate !important;
+	border-spacing: 0 !important;
+}
+
 @media (max-width: 781px) {
 	body.woocommerce-cart .wc-block-cart-items td.wc-block-cart-item__total,
 	body.woocommerce-cart .wc-block-cart-items [class*="cart-item__total"] {
@@ -3332,6 +3342,61 @@ body.logged-in nav.woocommerce-MyAccount-navigation {
 	font-size: 0.88rem !important;
 	color: #333 !important;
 	font-family: 'Poppins', sans-serif !important;
+}
+
+/* Hide the left-side bulk-action group only: "Действия" dropdown +
+   "ПрилаганеДействие" button. The right-side group (Add selected / Add all
+   to cart) lives in .tinvwl-to-right.look_in and stays visible. */
+.tinv-wishlist .tinvwl-to-left.look_in {
+	display: none !important;
+}
+
+/* Hide the secondary BGN price the wishlist plugin renders inline (the
+   "/ 39,12 лв." after the EUR price) and any duplicate BGN spans my JS/PHP
+   filters might add as a result.  Only the first kastor-shop__price-bgn
+   stays — the one right after the EUR amount. */
+.tinv-wishlist td.product-price .kastor-shop__price-bgn ~ .kastor-shop__price-bgn {
+	display: none !important;
+}
+
+/* Strip the inline secondary BGN-equivalent text WC Wishlist adds between
+   the EUR amount and our BGN appendage.  It's typically rendered as a
+   second <bdi> / <span class="woocommerce-Price-amount"> inside the same
+   .price wrapper, separated by "/". Hide every price-amount after the
+   first within a wishlist price cell. */
+.tinv-wishlist td.product-price .woocommerce-Price-amount ~ .woocommerce-Price-amount,
+.tinv-wishlist td.product-price .price .woocommerce-Price-amount:not(:first-of-type),
+.tinv-wishlist td.product-price bdi ~ bdi {
+	display: none !important;
+}
+
+/* Round + brand-style the bulk-action buttons on the right (Add selected
+   / Add all to cart) — they were rendering as flat rectangles. */
+.tinv-wishlist .tinvwl-to-right .button,
+.tinv-wishlist .tinvwl-to-right button,
+.tinv-wishlist .tinvwl-buttons-group .button,
+.tinv-wishlist button[name="tinvwl-bulkaction-apply"],
+.tinv-wishlist button[name*="tinvwl-add"] {
+	background: #38B6FF !important;
+	color: #ffffff !important;
+	border: none !important;
+	border-radius: 999px !important;
+	padding: 10px 22px !important;
+	font-weight: 600 !important;
+	font-size: 0.9rem !important;
+	font-family: 'Poppins', sans-serif !important;
+	cursor: pointer !important;
+	box-shadow: 0 2px 8px rgba(56, 182, 255, 0.25) !important;
+	transition: background 0.15s ease, transform 0.1s ease !important;
+	text-decoration: none !important;
+}
+
+.tinv-wishlist .tinvwl-to-right .button:hover,
+.tinv-wishlist .tinvwl-to-right button:hover,
+.tinv-wishlist .tinvwl-buttons-group .button:hover {
+	background: #216192 !important;
+	color: #ffffff !important;
+	transform: translateY(-1px) !important;
 }
 
 /* Title row above the wishlist */

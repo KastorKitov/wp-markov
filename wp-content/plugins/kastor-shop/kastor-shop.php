@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'KASTOR_SHOP_VERSION', '0.13.6' );
+define( 'KASTOR_SHOP_VERSION', '0.14.3' );
 define( 'KASTOR_SHOP_URL', plugin_dir_url( __FILE__ ) );
 define( 'KASTOR_SHOP_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -375,8 +375,8 @@ function kastor_shop_append_bgn_price( $price_html, $product ) {
  *     them via gettext on the server side instead.
  * -------------------------------------------------------------------------- */
 
-add_filter( 'gettext', 'kastor_shop_translate_cart_strings', 20, 3 );
-add_filter( 'gettext_with_context', 'kastor_shop_translate_cart_strings_ctx', 20, 4 );
+add_filter( 'gettext', 'kastor_shop_translate_cart_strings', 999, 3 );
+add_filter( 'gettext_with_context', 'kastor_shop_translate_cart_strings_ctx', 999, 4 );
 
 function kastor_shop_translate_cart_strings_map() {
 	return array(
@@ -459,6 +459,81 @@ function kastor_shop_translate_cart_strings_map() {
 
 		// Downloads sub-page
 		'No downloads available yet.'  => 'Все още няма налични сваляния.',
+
+		// WooCommerce emails — customer-new-account.php template.
+		// Cover both straight (') and curly (’ U+2019) apostrophe variants
+		// because WP's wptexturize may convert one to the other depending
+		// on the WC version and context.
+		'Thanks for creating an account on %1$s. Here\'s a copy of your user details.' =>
+			'Благодарим ви за регистрацията на %1$s. Ето копие на вашите потребителски данни.',
+		'Thanks for creating an account on %s. Here\'s a copy of your user details.' =>
+			'Благодарим ви за регистрацията на %s. Ето копие на вашите потребителски данни.',
+		'Thanks for creating an account on %1$s. Here’s a copy of your user details.' =>
+			'Благодарим ви за регистрацията на %1$s. Ето копие на вашите потребителски данни.',
+		'Thanks for creating an account on %s. Here’s a copy of your user details.' =>
+			'Благодарим ви за регистрацията на %s. Ето копие на вашите потребителски данни.',
+		'You can access your account area to view orders, change your password, and more via the link below:' =>
+			'Можете да достъпите своя профил, за да преглеждате поръчки, да смените паролата си и още, чрез линка по-долу:',
+
+		// Generic email footer / common phrases
+		'Username: %s'                 => 'Потребителско име: %s',
+		'Set your new password.'       => 'Настройте новата си парола.',
+		'My account'                   => 'Моят профил',
+		'Thanks for shopping with us.' => 'Благодарим ви, че пазарувате при нас.',
+		'We look forward to seeing you soon.' => 'Ще се радваме скоро да се видим отново.',
+		'Hi %s,'                       => 'Здравейте, %s,',
+
+		// Order emails
+		'Your %1$s order has been received!' =>
+			'Вашата поръчка %1$s беше получена!',
+		'Your %s order has been received!' =>
+			'Вашата поръчка %s беше получена!',
+		'Just to let you know — we\'ve received your order #%s, and it is now being processed:' =>
+			'Само да ви уведомим — получихме вашата поръчка #%s и тя вече се обработва:',
+		'Your order has been received and is now being processed. Your order details are shown below for your reference:' =>
+			'Вашата поръчка беше получена и вече се обработва. Данните на поръчката са показани по-долу за справка:',
+		'Just to let you know — your payment has been confirmed, and order #%s is now being processed:' =>
+			'Само да ви уведомим — плащането ви е потвърдено и поръчка #%s вече се обработва:',
+		'Hi there. Your recent order on %s has been completed.' =>
+			'Здравейте. Вашата скорошна поръчка в %s беше изпълнена.',
+		'Your order is now complete.' => 'Вашата поръчка е изпълнена.',
+		'Order details'                => 'Данни на поръчката',
+		'Customer details'             => 'Данни на клиента',
+		'Email'                        => 'Имейл',
+		'Tel:'                         => 'Тел.:',
+		'Note:'                        => 'Бележка:',
+
+		// "Reminder of what you've bought" line (customer downloads / processing order)
+		'Here\'s a reminder of what you\'ve bought:' =>
+			'Ето напомняне за това, което сте поръчали:',
+		'Here’s a reminder of what you’ve bought:' =>
+			'Ето напомняне за това, което сте поръчали:',
+
+		// WooCommerce Subscriptions — payment retry / authorize renewal
+		'The automatic payment to renew your subscription with %s has failed. To reactivate the subscription, please login and authorize the renewal from your account page: %s' =>
+			'Автоматичното плащане за подновяване на абонамента ви в %s не успя. За да активирате абонамента отново, моля влезте и оторизирайте подновяването от страницата на профила ви: %s',
+		'The automatic payment to renew your subscription with %1$s has failed. To reactivate the subscription, please login and authorize the renewal from your account page: %2$s' =>
+			'Автоматичното плащане за подновяване на абонамента ви в %1$s не успя. За да активирате абонамента отново, моля влезте и оторизирайте подновяването от страницата на профила ви: %2$s',
+		'Authorize the payment »'      => 'Оторизирай плащането »',
+		'Authorize the payment &raquo;' => 'Оторизирай плащането »',
+
+		// WooCommerce Pre-Orders extension
+		'Your pre-order is now available, but payment cannot be completed automatically.' =>
+			'Вашата предварителна поръчка вече е достъпна, но плащането не може да бъде завършено автоматично.',
+		'Authorize the payment now »'  => 'Оторизирай плащането сега »',
+		'Authorize the payment now &raquo;' => 'Оторизирай плащането сега »',
+
+		// Cancelled-order email (both customer + admin versions, straight/curly apostrophe)
+		'We\'re getting in touch to let you know that your order #%s has been cancelled.' =>
+			'Свързваме се с вас, за да ви уведомим, че поръчката ви #%s беше отказана.',
+		'We’re getting in touch to let you know that your order #%s has been cancelled.' =>
+			'Свързваме се с вас, за да ви уведомим, че поръчката ви #%s беше отказана.',
+		'We\'re getting in touch to let you know that order #%1$s has been cancelled.' =>
+			'Свързваме се с вас, за да ви уведомим, че поръчка #%1$s беше отказана.',
+		'We’re getting in touch to let you know that order #%1$s has been cancelled.' =>
+			'Свързваме се с вас, за да ви уведомим, че поръчка #%1$s беше отказана.',
+		'Notification to let you know — order #%1$s belonging to %2$s has been cancelled:' =>
+			'Уведомление — поръчка #%1$s, принадлежаща на %2$s, беше отказана:',
 	);
 }
 

@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'KASTOR_SHOP_VERSION', '0.14.3' );
+define( 'KASTOR_SHOP_VERSION', '0.14.7' );
 define( 'KASTOR_SHOP_URL', plugin_dir_url( __FILE__ ) );
 define( 'KASTOR_SHOP_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -140,6 +140,30 @@ function kastor_shop_sale_percentage_badge( $html, $post, $product ) {
 add_filter( 'loop_shop_per_page', 'kastor_shop_per_page', 20 );
 function kastor_shop_per_page( $cols ) {
 	return (int) KASTOR_SHOP_PRODUCTS_PER_PAGE;
+}
+
+
+/* --------------------------------------------------------------------------
+ * 2c. Swap the shop-loop "Read more" / "Още" button to "Детайли" for
+ *     products that can't be added directly to cart (no price set,
+ *     external/grouped, variable without a default variation, etc.).
+ *     Uses WC's dedicated filter so we don't touch any other "Read more"
+ *     text elsewhere on the site (blog excerpts, etc.).
+ * -------------------------------------------------------------------------- */
+
+add_filter( 'woocommerce_product_add_to_cart_text', 'kastor_shop_read_more_label', 20, 2 );
+function kastor_shop_read_more_label( $text, $product ) {
+	if ( ! $product instanceof WC_Product ) {
+		return $text;
+	}
+	// Only swap when WC is rendering the "no purchase possible" CTA — i.e.
+	// the original text is the localized "Read more". Compare against both
+	// English source and the Bulgarian translation already in use.
+	$swap = array( 'Read more', 'Още', 'Прочети повече', 'Виж повече' );
+	if ( in_array( $text, $swap, true ) ) {
+		return 'Виж повече';
+	}
+	return $text;
 }
 
 

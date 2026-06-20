@@ -702,7 +702,7 @@ ul.products li.product a.added_to_cart {
 	min-height: 0 !important;
 	padding: 0 18px !important;
 	margin: 0 !important;
-	background: var(--kastor-c-primary) !important;
+	background: var(--kastor-c-darker) !important;
 	color: #fff !important;
 	border: none !important;
 	border-radius: 32px !important;
@@ -713,18 +713,18 @@ ul.products li.product a.added_to_cart {
 	white-space: nowrap !important;
 	line-height: 1 !important;
 	box-sizing: border-box !important;
-	box-shadow: 0 2px 8px rgba(56, 182, 255, 0.25) !important;
+	box-shadow: 0 2px 8px rgba(23, 85, 133, 0.30) !important;
 	transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease !important;
 }
 
 .kastor-shop__card-actions a.added_to_cart:hover,
 .woocommerce ul.products li.product a.added_to_cart:hover,
 ul.products li.product a.added_to_cart:hover {
-	background: var(--kastor-c-dark) !important;
+	background: #0f3d61 !important;
 	color: #fff !important;
 	text-decoration: none !important;
 	transform: translateY(-1px);
-	box-shadow: 0 4px 14px rgba(33, 97, 146, 0.30) !important;
+	box-shadow: 0 4px 14px rgba(15, 61, 97, 0.40) !important;
 }
 
 .kastor-shop__card-actions a.added_to_cart:active,
@@ -774,6 +774,91 @@ ul.products li.product .kastor-shop__card-actions .add_to_cart_button {
 
 .kastor-shop__card-actions .button {
 	margin: 0 !important;
+}
+
+/* Pressed-state feedback: darken the add-to-cart button the moment the user
+   clicks it (before AJAX completes). Provides immediate visual confirmation. */
+
+.kastor-shop__card-actions a.button.add_to_cart_button:active,
+.kastor-shop__card-actions .add_to_cart_button:active,
+.kastor-shop__card-actions a.button:active,
+.kastor-shop__card-actions a.added_to_cart:active,
+body.single-product form.cart .single_add_to_cart_button:active {
+	background: #175585 !important;
+	color: #ffffff !important;
+	transform: translateY(1px) !important;
+	box-shadow: 0 1px 3px rgba(23, 85, 133, 0.4) !important;
+	transition: background 0.05s ease, transform 0.05s ease !important;
+}
+
+
+/* ========================================================================== */
+/* ADD-TO-CART FEEDBACK ANIMATIONS                                             */
+/*   Three pure-CSS effects fired via JS (shop.js -> flashCartFeedback):       */
+/*   - .kastor-shop__flash       — "Added ✓" green pulse on the button row     */
+/*   - .kastor-shop__cart-bounce — header cart icon scale-up bounce            */
+/*   - .kastor-shop__card-glow   — brand-blue ring around the product card     */
+/* ========================================================================== */
+
+/* --- 2. Green "Added ✓" flash on the button row -------------------------- */
+
+@keyframes kastor-shop-added-flash {
+	0%   { background: #38B6FF; transform: scale(1); }
+	30%  { background: #2db26b; transform: scale(1.05); }
+	70%  { background: #2db26b; transform: scale(1.02); }
+	100% { background: #38B6FF; transform: scale(1); }
+}
+
+.kastor-shop__card-actions.kastor-shop__flash a.added_to_cart,
+.kastor-shop__card-actions.kastor-shop__flash a.button {
+	animation: kastor-shop-added-flash 0.9s ease-out !important;
+	position: relative;
+}
+
+/* Tiny checkmark icon sliding in from the right edge during the flash. */
+.kastor-shop__card-actions.kastor-shop__flash a.added_to_cart::after {
+	content: "✓";
+	display: inline-block;
+	margin-left: 6px;
+	font-weight: 900;
+	color: #ffffff;
+	animation: kastor-shop-check-pop 0.6s ease-out;
+}
+
+@keyframes kastor-shop-check-pop {
+	0%   { opacity: 0; transform: scale(0.5); }
+	60%  { opacity: 1; transform: scale(1.3); }
+	100% { opacity: 1; transform: scale(1); }
+}
+
+/* --- 3. Cart icon bounce in the header ----------------------------------- */
+
+@keyframes kastor-shop-cart-bounce {
+	0%   { transform: scale(1)   translateY(0); }
+	30%  { transform: scale(1.3) translateY(-4px); }
+	60%  { transform: scale(0.95) translateY(2px); }
+	100% { transform: scale(1)   translateY(0); }
+}
+
+.kastor-shop__cart-bounce {
+	animation: kastor-shop-cart-bounce 0.7s cubic-bezier(0.28, 1.5, 0.4, 1) !important;
+	display: inline-block;
+	transform-origin: center center;
+}
+
+/* --- 4. Card glow around the product li ---------------------------------- */
+
+@keyframes kastor-shop-card-glow {
+	0%   { box-shadow: 0 0 0 0   rgba(56, 182, 255, 0); }
+	30%  { box-shadow: 0 0 0 6px rgba(56, 182, 255, 0.35); }
+	100% { box-shadow: 0 0 0 0   rgba(56, 182, 255, 0); }
+}
+
+.kastor-shop__card-glow {
+	animation: kastor-shop-card-glow 0.7s ease-out !important;
+	border-radius: 12px;
+	position: relative;
+	z-index: 1;
 }
 
 .kastor-shop__card-actions .tinv-wishlist {

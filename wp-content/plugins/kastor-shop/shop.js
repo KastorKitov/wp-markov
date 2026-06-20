@@ -710,7 +710,50 @@
 	}
 
 
-	/* -------- Hide cart button after WC AJAX "added to cart" event -------- */
+	/* -------- Add-to-cart AJAX handler: hide button + 3 feedback effects ---
+	 * Fires when WC's "added_to_cart" jQuery event resolves. Triggers:
+	 *  - "added ✓" green flash on the button row (CSS class .kastor-shop__flash)
+	 *  - Cart icon bounce in the header (CSS class .kastor-shop__cart-bounce)
+	 *  - Brief brand-blue ring around the product card (.kastor-shop__card-glow)
+	 * All three are pure CSS animations triggered by class add → auto-remove. */
+
+	function flashCartFeedback($button) {
+		var btn = $button && $button.length ? $button[0] : null;
+		if (!btn) return;
+
+		// 2. Checkmark + green flash on the button's row.
+		var row = btn.closest('.kastor-shop__card-actions');
+		if (row) {
+			row.classList.add('kastor-shop__has-added');
+			// Add a temporary "just-added" class for the flash animation.
+			var card = btn.closest('li.product, .product');
+			if (card) {
+				card.classList.add('kastor-shop__card-glow');
+				setTimeout(function () {
+					card.classList.remove('kastor-shop__card-glow');
+				}, 700);
+			}
+			row.classList.add('kastor-shop__flash');
+			setTimeout(function () {
+				row.classList.remove('kastor-shop__flash');
+			}, 900);
+		}
+
+		// 3. Cart icon bounce in the header. Try Blocksy's class first,
+		//    then any generic "cart" icon link in the header.
+		var cartTargets = document.querySelectorAll(
+			'.ct-header-cart, ' +
+			'header .ct-header-cart, ' +
+			'header [class*="header-cart"], ' +
+			'header a[href*="cart"]'
+		);
+		cartTargets.forEach(function (el) {
+			el.classList.add('kastor-shop__cart-bounce');
+			setTimeout(function () {
+				el.classList.remove('kastor-shop__cart-bounce');
+			}, 700);
+		});
+	}
 
 	function setupAddedToCartHandler() {
 		if (typeof window.jQuery === 'undefined') return;
@@ -718,10 +761,14 @@
 		window.jQuery(document.body).on('added_to_cart',
 			function (event, fragments, cart_hash, $button) {
 				if ($button && $button.length) {
+					// 2a. Hide the original cart button (so the green flash
+					//     reveals the new "Преглед на количката" link).
 					$button[0].style.setProperty('display', 'none', 'important');
 					var row = $button[0].closest('.kastor-shop__card-actions');
 					if (row) row.classList.add('kastor-shop__has-added');
 				}
+				// Fire the feedback regardless of button presence.
+				flashCartFeedback($button);
 			}
 		);
 	}

@@ -774,6 +774,291 @@
 	}
 
 
+	/* -------- Restyle the footer "Продукти" + "Свържете се с нас" blocks ----
+	 * The Gutenberg block editor wrapped each heading + list item in a
+	 * <mark style="color:#XXX"> with an inline color, which beats external
+	 * CSS even with !important in some cascades. The most reliable fix is
+	 * to set the same property as a NEW inline style (with !important)
+	 * directly on each element after page load. */
+
+	// Shared state so equalizeFooterHeadings() uses the exact same heading
+	// element that restyleFooterBlocks() identified (including heuristic
+	// matches that aren't h1-h6 elements).
+	var _footerHeadings = {};
+
+	function restyleFooterBlocks() {
+		var cols = document.querySelectorAll(
+			'footer.ct-footer [data-column="widget-area-1"], ' +
+			'footer.ct-footer [data-column="widget-area-3"]'
+		);
+		if (!cols.length) return;
+
+		// Reset cached headings on every full run.
+		_footerHeadings = {};
+
+		// Helper: is this element an icon container? Icons use their own font
+		// family (FontAwesome / Eicons / etc.) — overriding to Poppins makes
+		// the glyph disappear because Poppins has no mapping for that codepoint.
+		function isIconElement(el) {
+			if (!el || !el.tagName) return false;
+			var tag = el.tagName.toLowerCase();
+			if (tag === 'svg' || tag === 'path' || tag === 'g' || tag === 'circle' ||
+				tag === 'rect' || tag === 'use' || tag === 'symbol' || tag === 'defs') return true;
+			if (tag === 'i') return true;
+			var cls = (el.className && el.className.baseVal !== undefined)
+				? el.className.baseVal // SVG-in-HTML returns SVGAnimatedString
+				: (typeof el.className === 'string' ? el.className : '');
+			if (/\b(fa-|fas|far|fab|fal|eicon|dashicons|icon-|kt-icon)/i.test(cls)) return true;
+			// Inside any icon wrapper?
+			if (el.closest('.elementor-icon, .elementor-icon-list-icon, .ct-icon-container, .kt-svg-icon-wrap')) return true;
+			return false;
+		}
+
+		// IMPORTANT: don't touch the parent's align-items — doing so pushes
+		// the logo column (widget-area-2) and the map column (widget-area-4)
+		// to the top, which the user wants kept centered.
+		// Each of our two target columns sets `align-self: start` instead,
+		// which only affects them individually inside the grid track.
+
+		cols.forEach(function (col) {
+			// Pin only THIS column to the top of its grid cell so its
+			// heading lines up with the other target column's heading.
+			col.style.setProperty('align-self', 'start', 'important');
+			col.style.setProperty('vertical-align', 'top', 'important');
+			col.style.setProperty('padding-top', '24px', 'important');
+			col.style.setProperty('padding-bottom', '24px', 'important');
+
+			// Override Blocksy's ".ct-footer .ct-widget:not(:first-child) {
+			// margin-top: var(--widgets-gap, 40px) }" rule — it adds a fat 40px
+			// gap between every widget after the first, which pushes the
+			// contact rows down. We swap it for a tight, even 14px gap that
+			// matches the row spacing inside the lists. */
+			col.querySelectorAll('.ct-widget, .widget_block, .widget').forEach(function (w, idx) {
+				if (idx === 0) {
+					w.style.setProperty('margin-top', '0', 'important');
+					w.style.setProperty('padding-top', '0', 'important');
+				} else {
+					w.style.setProperty('margin-top', '14px', 'important');
+					w.style.setProperty('padding-top', '0', 'important');
+				}
+			});
+
+			// 1. Force EVERY element in the column to white + transparent bg.
+			//    Set font-family Poppins ONLY on non-icon elements so icon
+			//    glyphs keep rendering.
+			col.querySelectorAll('*').forEach(function (el) {
+				if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE') return;
+				var icon = isIconElement(el);
+				el.style.setProperty('color', '#ffffff', 'important');
+				el.style.setProperty('background-color', 'transparent', 'important');
+				el.style.setProperty('background', 'transparent', 'important');
+
+				if (icon) {
+					el.style.setProperty('fill', '#ffffff', 'important');
+				} else {
+					el.style.setProperty('font-family', "'Poppins', sans-serif", 'important');
+					el.style.setProperty('text-decoration', 'none', 'important');
+				}
+			});
+
+			// 2. Headings — broad selector list.
+			var headingSelectors =
+				'h1, h2, h3, h4, h5, h6, ' +
+				'.wp-block-heading, ' +
+				'.elementor-heading-title, ' +
+				'.widget-title, .widgettitle, ' +
+				'.elementor-widget-heading .elementor-widget-container > *';
+
+			var seen = [];
+			col.querySelectorAll(headingSelectors).forEach(function (h) { seen.push(h); });
+
+			// 2b. Heuristic — if a .ct-widget contains short text without any
+			//    of the heading selectors above (e.g. a custom HTML block),
+			//    treat its first text-bearing direct child as the heading.
+			col.querySelectorAll('.ct-widget, .widget_block, .widget').forEach(function (widget) {
+				if (widget.querySelector(headingSelectors)) return; // already has one
+				var first = widget.firstElementChild;
+				if (!first) return;
+				var txt = (first.textContent || '').trim();
+				// Short text, single line, no list / icon structure inside.
+				if (txt.length > 0 && txt.length < 80 &&
+					!first.querySelector('ul, ol, li, .elementor-icon-list-items')) {
+					seen.push(first);
+				}
+			});
+
+			// Cache the first detected heading per column for the equalizer.
+			if (seen.length) {
+				var key = col.getAttribute('data-column'); // "widget-area-1" or "-3"
+				_footerHeadings[key] = seen[0];
+			}
+
+			seen.forEach(function (h) {
+				h.style.setProperty('font-size', '1.15rem', 'important');
+				h.style.setProperty('font-weight', '800', 'important');
+				h.style.setProperty('text-transform', 'uppercase', 'important');
+				h.style.setProperty('letter-spacing', '0.1em', 'important');
+				h.style.setProperty('text-align', 'center', 'important');
+				h.style.setProperty('margin-top', '0', 'important');
+				h.style.setProperty('margin-bottom', '20px', 'important');
+				h.style.setProperty('margin-left', '0', 'important');
+				h.style.setProperty('margin-right', '0', 'important');
+				h.style.setProperty('padding-top', '0', 'important');
+				h.style.setProperty('padding-bottom', '10px', 'important');
+				h.style.setProperty('border-bottom', '2px solid rgba(255,255,255,0.35)', 'important');
+				h.style.setProperty('line-height', '1.3', 'important');
+				h.style.setProperty('display', 'block', 'important');
+
+				// Walk up and zero out every ancestor's top spacing inside the
+				// column until we hit the column boundary.
+				var ancestor = h.parentElement;
+				while (ancestor && ancestor !== col) {
+					ancestor.style.setProperty('margin-top', '0', 'important');
+					ancestor.style.setProperty('padding-top', '0', 'important');
+					ancestor = ancestor.parentElement;
+				}
+
+				h.querySelectorAll('mark, span, strong, b, em').forEach(function (inner) {
+					if (isIconElement(inner)) return;
+					inner.style.setProperty('font-size', '1.15rem', 'important');
+					inner.style.setProperty('font-weight', '800', 'important');
+					inner.style.setProperty('letter-spacing', '0.1em', 'important');
+				});
+			});
+
+			// 3. Body text — anything NOT inside a heading.
+			col.querySelectorAll('p, li, a, .elementor-icon-list-text').forEach(function (t) {
+				if (isIconElement(t)) return;
+				if (seen.indexOf(t) !== -1) return;
+				// Skip if it lives inside one of our recognized headings.
+				for (var i = 0; i < seen.length; i++) {
+					if (seen[i].contains(t)) return;
+				}
+				t.style.setProperty('font-weight', '500', 'important');
+				t.style.setProperty('font-size', '1rem', 'important');
+				t.style.setProperty('line-height', '1.6', 'important');
+				t.style.setProperty('margin', '0', 'important');
+
+				t.querySelectorAll('mark, span, strong, b').forEach(function (inner) {
+					if (isIconElement(inner)) return;
+					inner.style.setProperty('font-size', '1rem', 'important');
+					inner.style.setProperty('font-weight', '500', 'important');
+				});
+			});
+
+			// 3b. Force a consistent vertical gap between rows in both lists.
+			//     widget-area-1 uses <ul><li> Gutenberg list; widget-area-3
+			//     uses Elementor icon-list. Apply the same row gap to both. */
+			col.querySelectorAll('ul.wp-block-list, .wp-block-list, .elementor-icon-list-items').forEach(function (list) {
+				list.style.setProperty('display', 'flex', 'important');
+				list.style.setProperty('flex-direction', 'column', 'important');
+				list.style.setProperty('gap', '14px', 'important');
+				list.style.setProperty('margin', '0', 'important');
+				list.style.setProperty('padding', '0', 'important');
+				list.style.setProperty('list-style', 'none', 'important');
+				list.style.setProperty('align-items', 'center', 'important');
+			});
+			col.querySelectorAll('ul.wp-block-list li, .elementor-icon-list-item').forEach(function (li) {
+				li.style.setProperty('margin', '0', 'important');
+				li.style.setProperty('padding', '0', 'important');
+				li.style.setProperty('list-style', 'none', 'important');
+			});
+
+			// 4. Icons — white color, sized; DO NOT touch font-family.
+			col.querySelectorAll(
+				'.elementor-icon-list-icon i, ' +
+				'.elementor-icon-list-icon svg, ' +
+				'.elementor-icon i, ' +
+				'.elementor-icon svg, ' +
+				'i[class*="fa-"], i[class*="eicon"], i[class*="dashicons"]'
+			).forEach(function (i) {
+				i.style.setProperty('color', '#ffffff', 'important');
+				i.style.setProperty('fill', '#ffffff', 'important');
+				i.style.setProperty('font-size', '1.2rem', 'important');
+				// Width/height only on SVG (icon-fonts size themselves via font-size).
+				if (i.tagName.toLowerCase() === 'svg') {
+					i.style.setProperty('width', '22px', 'important');
+					i.style.setProperty('height', '22px', 'important');
+				}
+			});
+		});
+	}
+
+	/* Final safety net: after the footer has fully rendered, measure both
+	 * heading positions. If they still don't line up (because some upstream
+	 * CSS pushed one down by a few pixels), apply a negative margin-top to
+	 * whichever is lower so they end up on the same Y. */
+
+	function equalizeFooterHeadings() {
+		// Use the EXACT heading elements that restyleFooterBlocks identified
+		// (might be h1-h6, .wp-block-heading, OR a heuristic match like
+		// a paragraph the first-text-bearing-child rule picked up).
+		var h1 = _footerHeadings['widget-area-1'];
+		var h3 = _footerHeadings['widget-area-3'];
+
+		// Fallback to querySelector if cache is empty (e.g. equalize fired
+		// before restyle on first paint).
+		if (!h1) {
+			var col1 = document.querySelector('footer.ct-footer [data-column="widget-area-1"]');
+			if (col1) h1 = col1.querySelector('h1, h2, h3, h4, h5, h6, .wp-block-heading');
+		}
+		if (!h3) {
+			var col3 = document.querySelector('footer.ct-footer [data-column="widget-area-3"]');
+			if (col3) h3 = col3.querySelector('h1, h2, h3, h4, h5, h6, .wp-block-heading, .elementor-heading-title, .widget-title');
+		}
+		if (!h1 || !h3) return;
+
+		// Clear any prior transform so we measure the true natural offset.
+		h1.style.removeProperty('transform');
+		h3.style.removeProperty('transform');
+
+		// Force a reflow so the cleared transforms take effect before measuring.
+		void h1.offsetHeight;
+
+		var top1 = h1.getBoundingClientRect().top;
+		var top3 = h3.getBoundingClientRect().top;
+		var diff = Math.round(top3 - top1);
+
+		if (Math.abs(diff) < 2) return;
+
+		// Use translateY (transform) — restyleFooterBlocks doesn't touch
+		// the transform property, so the correction survives re-runs.
+		if (diff > 0) {
+			h3.style.setProperty('transform', 'translateY(' + (-diff) + 'px)', 'important');
+		} else {
+			h1.style.setProperty('transform', 'translateY(' + diff + 'px)', 'important');
+		}
+	}
+
+	function setupFooterRestyle() {
+		restyleFooterBlocks();
+		equalizeFooterHeadings();
+		// Re-run after async footer renders (Elementor / Customizer preview / etc.)
+		setTimeout(function () { restyleFooterBlocks(); equalizeFooterHeadings(); }, 400);
+		setTimeout(function () { restyleFooterBlocks(); equalizeFooterHeadings(); }, 1500);
+
+		// Re-equalize on window resize (layout reflows can change offsets).
+		var resizeDebounce;
+		window.addEventListener('resize', function () {
+			clearTimeout(resizeDebounce);
+			resizeDebounce = setTimeout(equalizeFooterHeadings, 100);
+		});
+
+		// Watch the footer for mutations (Customizer live preview re-renders it).
+		var footer = document.querySelector('footer.ct-footer');
+		if (footer) {
+			var debounce;
+			var obs = new MutationObserver(function () {
+				clearTimeout(debounce);
+				debounce = setTimeout(function () {
+					restyleFooterBlocks();
+					equalizeFooterHeadings();
+				}, 150);
+			});
+			obs.observe(footer, { childList: true, subtree: true });
+		}
+	}
+
 	function init() {
 		buildSidebarLayout();
 		cacheProducts();
@@ -786,6 +1071,7 @@
 		translateCartBlockStrings();
 		setupBgnObserver();
 		setupQuantityThrottle();
+		setupFooterRestyle();
 		injectBackToHomeLink();
 		emptyMsg = document.querySelector('[data-kastor-shop-filter-empty]');
 		// Bind events even if products is empty — the user might toggle

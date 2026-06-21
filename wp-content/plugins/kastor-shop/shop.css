@@ -3795,3 +3795,357 @@ header .ct-container-fluid {
 		top: auto !important;
 	}
 }
+
+
+/* ========================================================================== */
+/* ORDER RECEIVED / "Thank you" page                                           */
+/*   Shown after a customer completes checkout. WC's stock layout is bare —    */
+/*   restyled with brand cards, Poppins, brand-blue accents.                   */
+/* ========================================================================== */
+
+body.woocommerce-order-received .woocommerce-order,
+.woocommerce-order {
+	max-width: 1000px !important;
+	margin: 40px auto !important;
+	padding: 0 16px !important;
+	font-family: 'Poppins', sans-serif !important;
+	color: #333 !important;
+}
+
+/* --- Thank-you banner ---------------------------------------------------- */
+/* Blocksy renders ::before as position: absolute with inset-inline-start: 18px */
+/* and reserves padding-inline-start: 55px on the parent. Work WITH that. */
+
+.woocommerce-order .woocommerce-notice,
+.woocommerce-order .woocommerce-thankyou-order-received,
+.woocommerce-order p.woocommerce-notice {
+	background: #e8f6ff !important;
+	border: 1px solid #95d8ff !important;
+	border-left: 4px solid #38B6FF !important;
+	color: #175585 !important;
+	padding: 20px 22px 20px 64px !important;
+	border-radius: 12px !important;
+	font-size: 1.05rem !important;
+	font-weight: 600 !important;
+	margin: 0 0 28px !important;
+	font-family: 'Poppins', sans-serif !important;
+	box-shadow: none !important;
+	position: relative !important;
+	display: block !important;
+	min-height: 0 !important;
+}
+
+/* Blue circle with white check icon, positioned over the reserved left padding. */
+.woocommerce-order .woocommerce-notice::before,
+.woocommerce-order .woocommerce-thankyou-order-received::before,
+.woocommerce-order p.woocommerce-notice::before {
+	content: "" !important;
+	position: absolute !important;
+	left: 18px !important;
+	inset-inline-start: 18px !important;
+	top: 50% !important;
+	transform: translateY(-50%) !important;
+	width: 30px !important;
+	height: 30px !important;
+	border-radius: 50% !important;
+	background-color: #38B6FF !important;
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>") !important;
+	background-repeat: no-repeat !important;
+	background-position: center !important;
+	background-size: 18px 18px !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	border: none !important;
+	color: transparent !important;
+	font-family: inherit !important;
+	font-size: 0 !important;
+	line-height: 0 !important;
+	opacity: 1 !important;
+	box-shadow: 0 2px 6px rgba(56, 182, 255, 0.4) !important;
+}
+
+/* --- Order overview list (Order # / Date / Total / Payment method) ------- */
+/* Scoped to .woocommerce-order-overview only — .order_details is also on the */
+/* BACS bank-details <ul>, which gets its own treatment further down. */
+
+.woocommerce-order ul.woocommerce-order-overview {
+	display: grid !important;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+	gap: 14px !important;
+	list-style: none !important;
+	padding: 0 !important;
+	margin: 0 0 28px !important;
+	border: 1px solid #e6eef5 !important;
+	background: #ffffff !important;
+	border-radius: 14px !important;
+	box-shadow: 0 4px 14px rgba(33, 97, 146, 0.06) !important;
+	overflow: hidden !important;
+}
+
+.woocommerce-order ul.woocommerce-order-overview li {
+	padding: 18px 22px !important;
+	margin: 0 !important;
+	border: none !important;
+	border-right: 1px solid #e6eef5 !important;
+	text-transform: none !important;
+	font-size: 0.82rem !important;
+	font-weight: 600 !important;
+	color: #888 !important;
+	letter-spacing: 0.04em !important;
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 8px !important;
+	font-family: 'Poppins', sans-serif !important;
+}
+
+.woocommerce-order ul.woocommerce-order-overview li:last-child {
+	border-right: none !important;
+}
+
+.woocommerce-order ul.woocommerce-order-overview li strong {
+	font-size: 1.05rem !important;
+	font-weight: 700 !important;
+	color: #216192 !important;
+	letter-spacing: 0 !important;
+	text-transform: none !important;
+}
+
+/* --- BACS (bank transfer) details --------------------------------------- */
+
+.woocommerce-order .woocommerce-bacs-bank-details {
+	background: #ffffff !important;
+	border: 1px solid #e6eef5 !important;
+	border-radius: 14px !important;
+	box-shadow: 0 4px 14px rgba(33, 97, 146, 0.06) !important;
+	padding: 22px 26px !important;
+	margin: 0 0 28px !important;
+}
+
+.woocommerce-order .woocommerce-bacs-bank-details h2,
+.woocommerce-order h2.wc-bacs-bank-details-heading {
+	color: #216192 !important;
+	font-family: 'Poppins', sans-serif !important;
+	font-weight: 700 !important;
+	font-size: 1.25rem !important;
+	margin: 0 0 16px !important;
+	padding-bottom: 12px !important;
+	border-bottom: 2px solid #e6eef5 !important;
+}
+
+.woocommerce-order .woocommerce-bacs-bank-details h3,
+.woocommerce-order h3.wc-bacs-bank-details-account-name {
+	color: #216192 !important;
+	font-family: 'Poppins', sans-serif !important;
+	font-weight: 600 !important;
+	font-size: 1.05rem !important;
+	margin: 14px 0 10px !important;
+}
+
+/* --- BACS bank details list (<ul class="wc-bacs-bank-details">) --------- */
+/* Each <li> is "Label: <strong>Value</strong>". Render all fields in one row */
+/* (4-up grid); IBAN wraps to multiple lines inside its own cell. */
+
+.woocommerce-order ul.wc-bacs-bank-details,
+.woocommerce-order .woocommerce-bacs-bank-details ul.wc-bacs-bank-details {
+	list-style: none !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	display: grid !important;
+	/* IBAN gets a wider track so its value fits on one line. */
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr) !important;
+	gap: 10px !important;
+	width: 100% !important;
+	max-width: 100% !important;
+	border: none !important;
+	background: transparent !important;
+	overflow: visible !important;
+	box-shadow: none !important;
+	border-radius: 0 !important;
+	align-items: stretch !important;
+}
+
+.woocommerce-order ul.wc-bacs-bank-details li,
+.woocommerce-order .woocommerce-bacs-bank-details ul.wc-bacs-bank-details li {
+	display: flex !important;
+	flex-direction: column !important;
+	align-items: flex-start !important;
+	gap: 4px !important;
+	padding: 12px 14px !important;
+	margin: 0 !important;
+	background: #f8fafc !important;
+	border: none !important;
+	border-right: none !important;
+	border-radius: 10px !important;
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 0.75rem !important;
+	color: #888 !important;
+	font-weight: 600 !important;
+	letter-spacing: 0.04em !important;
+	text-transform: none !important;
+	word-break: break-all !important;
+	overflow-wrap: anywhere !important;
+	min-width: 0 !important;
+	max-width: 100% !important;
+	box-sizing: border-box !important;
+	overflow: hidden !important;
+}
+
+.woocommerce-order ul.wc-bacs-bank-details li strong,
+.woocommerce-order .woocommerce-bacs-bank-details ul.wc-bacs-bank-details li strong {
+	display: block !important;
+	width: 100% !important;
+	color: #216192 !important;
+	font-weight: 700 !important;
+	font-size: 0.95rem !important;
+	min-width: 0 !important;
+	max-width: 100% !important;
+	letter-spacing: 0 !important;
+	text-transform: none !important;
+	word-break: break-all !important;
+	overflow-wrap: anywhere !important;
+	white-space: normal !important;
+	line-height: 1.35 !important;
+}
+
+/* Tablet: 2 cells per row so IBAN gets more breathing room. */
+@media (max-width: 980px) {
+	.woocommerce-order ul.wc-bacs-bank-details,
+	.woocommerce-order .woocommerce-bacs-bank-details ul.wc-bacs-bank-details {
+		grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+	}
+}
+
+/* Mobile: single column. */
+@media (max-width: 600px) {
+	.woocommerce-order ul.wc-bacs-bank-details,
+	.woocommerce-order .woocommerce-bacs-bank-details ul.wc-bacs-bank-details {
+		grid-template-columns: 1fr !important;
+	}
+}
+
+/* --- Order details table (Product / Subtotal / Total etc.) -------------- */
+
+.woocommerce-order h2.woocommerce-order-details__title,
+.woocommerce-order h2.woocommerce-column__title {
+	color: #216192 !important;
+	font-family: 'Poppins', sans-serif !important;
+	font-weight: 700 !important;
+	font-size: 1.3rem !important;
+	margin: 24px 0 14px !important;
+}
+
+.woocommerce-order table.woocommerce-table,
+.woocommerce-order table.shop_table {
+	width: 100% !important;
+	border-collapse: collapse !important;
+	border: 1px solid #e6eef5 !important;
+	border-radius: 12px !important;
+	overflow: hidden !important;
+	margin: 0 0 24px !important;
+	background: #ffffff !important;
+	font-family: 'Poppins', sans-serif !important;
+}
+
+.woocommerce-order table.woocommerce-table thead th,
+.woocommerce-order table.shop_table thead th {
+	background: #f8fafc !important;
+	color: #216192 !important;
+	font-weight: 600 !important;
+	font-size: 0.85rem !important;
+	padding: 14px 18px !important;
+	text-transform: uppercase !important;
+	letter-spacing: 0.05em !important;
+	text-align: left !important;
+	border: none !important;
+}
+
+.woocommerce-order table.woocommerce-table tbody td,
+.woocommerce-order table.shop_table tbody td,
+.woocommerce-order table.woocommerce-table tfoot td,
+.woocommerce-order table.woocommerce-table tfoot th,
+.woocommerce-order table.shop_table tfoot td,
+.woocommerce-order table.shop_table tfoot th {
+	padding: 14px 18px !important;
+	border-top: 1px solid #e6eef5 !important;
+	color: #333 !important;
+	font-size: 0.95rem !important;
+	background: #ffffff !important;
+	vertical-align: middle !important;
+}
+
+.woocommerce-order table.shop_table tfoot tr:last-child td,
+.woocommerce-order table.shop_table tfoot tr:last-child th {
+	font-weight: 700 !important;
+	color: #216192 !important;
+	font-size: 1.05rem !important;
+	background: #f8fafc !important;
+}
+
+/* --- Customer details (Billing + Shipping address cards) ---------------- */
+
+.woocommerce-order .woocommerce-customer-details {
+	margin: 0 0 28px !important;
+}
+
+.woocommerce-order .woocommerce-customer-details .col2-set,
+.woocommerce-order section.woocommerce-customer-details > .col2-set {
+	display: grid !important;
+	grid-template-columns: 1fr 1fr !important;
+	gap: 20px !important;
+}
+
+.woocommerce-order .woocommerce-customer-details .col-1,
+.woocommerce-order .woocommerce-customer-details .col-2,
+.woocommerce-order .woocommerce-customer-details .woocommerce-column {
+	width: 100% !important;
+	max-width: 100% !important;
+	float: none !important;
+	background: #ffffff !important;
+	border: 1px solid #e6eef5 !important;
+	border-radius: 12px !important;
+	padding: 22px 26px !important;
+	box-shadow: 0 4px 14px rgba(33, 97, 146, 0.06) !important;
+}
+
+.woocommerce-order .woocommerce-customer-details address {
+	font-style: normal !important;
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 0.95rem !important;
+	line-height: 1.7 !important;
+	color: #333 !important;
+	padding: 0 !important;
+	border: none !important;
+	background: transparent !important;
+}
+
+.woocommerce-order .woocommerce-customer-details p.woocommerce-customer-details--email,
+.woocommerce-order .woocommerce-customer-details p.woocommerce-customer-details--phone {
+	color: #216192 !important;
+	font-weight: 600 !important;
+	margin: 8px 0 0 !important;
+}
+
+/* --- Mobile -------------------------------------------------------------- */
+
+@media (max-width: 781px) {
+	.woocommerce-order {
+		margin: 20px auto !important;
+		padding: 0 12px !important;
+	}
+
+	.woocommerce-order ul.woocommerce-order-overview,
+	.woocommerce-order ul.order_details {
+		grid-template-columns: 1fr 1fr !important;
+	}
+
+	.woocommerce-order ul.woocommerce-order-overview li,
+	.woocommerce-order ul.order_details li {
+		border-right: none !important;
+		border-bottom: 1px solid #e6eef5 !important;
+	}
+
+	.woocommerce-order .woocommerce-customer-details .col2-set,
+	.woocommerce-order section.woocommerce-customer-details > .col2-set {
+		grid-template-columns: 1fr !important;
+	}
+}

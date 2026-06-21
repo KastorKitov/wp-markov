@@ -35,9 +35,21 @@ body.kastor-invoice-on .wc-block-components-text-input:has(input[id*="invoice-id
 	display: block;
 }
 
+/* Required marker added by checkout.js in place of "(optional)". */
+.kastor-required-mark {
+	color: #d63638;
+	font-weight: 600;
+}
+
 /* ------------------------------------------------------------------------ */
 /* 2. Brand restyle                                                          */
 /* ------------------------------------------------------------------------ */
+
+/* Keep the checkout page white (shop.css tints other WooCommerce pages gray). */
+body.woocommerce-checkout,
+body.woocommerce-checkout.woocommerce-page {
+	background: #fff !important;
+}
 
 /* Step titles / section headings → brand dark + Poppins to match the site. */
 .wc-block-components-checkout-step__title,

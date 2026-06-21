@@ -1,0 +1,110 @@
+/* ------------------------------------------------------------------------ */
+/* Kastor Shop — block checkout                                               */
+/*   1) Conditional invoice fields (show only when "Желая фактура" is ticked) */
+/*   2) Brand restyle of the WooCommerce block checkout                       */
+/*                                                                            */
+/*   Uses :has() for the conditional fields — modern browsers only            */
+/*   (Chrome 105+, Safari 15.4+, Firefox 121+), matching the kastor-machines  */
+/*   plugin's baseline.                                                       */
+/* ------------------------------------------------------------------------ */
+
+:root {
+	--kastor-c-primary:     #38B6FF;
+	--kastor-c-primary-alt: #33A7E2;
+	--kastor-c-dark:        #216192;
+	--kastor-c-darker:      #175585;
+	--kastor-c-bg-light:    #F5F5F5;
+}
+
+/* ------------------------------------------------------------------------ */
+/* 1. Conditional invoice fields                                             */
+/*    Hidden by default; revealed when checkout.js adds .kastor-invoice-on   */
+/*    to <body>. We hide the tight field wrapper, not the input alone, so the */
+/*    label disappears with it.                                              */
+/* ------------------------------------------------------------------------ */
+
+.wc-block-components-text-input:has(input[id*="invoice-company"]),
+.wc-block-components-text-input:has(input[id*="invoice-mol"]),
+.wc-block-components-text-input:has(input[id*="invoice-idn"]) {
+	display: none;
+}
+
+body.kastor-invoice-on .wc-block-components-text-input:has(input[id*="invoice-company"]),
+body.kastor-invoice-on .wc-block-components-text-input:has(input[id*="invoice-mol"]),
+body.kastor-invoice-on .wc-block-components-text-input:has(input[id*="invoice-idn"]) {
+	display: block;
+}
+
+/* ------------------------------------------------------------------------ */
+/* 2. Brand restyle                                                          */
+/* ------------------------------------------------------------------------ */
+
+/* Step titles / section headings → brand dark + Poppins to match the site. */
+.wc-block-components-checkout-step__title,
+.wc-block-components-title {
+	font-family: 'Poppins', sans-serif;
+	color: var(--kastor-c-darker);
+}
+
+/* Step number badges. */
+.wc-block-components-checkout-step__heading-content,
+.wc-block-checkout__main .wc-block-components-checkout-step__title-counter {
+	background: var(--kastor-c-primary);
+	color: #fff;
+}
+
+/* Inputs — brand focus ring instead of the default blue. */
+.wc-block-components-text-input input:focus,
+.wc-block-components-text-input.is-active input,
+.wc-block-components-text-input textarea:focus,
+.wc-block-components-select select:focus {
+	border-color: var(--kastor-c-primary) !important;
+	box-shadow: 0 0 0 1px var(--kastor-c-primary) !important;
+	outline: none !important;
+}
+
+/* Floating labels turn brand-colored while the field is focused/filled. */
+.wc-block-components-text-input.is-active label,
+.wc-block-components-text-input input:focus + label {
+	color: var(--kastor-c-dark);
+}
+
+/* Place-order button → brand gradient, matching the shop CTAs. */
+.wc-block-components-checkout-place-order-button,
+.wp-block-woocommerce-checkout-actions-block .wc-block-components-button {
+	background: var(--kastor-c-dark) !important;
+	border-color: var(--kastor-c-dark) !important;
+	transition: background-color .15s ease, transform .05s ease;
+}
+
+.wc-block-components-checkout-place-order-button:hover,
+.wp-block-woocommerce-checkout-actions-block .wc-block-components-button:hover {
+	background: var(--kastor-c-primary) !important;
+	border-color: var(--kastor-c-primary) !important;
+}
+
+.wc-block-components-checkout-place-order-button:active {
+	transform: translateY(1px);
+}
+
+/* Links (edit address, login, terms) → brand. */
+.wc-block-checkout a,
+.wc-block-components-checkout-step a {
+	color: var(--kastor-c-dark);
+}
+
+.wc-block-checkout a:hover {
+	color: var(--kastor-c-primary);
+}
+
+/* Order-summary panel — subtle brand framing. */
+.wc-block-components-totals-wrapper .wc-block-components-totals-item__value,
+.wc-block-components-totals-footer-item .wc-block-components-totals-item__value {
+	color: var(--kastor-c-darker);
+}
+
+/* Selected shipping / payment option highlight. */
+.wc-block-components-radio-control__option--checked-option-highlighted,
+.wc-block-components-radio-control-accordion-option:has(input:checked) {
+	border-color: var(--kastor-c-primary);
+}

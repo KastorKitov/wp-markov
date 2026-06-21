@@ -11,9 +11,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'KASTOR_SHOP_VERSION', '0.18.0' );
+define( 'KASTOR_SHOP_VERSION', '0.19.0' );
 define( 'KASTOR_SHOP_URL', plugin_dir_url( __FILE__ ) );
 define( 'KASTOR_SHOP_PATH', plugin_dir_path( __FILE__ ) );
+
+// Block-checkout customizations (invoice fields + brand restyle).
+require_once KASTOR_SHOP_PATH . 'checkout.php';
 
 /**
  * Slug of the product attribute used by the sidebar "type" filter.

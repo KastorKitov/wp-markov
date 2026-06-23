@@ -1034,6 +1034,50 @@
 	 * Header Menu 1; positioning to be done via CSS later, once it's
 	 * confirmed visible. */
 
+	/* -------- Checkout: show/hide the four company-only fields based on
+	 * the "Тип клиент" radio (Физическо лице / Юридическо лице). The PHP
+	 * side still validates server-side as a safety net for users with JS
+	 * disabled. */
+
+	function setupCheckoutCustomerType() {
+		if (!document.body.classList.contains('woocommerce-checkout')) return;
+
+		var radios = document.querySelectorAll('input[name="billing_customer_type"]');
+		if (!radios.length) return;
+
+		var companyRows = document.querySelectorAll('.kastor-shop__company-field');
+		if (!companyRows.length) return;
+
+		function update() {
+			var picked = document.querySelector('input[name="billing_customer_type"]:checked');
+			var isCompany = picked && picked.value === 'company';
+			companyRows.forEach(function (row) {
+				row.style.display = isCompany ? '' : 'none';
+				// Toggle required attribute on the inputs inside so HTML5
+				// validation matches the visible state.
+				row.querySelectorAll('input, select, textarea').forEach(function (input) {
+					if (!isCompany) {
+						input.removeAttribute('required');
+					} else if (
+						row.classList.contains('kastor-shop__company-field') &&
+						input.name !== 'billing_vat' // VAT is optional
+					) {
+						input.setAttribute('required', 'required');
+					}
+				});
+			});
+		}
+
+		radios.forEach(function (r) { r.addEventListener('change', update); });
+		update();
+
+		// Re-run after any WC checkout AJAX update (shipping recalc, etc.).
+		if (window.jQuery) {
+			window.jQuery(document.body).on('updated_checkout', update);
+		}
+	}
+
+
 	function setupFooterRestyle() {
 		restyleFooterBlocks();
 		equalizeFooterHeadings();
@@ -1076,6 +1120,7 @@
 		setupBgnObserver();
 		setupQuantityThrottle();
 		setupFooterRestyle();
+		setupCheckoutCustomerType();
 		injectBackToHomeLink();
 		emptyMsg = document.querySelector('[data-kastor-shop-filter-empty]');
 		// Bind events even if products is empty — the user might toggle

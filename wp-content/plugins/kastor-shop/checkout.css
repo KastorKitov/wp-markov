@@ -25,13 +25,17 @@
 
 .wc-block-components-text-input:has(input[id*="invoice-company"]),
 .wc-block-components-text-input:has(input[id*="invoice-mol"]),
-.wc-block-components-text-input:has(input[id*="invoice-idn"]) {
+.wc-block-components-text-input:has(input[id*="invoice-bulstat"]),
+.wc-block-components-text-input:has(input[id*="invoice-vat"]),
+.wc-block-components-text-input:has(input[id*="invoice-address"]) {
 	display: none;
 }
 
 body.kastor-invoice-on .wc-block-components-text-input:has(input[id*="invoice-company"]),
 body.kastor-invoice-on .wc-block-components-text-input:has(input[id*="invoice-mol"]),
-body.kastor-invoice-on .wc-block-components-text-input:has(input[id*="invoice-idn"]) {
+body.kastor-invoice-on .wc-block-components-text-input:has(input[id*="invoice-bulstat"]),
+body.kastor-invoice-on .wc-block-components-text-input:has(input[id*="invoice-vat"]),
+body.kastor-invoice-on .wc-block-components-text-input:has(input[id*="invoice-address"]) {
 	display: block;
 }
 
@@ -81,11 +85,12 @@ body.woocommerce-checkout.woocommerce-page {
 	color: var(--kastor-c-dark);
 }
 
-/* Place-order button → brand gradient, matching the shop CTAs. */
+/* Place-order button → brand blue, rounded. */
 .wc-block-components-checkout-place-order-button,
 .wp-block-woocommerce-checkout-actions-block .wc-block-components-button {
-	background: var(--kastor-c-dark) !important;
-	border-color: var(--kastor-c-dark) !important;
+	background: var(--kastor-c-primary-alt) !important;
+	border-color: var(--kastor-c-primary-alt) !important;
+	border-radius: 32px !important;
 	transition: background-color .15s ease, transform .05s ease;
 }
 
@@ -119,4 +124,103 @@ body.woocommerce-checkout.woocommerce-page {
 .wc-block-components-radio-control__option--checked-option-highlighted,
 .wc-block-components-radio-control-accordion-option:has(input:checked) {
 	border-color: var(--kastor-c-primary);
+}
+
+/* ------------------------------------------------------------------------ */
+/* 3. Merge the email ("Contact information") step into the address step so   */
+/*    they read as a single "Данни за доставка" section. checkout.js promotes */
+/*    the contact heading to "Данни за доставка" and tags both steps          */
+/*    (.kastor-merged-contact / .kastor-merged-address); here we hide the     */
+/*    address step's now-duplicate heading and close the gap between them.    */
+/* ------------------------------------------------------------------------ */
+
+/* Elements checkout.js tags for removal: the address step's now-duplicate
+   heading + its description line. Hidden via a class on the element itself so
+   it works no matter how deeply WC nests the title. */
+.kastor-hidden {
+	display: none !important;
+}
+
+/* Collapse the spacing/divider so the email field flows straight into the
+   address fields under one heading. */
+.wc-block-components-checkout-step.kastor-merged-contact {
+	margin-bottom: 0 !important;
+	padding-bottom: 0 !important;
+	border-bottom: 0 !important;
+}
+
+.wc-block-components-checkout-step.kastor-merged-address {
+	margin-top: 0 !important;
+	padding-top: 0 !important;
+	border-top: 0 !important;
+}
+
+/* ------------------------------------------------------------------------ */
+/* 4. "-2%" badge next to the bank-transfer payment label (added by shop.js). */
+/* ------------------------------------------------------------------------ */
+
+.kastor-shop__pay-badge {
+	display: inline-block;
+	margin-left: 8px;
+	padding: 1px 8px;
+	border-radius: 999px;
+	background: #2e7d32;
+	color: #fff;
+	font-size: 0.8em;
+	font-weight: 700;
+	line-height: 1.7;
+	vertical-align: middle;
+	white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------------ */
+/* 5. Econt "Промени данни за доставка с Еконт" button → brand blue, rounded. */
+/*    It's rendered by the third-party Econt plugin (.econt-button), so we    */
+/*    override its styling here rather than editing that plugin.              */
+/* ------------------------------------------------------------------------ */
+
+.econt-button,
+.econt-button.econt-button-details {
+	background: var(--kastor-c-primary-alt) !important;
+	border-color: var(--kastor-c-primary-alt) !important;
+	color: #fff !important;
+	border-radius: 32px !important;
+	transition: background-color .15s ease;
+}
+
+.econt-button:hover,
+.econt-button.econt-button-details:hover {
+	background: var(--kastor-c-dark) !important;
+	border-color: var(--kastor-c-dark) !important;
+}
+
+/* ------------------------------------------------------------------------ */
+/* 6. Econt section heading ("Данни за доставка с Еконт").                    */
+/*    The Econt block renders it as an oversized, letter-spaced <h3>. Match   */
+/*    it to WooCommerce's step titles: same font-size variable WC uses        */
+/*    (--wp--preset--font-size--medium), same weight/line-height, plus our    */
+/*    brand font + colour, and reset the theme's letter-spacing / uppercase.  */
+/* ------------------------------------------------------------------------ */
+
+.wp-block-econt-delivery h3,
+.econt-content-wrapper h3 {
+	font-size: var(--wp--preset--font-size--medium, 22px) !important;
+	font-weight: 500 !important;
+	line-height: 1.4 !important;
+	letter-spacing: normal !important;
+	text-transform: none !important;
+	font-family: 'Poppins', sans-serif !important;
+	color: var(--kastor-c-darker) !important;
+	margin: 0 0 16px !important;
+}
+
+/* ------------------------------------------------------------------------ */
+/* 7. Sticky order-summary sidebar offset.                                   */
+/*    WooCommerce sticks the sidebar at top:24px, which tucks it under the    */
+/*    site's sticky header when scrolling. Push it down so the summary stays  */
+/*    fully visible. Adjust the value if the header height changes.           */
+/* ------------------------------------------------------------------------ */
+
+.wc-block-checkout__sidebar {
+	top: 140px !important;
 }

@@ -16,14 +16,88 @@
 
 	var REQUEST_KEY = 'invoice-request'; // matches kastor/invoice-request
 
-	// The conditionally-required company fields (matched by id substring).
-	var COMPANY_KEYS = [ 'invoice-company', 'invoice-mol', 'invoice-idn' ];
+	// The conditionally-required invoice fields (matched by id substring). The
+	// VAT/EIK field is intentionally NOT listed — it stays genuinely optional.
+	var COMPANY_KEYS = [
+		'invoice-company',
+		'invoice-mol',
+		'invoice-bulstat',
+		'invoice-address',
+	];
 
-	// WooCommerce appends this to optional-field labels. We swap it for a
-	// "mandatory" marker because these fields are required once the box is
-	// ticked. Cover the English label WC ships and the Bulgarian variant.
-	var OPTIONAL_TEXTS = [ '(optional)', '(незадължително)' ];
-	var REQUIRED_TEXT = '(задължително)';
+	// WooCommerce appends an optional marker to optional-field labels. We strip
+	// it from the required fields and replace it with a red "*". Cover the
+	// English label WC ships, the Bulgarian gettext variant, and our own
+	// localized "(по избор)" (so re-runs after the localizer stay clean).
+	var OPTIONAL_TEXTS = [ '(optional)', '(незадължително)', '(по избор)' ];
+	var REQUIRED_TEXT = '*';
+
+	// --- Merge the email ("Contact information") step into the address step so
+	// they read as one "Данни за доставка" section. We promote the contact
+	// heading to MERGED_TITLE and hide the address step's own heading (via CSS,
+	// keyed off the classes added below). Match the headings WC currently
+	// renders — the custom Bulgarian billing title plus English fallbacks —
+	// case-insensitively so a WC/translation change is less likely to break it.
+	var MERGED_TITLE = 'Данни за доставка';
+	var CONTACT_TITLES = [
+		'contact information',
+		'информация за контакт',
+		'контактна информация',
+	];
+	var ADDRESS_TITLES = [
+		'адрес за фактуриране и плащане',
+		'адрес за фактуриране',
+		'billing address',
+		'billing and shipping address',
+	];
+
+	// True when `text` equals or starts with any entry in `list`. The
+	// startsWith case tolerates a trailing step-counter / whitespace that some
+	// WC versions tuck inside the heading element.
+	function startsWithAny( text, list ) {
+		for ( var i = 0; i < list.length; i++ ) {
+			if ( text === list[ i ] || text.indexOf( list[ i ] ) === 0 ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	function mergeContactIntoAddress() {
+		var titles = document.querySelectorAll(
+			'.wc-block-components-checkout-step__title'
+		);
+		for ( var i = 0; i < titles.length; i++ ) {
+			var el = titles[ i ];
+			var step = el.closest( '.wc-block-components-checkout-step' );
+			if ( ! step ) {
+				continue;
+			}
+			var text = ( el.textContent || '' ).trim().toLowerCase();
+
+			if ( startsWithAny( text, CONTACT_TITLES ) ) {
+				step.classList.add( 'kastor-merged-contact' );
+				// Relabel only when needed so we don't feed the MutationObserver
+				// a pointless childList change every frame.
+				if ( ( el.textContent || '' ).trim() !== MERGED_TITLE ) {
+					el.textContent = MERGED_TITLE;
+				}
+			} else if ( startsWithAny( text, ADDRESS_TITLES ) ) {
+				// Hide the address step's heading AND its description line — the
+				// promoted contact heading already titles the merged section. We
+				// hide the elements directly (rather than via a structural CSS
+				// rule) so it works regardless of how deeply WC nests the title.
+				step.classList.add( 'kastor-merged-address' );
+				el.classList.add( 'kastor-hidden' );
+				var desc = step.querySelector(
+					'.wc-block-components-checkout-step__description'
+				);
+				if ( desc ) {
+					desc.classList.add( 'kastor-hidden' );
+				}
+			}
+		}
+	}
 
 	function getCheckboxes() {
 		// Checkbox whose id contains our field key. Covers any WC prefix
@@ -93,9 +167,68 @@
 		}
 	}
 
+	// The "Желая фактура" checkbox is a yes/no toggle; strip the optional marker
+	// ("(optional)" / "(по избор)") WooCommerce appends to its label so it reads
+	// as a clean "Желая фактура". Runs before localizeOptionalMarkers() so the
+	// checkbox never ends up showing "(по избор)".
+	function cleanRequestCheckboxLabel() {
+		var boxes = getCheckboxes();
+		for ( var i = 0; i < boxes.length; i++ ) {
+			var label =
+				boxes[ i ].closest( 'label' ) ||
+				boxes[ i ].closest( '.wc-block-components-checkbox' ) ||
+				boxes[ i ].parentElement;
+			if ( ! label ) {
+				continue;
+			}
+			var walker = document.createTreeWalker( label, NodeFilter.SHOW_TEXT, null );
+			var node;
+			while ( ( node = walker.nextNode() ) ) {
+				var v = node.nodeValue;
+				if ( ! v ) {
+					continue;
+				}
+				var changed = v;
+				for ( var o = 0; o < OPTIONAL_TEXTS.length; o++ ) {
+					changed = changed.split( OPTIONAL_TEXTS[ o ] ).join( '' );
+				}
+				if ( changed !== v ) {
+					node.nodeValue = changed
+						.replace( /\s{2,}/g, ' ' )
+						.replace( /\s+$/, '' );
+				}
+			}
+		}
+	}
+
+	// WooCommerce's additional-checkout-fields render their optional marker as a
+	// literal English "(optional)" that isn't localized (core address fields
+	// already show "(по избор)"). markRequired() strips it from the company
+	// fields; anything still showing "(optional)" is a genuinely optional field
+	// (e.g. the "Желая фактура" checkbox), so localize it to match the rest.
+	function localizeOptionalMarkers() {
+		var root = document.querySelector(
+			'.wc-block-checkout, .wp-block-woocommerce-checkout'
+		);
+		if ( ! root ) {
+			return;
+		}
+		var walker = document.createTreeWalker( root, NodeFilter.SHOW_TEXT, null );
+		var node;
+		while ( ( node = walker.nextNode() ) ) {
+			var v = node.nodeValue;
+			if ( v && v.indexOf( '(optional)' ) !== -1 ) {
+				node.nodeValue = v.replace( /\(optional\)/g, '(по избор)' );
+			}
+		}
+	}
+
 	function sync() {
 		document.body.classList.toggle( 'kastor-invoice-on', isRequested() );
 		markRequired();
+		cleanRequestCheckboxLabel();
+		localizeOptionalMarkers();
+		mergeContactIntoAddress();
 	}
 
 	// React re-renders the checkout form; re-sync whenever the DOM changes.

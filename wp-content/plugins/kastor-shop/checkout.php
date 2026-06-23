@@ -3,11 +3,13 @@
  * Kastor Shop — Checkout (block) customizations.
  *
  * Loaded from kastor-shop.php. Adds an optional "Желая фактура" (request an
- * invoice) checkbox to the block checkout. When ticked, three company fields
- * appear: Име на фирма / МОЛ / ИДН номер. The fields are captured with
- * WooCommerce's Additional Checkout Fields API (so they save to the order and
- * show in admin + emails automatically). Conditional show/hide is done in
- * checkout.js; conditional "required" is enforced server-side below.
+ * invoice) checkbox to the block checkout. When ticked, five company fields
+ * appear: Име на фирма / МОЛ / Булстат на фирма / ИН по ЗДДС или (ЕИК/ЕГН) /
+ * Адрес на фирмата. The fields are captured with WooCommerce's Additional
+ * Checkout Fields API (so they save to the order and show in admin + emails
+ * automatically). Conditional show/hide is done in checkout.js; conditional
+ * "required" is enforced server-side below for every field except VAT/EIK,
+ * which stays optional.
  *
  * @package KastorShop
  */
@@ -38,7 +40,9 @@ if ( ! defined( 'KASTOR_SHOP_INVOICE_LOCATION' ) ) {
 const KASTOR_SHOP_FIELD_INVOICE_REQUEST = 'kastor/invoice-request';
 const KASTOR_SHOP_FIELD_INVOICE_COMPANY = 'kastor/invoice-company';
 const KASTOR_SHOP_FIELD_INVOICE_MOL     = 'kastor/invoice-mol';
-const KASTOR_SHOP_FIELD_INVOICE_IDN     = 'kastor/invoice-idn';
+const KASTOR_SHOP_FIELD_INVOICE_BULSTAT = 'kastor/invoice-bulstat';
+const KASTOR_SHOP_FIELD_INVOICE_VAT     = 'kastor/invoice-vat';
+const KASTOR_SHOP_FIELD_INVOICE_ADDRESS = 'kastor/invoice-address';
 
 
 /* --------------------------------------------------------------------------
@@ -63,12 +67,16 @@ function kastor_shop_register_invoice_fields() {
 		'required' => false,
 	) );
 
-	// Company details. Registered as optional; checkout.js shows/hides them and
-	// the validation hook below makes them required ONLY when the box is ticked.
+	// Company details, in display order. All registered as optional so the block
+	// checkout doesn't flag them before submit; checkout.js shows/hides them with
+	// the checkbox. The validation hook below makes them required when the box is
+	// ticked — EXCEPT the VAT/EIK field, which stays genuinely optional.
 	$company_fields = array(
 		KASTOR_SHOP_FIELD_INVOICE_COMPANY => 'Име на фирма',
 		KASTOR_SHOP_FIELD_INVOICE_MOL     => 'МОЛ',
-		KASTOR_SHOP_FIELD_INVOICE_IDN     => 'ИДН номер',
+		KASTOR_SHOP_FIELD_INVOICE_BULSTAT => 'Булстат на фирма',
+		KASTOR_SHOP_FIELD_INVOICE_VAT     => 'ИН по ЗДДС или (ЕИК/ЕГН)',
+		KASTOR_SHOP_FIELD_INVOICE_ADDRESS => 'Адрес на фирмата',
 	);
 
 	foreach ( $company_fields as $id => $label ) {
@@ -103,15 +111,30 @@ function kastor_shop_validate_invoice_fields( $errors, $fields, $group = '' ) {
 		return;
 	}
 
+	// The block checkout fires this hook on every draft-order update (PUT/PATCH)
+	// while the user edits the form — not only when the order is placed (POST).
+	// Without this guard the "company fields are required" errors popped up the
+	// instant the "Желая фактура" box was ticked. Mirror WooCommerce core, which
+	// skips required-field checks on partial requests, and enforce only on the
+	// final place-order POST.
+	$method = isset( $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] )
+		? strtoupper( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] ) ) )
+		: ( isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : '' );
+	if ( in_array( $method, array( 'PUT', 'PATCH' ), true ) ) {
+		return;
+	}
+
 	// Box not ticked → nothing to require.
 	if ( empty( $fields[ KASTOR_SHOP_FIELD_INVOICE_REQUEST ] ) ) {
 		return;
 	}
 
+	// VAT/EIK is intentionally absent — it stays optional even when ticked.
 	$required = array(
 		KASTOR_SHOP_FIELD_INVOICE_COMPANY => 'Моля въведете име на фирма за фактурата.',
 		KASTOR_SHOP_FIELD_INVOICE_MOL     => 'Моля въведете МОЛ за фактурата.',
-		KASTOR_SHOP_FIELD_INVOICE_IDN     => 'Моля въведете ИДН номер за фактурата.',
+		KASTOR_SHOP_FIELD_INVOICE_BULSTAT => 'Моля въведете Булстат на фирмата за фактурата.',
+		KASTOR_SHOP_FIELD_INVOICE_ADDRESS => 'Моля въведете адрес на фирмата за фактурата.',
 	);
 
 	foreach ( $required as $id => $message ) {
@@ -149,4 +172,98 @@ function kastor_shop_enqueue_checkout_assets() {
 		KASTOR_SHOP_VERSION,
 		true
 	);
+}
+
+
+/* --------------------------------------------------------------------------
+ * 4. Hide the "Фирма" (company) field on the block checkout.
+ *    WooCommerce stores this field's visibility in the option
+ *    woocommerce_checkout_company_field ('optional' | 'required' | 'hidden').
+ *    Forcing it to 'hidden' removes the field from BOTH the checkout form and
+ *    the Store API schema (so no empty company value is collected), across the
+ *    billing and shipping address forms. We override at the option layer —
+ *    the same approach as the privacy-text override in kastor-shop.php — so it
+ *    survives without editing the checkout page in the block editor.
+ *
+ *    To bring the field back, remove these two filters (or return 'optional').
+ * -------------------------------------------------------------------------- */
+
+add_filter( 'option_woocommerce_checkout_company_field', 'kastor_shop_hide_company_field', 99 );
+add_filter( 'default_option_woocommerce_checkout_company_field', 'kastor_shop_hide_company_field', 99 );
+
+function kastor_shop_hide_company_field( $value ) {
+	return 'hidden';
+}
+
+
+/* --------------------------------------------------------------------------
+ * 5. "Банков превод" (bank transfer) earns a 2% discount.
+ *
+ *    The block checkout does NOT recalculate cart totals when the shopper
+ *    switches payment method, so a plain woocommerce_cart_calculate_fees hook
+ *    would only ever take effect at order-placement time and the live order
+ *    summary would never reflect it. WooCommerce's Store API "update callback"
+ *    is the supported way around this: checkout.js calls extensionCartUpdate()
+ *    on every payment-method change, which (a) runs the callback below to record
+ *    the method in the session, and (b) forces a cart recalculation so the
+ *    discount line appears / disappears live.
+ *
+ *    Configurable via constants (define in wp-config or a snippet to override):
+ *      KASTOR_SHOP_DISCOUNT_GATEWAY — gateway id that earns the discount.
+ *      KASTOR_SHOP_DISCOUNT_RATE    — fraction off the subtotal (0.02 = 2%).
+ * -------------------------------------------------------------------------- */
+
+if ( ! defined( 'KASTOR_SHOP_DISCOUNT_GATEWAY' ) ) {
+	define( 'KASTOR_SHOP_DISCOUNT_GATEWAY', 'bacs' );
+}
+if ( ! defined( 'KASTOR_SHOP_DISCOUNT_RATE' ) ) {
+	define( 'KASTOR_SHOP_DISCOUNT_RATE', 0.02 );
+}
+
+// Session key holding the shopper's currently-selected payment method, kept in
+// sync from checkout.js via the Store API update callback below.
+const KASTOR_SHOP_SESSION_PAYMENT = 'kastor_chosen_payment_method';
+
+add_action( 'woocommerce_init', 'kastor_shop_register_payment_update_callback' );
+function kastor_shop_register_payment_update_callback() {
+	if ( ! function_exists( 'woocommerce_store_api_register_update_callback' ) ) {
+		return; // WooCommerce too old / Store API unavailable.
+	}
+
+	woocommerce_store_api_register_update_callback( array(
+		'namespace' => 'kastor-shop-payment',
+		'callback'  => static function ( $data ) {
+			if ( ! WC()->session ) {
+				return;
+			}
+			$method = isset( $data['payment_method'] ) ? wc_clean( wp_unslash( $data['payment_method'] ) ) : '';
+			WC()->session->set( KASTOR_SHOP_SESSION_PAYMENT, $method );
+		},
+	) );
+}
+
+add_action( 'woocommerce_cart_calculate_fees', 'kastor_shop_payment_method_discount' );
+function kastor_shop_payment_method_discount( $cart ) {
+	if ( ! WC()->session ) {
+		return;
+	}
+
+	$method = WC()->session->get( KASTOR_SHOP_SESSION_PAYMENT );
+	if ( KASTOR_SHOP_DISCOUNT_GATEWAY !== $method ) {
+		return;
+	}
+
+	// Base the discount on the products subtotal incl. tax, so it matches the
+	// prices the customer sees. Non-taxable fee = a clean flat reduction.
+	$base     = (float) $cart->get_subtotal() + (float) $cart->get_subtotal_tax();
+	$discount = round( $base * (float) KASTOR_SHOP_DISCOUNT_RATE, 2 );
+
+	if ( $discount > 0 ) {
+		$percent = (int) round( (float) KASTOR_SHOP_DISCOUNT_RATE * 100 );
+		$cart->add_fee(
+			sprintf( 'Отстъпка при банков превод (-%d%%)', $percent ),
+			-$discount,
+			false
+		);
+	}
 }

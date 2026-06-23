@@ -371,6 +371,17 @@
 		prices.forEach(function (el) {
 			var raw = el.textContent || '';
 
+			// The order-summary heading repeats the total next to the title
+			// ("Обобщение на поръчката … (лв)"); that BGN is just clutter since the
+			// same total shows in the "Общо" lines below. Remove any we added there
+			// and never add one.
+			var titlePrice = el.closest('.wc-block-components-checkout-order-summary__title-price');
+			if (titlePrice) {
+				var dupes = titlePrice.querySelectorAll('.kastor-shop__price-bgn-js');
+				for (var d = 0; d < dupes.length; d++) dupes[d].remove();
+				return;
+			}
+
 			// Skip if not EUR.
 			if (raw.indexOf('€') === -1 && raw.indexOf('EUR') === -1) return;
 			// Skip if we're inside an already-rendered BGN span.
@@ -387,11 +398,16 @@
 			// skip — prevents an infinite re-render loop from the observer.
 			if (el.dataset.kastorBgnText === raw) return;
 
-			// Stale BGN sibling from a previous render?  Remove before
-			// re-appending (Cart Block changes price text in place after a qty
-			// update, so the previously-added BGN sibling is now wrong).
-			if (next && next.classList && next.classList.contains('kastor-shop__price-bgn-js')) {
-				next.remove();
+			// Remove ANY BGN spans we previously injected into this price's
+			// container before re-appending. The Cart/Checkout Block re-renders by
+			// replacing nodes, which orphans our injected siblings — removing only
+			// the immediate next sibling left the rest behind, so they piled up
+			// ("(39,12 лв)(39,12 лв)…") as the shopper changed delivery/quantity.
+			if (el.parentNode) {
+				var stale = el.parentNode.querySelectorAll(':scope > .kastor-shop__price-bgn-js');
+				for (var st = 0; st < stale.length; st++) {
+					stale[st].remove();
+				}
 			}
 
 			// Strip currency, thousands separators, normalize decimal point.
@@ -540,7 +556,9 @@
 			'Your cart is currently empty':  'Количката ви е празна',
 			'New in store':         'Части от които може би имате нужда',
 			'Browse store':         'Към магазина',
-			'Return to shop':       'Към магазина'
+			'Return to shop':       'Към магазина',
+			'You are currently checking out as a guest.': 'В момента поръчвате като гост.',
+			'You are currently checking out as a guest': 'В момента поръчвате като гост'
 		};
 
 		// Partial-match replacements: regex applied to every text node before
@@ -557,7 +575,28 @@
 			// Temporary-password notice after registration ("Your account
 			// with <domain> is using a temporary password...").
 			[/Your account with ([^\s]+) is using a temporary password\. We emailed you a link to change your password\.?/g,
-				'Вашият акаунт в $1 използва временна парола. Изпратихме ви имейл с линк за нейната смяна.']
+				'Вашият акаунт в $1 използва временна парола. Изпратихме ви имейл с линк за нейната смяна.'],
+			// "Add apartment, suite, etc." address link — WC leaves it (or its
+			// English remainder) untranslated. The "Add " variant must come
+			// first so it wins when the whole phrase is one text node.
+			[/Add apartment, suite, etc\.?/g, 'Добави апартамент, офис и др.'],
+			[/apartment, suite, etc\.?/g, 'апартамент, офис и др.'],
+			// Block-checkout field validation: "Please enter a valid <field>".
+			// Phrased with the neutral "валидна стойност за" so it reads correctly
+			// regardless of the field label's grammatical gender.
+			[/Please enter a valid (.+)/g, 'Моля, въведете валидна стойност за $1'],
+			// Checkout terms notice. Handle both the all-in-one-text form and the
+			// form where "Terms and Conditions" / privacy render as separate <a>
+			// links. The full-phrase rule must come before the lead-in-only rule.
+			[/By proceeding with your purchase you agree to our Terms and [Cc]onditions and/g,
+				'Като продължите с поръчката, Вие се съгласявате с нашите Общи условия и'],
+			[/By proceeding with your purchase you agree to our/g,
+				'Като продължите с поръчката, Вие се съгласявате с нашите'],
+			[/Terms and [Cc]onditions/g, 'Общи условия'],
+			// Standalone " and " connector between the two links. Matches only a
+			// node that is exactly "and" plus optional surrounding whitespace, so
+			// it never touches "and" used inside other sentences.
+			[/^(\s*)and(\s*)$/, '$1и$2']
 		];
 
 		function walk(node) {
@@ -1107,6 +1146,73 @@
 		}
 	}
 
+	/* -------- "Банков превод" 2% discount: badge + live total update --------
+	 * The block checkout does not recalculate totals when the payment method
+	 * changes, so we push the chosen method to the server with extensionCartUpdate
+	 * (handled by the Store API callback in checkout.php), which forces a cart
+	 * recalc. The woocommerce_cart_calculate_fees hook there applies the -2% fee.
+	 * We also stamp a "-2%" badge onto the bank-transfer payment label. */
+
+	var KASTOR_DISCOUNT_GATEWAY = 'bacs';
+
+	function addBankTransferBadge() {
+		var radios = document.querySelectorAll(
+			'input[type="radio"][value="' + KASTOR_DISCOUNT_GATEWAY + '"], ' +
+			'input[type="radio"][id*="' + KASTOR_DISCOUNT_GATEWAY + '"]'
+		);
+		for (var i = 0; i < radios.length; i++) {
+			var option = radios[i].closest('.wc-block-components-radio-control__option') ||
+				radios[i].closest('label') || radios[i].parentElement;
+			if (!option) continue;
+			var labelEl = option.querySelector('.wc-block-components-radio-control__label') || option;
+			if (labelEl.querySelector('.kastor-shop__pay-badge')) continue;
+			var badge = document.createElement('span');
+			badge.className = 'kastor-shop__pay-badge';
+			badge.textContent = '-2%';
+			labelEl.appendChild(badge);
+		}
+	}
+
+	var paymentSyncDone = false;
+
+	// Subscribe to payment-method changes and mirror them to the server. Returns
+	// false while the block checkout JS API isn't ready yet (so init can retry).
+	function trySetupPaymentSync() {
+		if (paymentSyncDone) return true;
+		if (!document.body.classList.contains('woocommerce-checkout')) return true;
+		if (!window.wp || !wp.data || !window.wc || !wc.blocksCheckout ||
+			typeof wc.blocksCheckout.extensionCartUpdate !== 'function') {
+			return false;
+		}
+		var paymentSelect = wp.data.select('wc/store/payment');
+		if (!paymentSelect || typeof paymentSelect.getActivePaymentMethod !== 'function') {
+			return false;
+		}
+
+		paymentSyncDone = true;
+		var lastMethod = null;
+		wp.data.subscribe(function () {
+			var method = wp.data.select('wc/store/payment').getActivePaymentMethod() || '';
+			if (method === lastMethod) return;
+			lastMethod = method;
+			wc.blocksCheckout.extensionCartUpdate({
+				namespace: 'kastor-shop-payment',
+				data: { payment_method: method }
+			});
+		});
+		return true;
+	}
+
+	function setupBankTransferDiscount() {
+		if (!document.body.classList.contains('woocommerce-checkout')) return;
+		// Badge — works without the blocks JS API; re-add on payment re-render.
+		addBankTransferBadge();
+		var pmArea = document.querySelector('.wp-block-woocommerce-checkout') || document.body;
+		new MutationObserver(addBankTransferBadge).observe(pmArea, { childList: true, subtree: true });
+		// Live total recalculation (retried from init until the API is ready).
+		trySetupPaymentSync();
+	}
+
 	function init() {
 		buildSidebarLayout();
 		cacheProducts();
@@ -1121,6 +1227,16 @@
 		setupQuantityThrottle();
 		setupFooterRestyle();
 		setupCheckoutCustomerType();
+		setupBankTransferDiscount();
+		// The block checkout JS API may not be ready at init — retry the payment
+		// sync a few times until wc.blocksCheckout / the payment store exist.
+		if (document.body.classList.contains('woocommerce-checkout')) {
+			var pmTries = 0;
+			var pmTimer = setInterval(function () {
+				pmTries++;
+				if (trySetupPaymentSync() === true || pmTries > 25) clearInterval(pmTimer);
+			}, 300);
+		}
 		injectBackToHomeLink();
 		emptyMsg = document.querySelector('[data-kastor-shop-filter-empty]');
 		// Bind events even if products is empty — the user might toggle

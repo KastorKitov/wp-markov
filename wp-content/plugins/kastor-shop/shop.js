@@ -1054,6 +1054,18 @@
 		// Force a reflow so the cleared transforms take effect before measuring.
 		void h1.offsetHeight;
 
+		// Only align when the two columns are side-by-side. On mobile the footer
+		// columns stack, so their left edges line up — aligning the headings then
+		// would yank the lower one up on top of the upper one (overlapping text).
+		// Detect the stacked layout by the columns sharing a left edge and bail
+		// (transforms are already cleared above, so they render naturally).
+		var col1El = h1.closest('[data-column]');
+		var col3El = h3.closest('[data-column]');
+		if (col1El && col3El &&
+			Math.abs(col1El.getBoundingClientRect().left - col3El.getBoundingClientRect().left) < 5) {
+			return;
+		}
+
 		var top1 = h1.getBoundingClientRect().top;
 		var top3 = h3.getBoundingClientRect().top;
 		var diff = Math.round(top3 - top1);
@@ -1203,6 +1215,40 @@
 		return true;
 	}
 
+	/* -------- Mobile: WooCommerce renders the order summary twice (a collapsible
+	 * header near the top + the full panel), and on this layout both show. The
+	 * user wants only the bottom one. We keep the visually-lowest summary and
+	 * hide the rest — measuring by on-screen position is robust to which copy is
+	 * which and to any flex `order` reshuffling. */
+
+	function keepOnlyBottomOrderSummary() {
+		if (!document.body.classList.contains('woocommerce-checkout')) return;
+		var all = Array.prototype.slice.call(
+			document.querySelectorAll('.wp-block-woocommerce-checkout-order-summary-block')
+		).filter(function (el) { return el.offsetParent !== null; }); // visible only
+		if (all.length < 2) return;
+
+		var keep = all[0], keepTop = all[0].getBoundingClientRect().top;
+		all.forEach(function (el) {
+			var top = el.getBoundingClientRect().top;
+			if (top > keepTop) { keepTop = top; keep = el; }
+		});
+		all.forEach(function (el) {
+			if (el !== keep) el.classList.add('kastor-summary-hidden');
+		});
+	}
+
+	function setupOrderSummaryDedupe() {
+		if (!document.body.classList.contains('woocommerce-checkout')) return;
+		keepOnlyBottomOrderSummary();
+		var root = document.querySelector('.wp-block-woocommerce-checkout') || document.body;
+		var t;
+		new MutationObserver(function () {
+			clearTimeout(t);
+			t = setTimeout(keepOnlyBottomOrderSummary, 150);
+		}).observe(root, { childList: true, subtree: true });
+	}
+
 	function setupBankTransferDiscount() {
 		if (!document.body.classList.contains('woocommerce-checkout')) return;
 		// Badge — works without the blocks JS API; re-add on payment re-render.
@@ -1227,6 +1273,7 @@
 		setupQuantityThrottle();
 		setupFooterRestyle();
 		setupCheckoutCustomerType();
+		setupOrderSummaryDedupe();
 		setupBankTransferDiscount();
 		// The block checkout JS API may not be ready at init — retry the payment
 		// sync a few times until wc.blocksCheckout / the payment store exist.
@@ -1261,6 +1308,11 @@
 		setTimeout(appendBgnToPrices, 300);
 		setTimeout(appendBgnToPrices, 1200);
 		setTimeout(appendBgnToPrices, 2500);
+
+		// Order summary renders late too — re-run the de-dupe after JS init.
+		setTimeout(keepOnlyBottomOrderSummary, 300);
+		setTimeout(keepOnlyBottomOrderSummary, 1200);
+		setTimeout(keepOnlyBottomOrderSummary, 2500);
 	}
 
 	if (document.readyState === 'loading') {

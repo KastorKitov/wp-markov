@@ -60,6 +60,7 @@ body.woocommerce-checkout.woocommerce-page {
 .wc-block-components-title {
 	font-family: 'Poppins', sans-serif;
 	color: var(--kastor-c-darker);
+	font-weight: 700 !important;
 }
 
 /* Step number badges. */
@@ -205,7 +206,7 @@ body.woocommerce-checkout.woocommerce-page {
 .wp-block-econt-delivery h3,
 .econt-content-wrapper h3 {
 	font-size: var(--wp--preset--font-size--medium, 22px) !important;
-	font-weight: 500 !important;
+	font-weight: 700 !important;
 	line-height: 1.4 !important;
 	letter-spacing: normal !important;
 	text-transform: none !important;
@@ -223,4 +224,14 @@ body.woocommerce-checkout.woocommerce-page {
 
 .wc-block-checkout__sidebar {
 	top: 140px !important;
+}
+
+/* ------------------------------------------------------------------------ */
+/* 8. Hide the duplicate (top) order summary.                                */
+/*    WooCommerce renders the order summary twice; shop.js keeps the          */
+/*    visually-lowest one and tags the others with this class.                */
+/* ------------------------------------------------------------------------ */
+
+.kastor-summary-hidden {
+	display: none !important;
 }

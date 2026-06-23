@@ -235,3 +235,27 @@ body.woocommerce-checkout.woocommerce-page {
 .kastor-summary-hidden {
 	display: none !important;
 }
+
+/* ------------------------------------------------------------------------ */
+/* 9. Round the checkout form fields (text inputs, country/state dropdowns,    */
+/*    textarea) to match the rounded CTAs. Dropdowns use the "wc-blocks-"      */
+/*    (plural) select classes, NOT the "wc-block-" text-input ones.            */
+/* ------------------------------------------------------------------------ */
+
+.wc-block-checkout .wc-block-components-text-input,
+.wc-block-checkout .wc-block-components-text-input input,
+.wc-block-checkout .wc-blocks-components-select,
+.wc-block-checkout .wc-blocks-components-select__container,
+.wc-block-checkout .wc-blocks-components-select__select,
+.wc-block-checkout .wc-block-components-combobox-control,
+.wc-block-checkout .wc-block-components-combobox-control input,
+.wc-block-checkout .wc-block-components-textarea {
+	border-radius: 12px !important;
+}
+
+/* Checkout coupon: round the input + "Прилагане" button to match the cart. */
+.wc-block-components-totals-coupon__input,
+.wc-block-components-totals-coupon__input input,
+.wc-block-components-totals-coupon__button {
+	border-radius: 32px !important;
+}

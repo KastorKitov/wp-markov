@@ -558,7 +558,8 @@
 			'Browse store':         'Към магазина',
 			'Return to shop':       'Към магазина',
 			'You are currently checking out as a guest.': 'В момента поръчвате като гост.',
-			'You are currently checking out as a guest': 'В момента поръчвате като гост'
+			'You are currently checking out as a guest': 'В момента поръчвате като гост',
+			'Shipping will be calculated at checkout': 'Доставката ще бъде изчислена при плащане'
 		};
 
 		// Partial-match replacements: regex applied to every text node before

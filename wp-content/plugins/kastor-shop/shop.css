@@ -4149,3 +4149,29 @@ body.woocommerce-order-received .woocommerce-order,
 		grid-template-columns: 1fr !important;
 	}
 }
+
+/* ------------------------------------------------------------------------ */
+/* Cart page (mobile): the totals/sidebar (coupon, totals, checkout button)   */
+/* runs edge-to-edge once the cart block stacks. Add horizontal breathing      */
+/* room so its contents aren't flush against the screen edges. The items       */
+/* column is intentionally left untouched.                                     */
+/* ------------------------------------------------------------------------ */
+
+@media (max-width: 700px) {
+	body.woocommerce-cart .wc-block-cart__sidebar {
+		padding-left: 20px !important;
+		padding-right: 20px !important;
+		box-sizing: border-box !important;
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+/* Cart coupon: round the "Въведете код" input and the "Прилагане" button to  */
+/* match the rounded CTAs elsewhere.                                          */
+/* ------------------------------------------------------------------------ */
+
+body.woocommerce-cart .wc-block-components-totals-coupon__input,
+body.woocommerce-cart .wc-block-components-totals-coupon__input input,
+body.woocommerce-cart .wc-block-components-totals-coupon__button {
+	border-radius: 32px !important;
+}

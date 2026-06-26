@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'KASTOR_SHOP_VERSION', '0.40.0' );
+define( 'KASTOR_SHOP_VERSION', '0.47.0' );
 define( 'KASTOR_SHOP_URL', plugin_dir_url( __FILE__ ) );
 define( 'KASTOR_SHOP_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -651,6 +651,73 @@ function kastor_shop_buy_now_button() {
 		Купи сега
 	</button>
 	<?php
+}
+
+
+/* "цена на брой" note appended INSIDE the price element on the single-product
+ * page (so it sits directly under the amount, within <p class="price">, not as
+ * a separate block above the add-to-cart). Scoped to the main product only —
+ * not the shop grid, cart, or related-product prices. Runs at priority 110, so
+ * it lands after the BGN block (priority 100). Text filterable via
+ * kastor_shop_price_per_unit_text. */
+add_filter( 'woocommerce_get_price_html', 'kastor_shop_append_price_note', 110, 2 );
+function kastor_shop_append_price_note( $price_html, $product ) {
+	if ( ! is_product() || ! $product instanceof WC_Product ) {
+		return $price_html;
+	}
+	// Only the product whose page we're on (skip related/upsell products).
+	if ( $product->get_id() !== get_queried_object_id() ) {
+		return $price_html;
+	}
+	// Skip price-on-request and avoid double-appending.
+	$price = $product->get_price();
+	if ( $price === '' || ! is_numeric( $price ) ) {
+		return $price_html;
+	}
+	if ( strpos( $price_html, 'kastor-shop__price-note' ) !== false ) {
+		return $price_html;
+	}
+	$text = apply_filters( 'kastor_shop_price_per_unit_text', 'цена на брой' );
+	if ( $text === '' ) {
+		return $price_html;
+	}
+	return $price_html . '<span class="kastor-shop__price-note">' . esc_html( $text ) . '</span>';
+}
+
+
+/* "с ДДС" (VAT-included) note appended inline right after the price, on the
+ * single-product page. Runs at priority 105 — after the BGN block (100) and
+ * before the per-unit note (110) — so it stays on the price line while "цена на
+ * брой" drops to the line below. Styled to match the euro amount in shop.css.
+ * Text filterable via kastor_shop_price_vat_text. */
+add_filter( 'woocommerce_get_price_html', 'kastor_shop_append_price_vat', 105, 2 );
+function kastor_shop_append_price_vat( $price_html, $product ) {
+	if ( ! is_product() || ! $product instanceof WC_Product ) {
+		return $price_html;
+	}
+	if ( $product->get_id() !== get_queried_object_id() ) {
+		return $price_html;
+	}
+	$price = $product->get_price();
+	if ( $price === '' || ! is_numeric( $price ) ) {
+		return $price_html;
+	}
+	if ( strpos( $price_html, 'kastor-shop__price-vat' ) !== false ) {
+		return $price_html;
+	}
+	$text = apply_filters( 'kastor_shop_price_vat_text', 'с ДДС' );
+	if ( $text === '' ) {
+		return $price_html;
+	}
+	return $price_html . ' <span class="kastor-shop__price-vat">' . esc_html( $text ) . '</span>';
+}
+
+
+/* Remove the "Отзиви" (Reviews) tab from the single-product tabs. */
+add_filter( 'woocommerce_product_tabs', 'kastor_shop_remove_reviews_tab', 98 );
+function kastor_shop_remove_reviews_tab( $tabs ) {
+	unset( $tabs['reviews'] );
+	return $tabs;
 }
 
 

@@ -1536,10 +1536,26 @@ body.single-product .gpay-card-info-iframe {
 /* ----- Tabs (Description / Additional info / Reviews) ----- */
 
 body.single-product .woocommerce-tabs {
-	max-width: 1200px;
-	margin: 40px auto 60px !important;
-	padding: 0 20px;
+	max-width: none;
+	width: 100%;
+	margin: 40px 0 60px !important;
+	padding: 0;
 	clear: both;
+}
+
+/* Override Blocksy's centered content-width constraint so the accordion
+   heading + content span the full hero width (".is-width-constrained" caps it
+   to the content width; ".is-layout-constrained > *" caps the inner blocks). */
+body.single-product .woocommerce-tabs .is-width-constrained {
+	width: 100% !important;
+	max-width: none !important;
+	margin-inline: 0 !important;
+}
+
+body.single-product .woocommerce-tabs .is-layout-constrained,
+body.single-product .woocommerce-tabs .is-layout-constrained > * {
+	width: 100% !important;
+	max-width: none !important;
 }
 
 body.single-product .woocommerce-tabs ul.tabs {
@@ -2135,6 +2151,13 @@ body.single-product .upsells.products ul.products {
 body.single-product .summary .price .kastor-shop__price-bgn {
 	color: #999 !important;
 	font-weight: 400 !important;
+}
+
+/* "с ДДС" note — same size/colour/weight as the euro price amount. */
+body.single-product .summary .price .kastor-shop__price-vat {
+	color: var(--kastor-c-dark) !important;
+	font-size: 1.8rem !important;
+	font-weight: 700 !important;
 }
 
 
@@ -4174,4 +4197,17 @@ body.woocommerce-cart .wc-block-components-totals-coupon__input,
 body.woocommerce-cart .wc-block-components-totals-coupon__input input,
 body.woocommerce-cart .wc-block-components-totals-coupon__button {
 	border-radius: 32px !important;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Single product: small "цена на брой" note under the price.                 */
+/* ------------------------------------------------------------------------ */
+
+.kastor-shop__price-note {
+	display: block;
+	margin: 2px 0 0 !important;
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 0.85rem;
+	font-weight: 500;
+	color: #6b7785;
 }

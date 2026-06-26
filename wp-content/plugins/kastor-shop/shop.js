@@ -1260,6 +1260,20 @@
 		trySetupPaymentSync();
 	}
 
+	/* -------- Single product: move the description tabs out of the right
+	 * summary column to full-width below the gallery. Blocksy renders the
+	 * "Product Tabs" inside .entry-summary (right column); we relocate the
+	 * .woocommerce-tabs node to sit right after the two-column
+	 * .product-entry-wrapper so "Описание" appears below the image. */
+	function relocateProductTabs() {
+		if (!document.body.classList.contains('single-product')) return;
+		var tabs = document.querySelector('.woocommerce-tabs');
+		var wrapper = document.querySelector('.product-entry-wrapper');
+		if (!tabs || !wrapper) return;
+		if (wrapper.nextElementSibling === tabs) return; // already relocated
+		wrapper.parentNode.insertBefore(tabs, wrapper.nextSibling);
+	}
+
 	function init() {
 		buildSidebarLayout();
 		cacheProducts();
@@ -1268,6 +1282,7 @@
 		setupAddedToCartHandler();
 		setupBuyNowButton();
 		moveWishlistIntoCartActions();
+		relocateProductTabs();
 		setupLightboxScrollClose();
 		translateCartBlockStrings();
 		setupBgnObserver();
@@ -1299,6 +1314,7 @@
 		setTimeout(wrapCartAndWishlist, 1200);
 		setTimeout(moveWishlistIntoCartActions, 300);
 		setTimeout(moveWishlistIntoCartActions, 1200);
+		setTimeout(relocateProductTabs, 300);
 
 		// Cart/Checkout Block boots asynchronously — re-translate after JS init.
 		setTimeout(translateCartBlockStrings, 300);
